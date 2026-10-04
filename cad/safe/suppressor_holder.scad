@@ -39,8 +39,9 @@ drain_d = 10;
 cup_snap = 0.95;
 
 /* [Top clip] */
-// Height of the clip's top edge above the bed. Put it above the
-// suppressor's middle, below its top.
+// Height of each clip's top edge above the bottom of the plate, per slot.
+// Put it above the suppressor's middle, below its top (around 60 % of
+// its length suits most).
 clip_top = 130;
 // Clip ring height
 clip_h = 15;
@@ -80,18 +81,22 @@ module suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
     xs = layout[0];
     axes = layout[1];
     cup_h = cup_depth + floor_t;
-    assert(clip_top - clip_h >= cup_h, "the clip overlaps the cradle, raise clip_top");
+    tops = [for (i = [0 : n - 1]) per(clip_top, i)];
+    for (i = [0 : n - 1])
+        assert(tops[i] - clip_h >= cup_h,
+               str("slot ", i + 1, ": the clip overlaps the cradle, raise clip_top"));
+    // one plate height for the row, the tallest clip sets it
     rotate([-90, 0, 0])
-        wall_row(layout[2], clip_top, magnets_x, magnets_z, teardrop = false,
+        wall_row(layout[2], max(tops), magnets_x, magnets_z, teardrop = false,
                  modular = modular, print_slot = print_slot, spacing = spacing) {
             holder_row(pick(cup_ds, $slots), cup_h, pick(xs, $slots), pick(axes, $slots),
                        bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
                        lips = [for (i = $slots) (cup_ds[i] - drain_d) / 2],
                        front_gaps = [for (i = $slots) sd[i] * cup_snap]);
-            translate([0, 0, clip_top - clip_h])
-                holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots),
-                           pick(axes, $slots), w = clip_wall, bottom = "open",
-                           front_gaps = [for (i = $slots) sd[i] * snap], chamfer = 0.6);
+            for (i = $slots)
+                translate([0, 0, tops[i] - clip_h])
+                    holder_row([clip_ds[i]], clip_h, [xs[i]], [axes[i]], w = clip_wall,
+                               bottom = "open", front_gaps = sd[i] * snap, chamfer = 0.6);
         }
 }
 

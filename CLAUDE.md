@@ -58,6 +58,13 @@ neodymium magnets on the back so nothing is drilled into the safe.
   assembly can `use` it and pass overrides. A file printing several
   parts declares `part = "a"; // [a, b]` on one line and regen_all
   exports `<name>_<option>.stl` for every option.
+- `cad/my_safe/`: the maintainer's own builds, thin wrappers that `use`
+  a generic model and pass measured values (one file per model, values
+  redeclared as Customizer knobs). regen exports them like any model.
+  Keep personal values here, never in a generic model's defaults.
+  Customizer presets (.json) cannot do this job: a preset must match the
+  type and list length of the model's defaults and is silently ignored
+  otherwise, so it cannot change the slot count.
 - `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge,
   dovetail_gauge) and fit_gauge, which slices the real holder and rack
   geometry so users can test their own gear cheaply. fit_gauge reuses

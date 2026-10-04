@@ -74,6 +74,14 @@ counts columns per module.
 Print `dovetail_gauge` first and set `dovetail_clearance` to the
 tightest slot the key slides into by hand without wobble.
 
+### Your own builds
+
+To keep your own setup, add a small wrapper file that uses a model and
+passes your measurements, like `cad/my_safe/suppressors.scad`. Wrapper
+files can change the number of slots; OpenSCAD's saved Customizer
+presets cannot, because they must keep the list lengths of the model's
+defaults. `scripts/regen_all.py` builds wrapper files like any model.
+
 A few values are shared by every model and live in
 `cad/design_params.scad` instead: the magnet size and pocket fit, the
 back plate thickness and the dovetail joint.
