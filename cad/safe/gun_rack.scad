@@ -80,15 +80,23 @@ function slot_xs(ws, gaps, edge, i = 0, x = undef) =
         : []);
 
 // Comb outline in the x / out-from-wall plane. segs: [[x_left, x_right,
-// depth], ...] covering the piece left to right.
-module comb_profile(segs, ws, xs, bottoms, tip_r) {
+// depth], ...] covering the piece left to right. joints = [left, right]:
+// a jointed edge is not rounded, so the two half fingers of neighbouring
+// modules join into one finger with the one-piece rack's rounded tip.
+module comb_profile(segs, ws, xs, bottoms, tip_r, joints = [false, false]) {
     top = max([for (g = segs) g[2]]);
+    n = len(segs);
+    ext = tip_r + 1;
+    // jointed edges run on past the piece before rounding
+    open = [for (k = [0 : n - 1])
+        [segs[k][0] - (k == 0 && joints[0] ? ext : 0),
+         segs[k][1] + (k == n - 1 && joints[1] ? ext : 0), segs[k][2]]];
     // opening rounds the finger tips; the profile overruns below z = 0
     // so the base corners stay square, then gets clipped back
     intersection() {
         offset(r = tip_r) offset(r = -tip_r)
             difference() {
-                for (g = segs) translate([g[0], -tip_r - 1]) square([g[1] - g[0], g[2] + tip_r + 1]);
+                for (g = open) translate([g[0], -tip_r - 1]) square([g[1] - g[0], g[2] + tip_r + 1]);
                 for (i = [0 : len(ws) - 1])
                     translate([xs[i], bottoms[i] + ws[i] / 2])
                         hull() {
@@ -125,7 +133,7 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
                 offset(r = plate_r) offset(delta = -plate_r) square([x1 - x0, plate_h]);
             magnet_bosses_flat(x0, x1, y_shelf, magnets_x, magnets_y);
             translate([0, plate_h, 0]) rotate([90, 0, 0])
-                linear_extrude(shelf_t) comb_profile(segs, ws, xs, bottoms, r);
+                linear_extrude(shelf_t) comb_profile(segs, ws, xs, bottoms, r, joints);
             for (g = gs)
                 translate([g[0] - gusset_t / 2, 0, 0]) rotate([90, 0, 90])
                     linear_extrude(gusset_t)
@@ -166,12 +174,13 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     bottoms = layout[1];   // distance from the wall to the bottom of each slot
     l = layout[2];
     depths = [for (i = [0 : n - 1]) bottoms[i] + ws[i] / 2 + slot_depth];
-    // modules split each finger in half
-    fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1)
-                                  per(gaps, i) / (modular ? 2 : 1)], [edge]);
+    // tips round like the one-piece rack even when modular (joint sides
+    // stay square), but a module's half finger still carries a gusset
+    fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1) per(gaps, i)], [edge]);
     r = min(tip_r, min(fingers) / 2 - 0.5);
     for (f = fingers)
-        assert(f > gusset_t, "a finger is narrower than gusset_t, widen the gap or edge");
+        assert(f / (modular && f != edge ? 2 : 1) > gusset_t,
+               "a finger is narrower than gusset_t, widen the gap or edge");
     // slot boundaries: rack ends and finger middles
     bounds = concat([0], [for (i = [0 : n - 1]) if (i < n - 1)
                               xs[i] + ws[i] / 2 + per(gaps, i) / 2], [l]);
