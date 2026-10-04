@@ -7,7 +7,8 @@ hand-compose openscad command lines for this.
 Pipeline:
   1. scripts/check_params.py     shared dimensions are never shadowed
   2. every model under cad/      -> stl/<category>/<name>.stl
-  3. cad/main_assembly.scad      -> main_assembly.png (README image)
+  3. scripts/check_joints.py     neighbouring modules must not overlap
+  4. cad/main_assembly.scad      -> main_assembly.png (README image)
 
 A model is any .scad under cad/ except cad/lib/ (helpers),
 design_params.scad (data) and main_assembly.scad (the scene). Each model
@@ -126,6 +127,11 @@ def main(argv):
                 continue
             for stl, extra in outputs(scad, td):
                 ok &= run_one(scad, target(stl), stl, extra)
+
+        # joint gate on the module STLs just rendered (temp dir in check mode)
+        stl_root = Path(td) / "stl" if check else ROOT / "stl"
+        ok &= subprocess.run([sys.executable, str(ROOT / "scripts" / "check_joints.py"),
+                              str(stl_root)]).returncode == 0
 
         if not stl_only and (not only or "main_assembly" in only):
             png = ROOT / "main_assembly.png"

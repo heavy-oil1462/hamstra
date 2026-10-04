@@ -17,7 +17,9 @@ What it checks, in order:
 1. `check_params.py`: no file shadows a design_params.scad name
 2. every model under cad/ (lib excluded) renders warning-free with
    manifold status NoError
-3. `main_assembly.scad` renders warning-free
+3. `check_joints.py`: neighbouring modules of every modular row share no
+   volume (only the joint plane may touch)
+4. `main_assembly.scad` renders warning-free
 
 Prototyping phase: there is no byte comparison against committed STLs
 yet, because stl/ is not committed while the models are iterated by eye.
@@ -31,6 +33,9 @@ See CLAUDE.md for the plan once models settle.
 - `[FAIL]` with warnings: read them. An `assert` message from
   lib/holders.scad means the knobs ask for impossible geometry (bore into
   the plate, overlapping holders); fix the knob, never the assert.
+- `[FAIL] joint ...`: two neighbouring modules overlap, usually a
+  tongue, edge strip or shelf running past the module edge. Fix the
+  geometry; never raise MAX_OVERLAP.
 - `[FAIL]` with a geometry status: the model is not cleanly manifold,
   usually coincident faces in a `difference()`. Extend the cutter by eps
   past both surfaces. See the openscad-review skill.
