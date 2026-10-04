@@ -13,6 +13,10 @@
 // With equal gaps and edge = gap / 2, racks placed edge to edge continue
 // the slot pattern.
 //
+// modular = true prints one module per slot, joined with the sliding
+// dovetail; modules split at the middle of each finger and carry a
+// gusset at both of their edges.
+//
 // Prints lying on its back: back plate flat on the bed with the magnet
 // pockets opening downward, the comb standing up from it. Modeled in
 // that print orientation:
@@ -23,6 +27,7 @@
 include <../design_params.scad>
 use <../lib/magnets.scad>
 use <../lib/holders.scad>
+use <../lib/dovetail.scad>
 
 /* [Slots] */
 // Slot width per slot: barrel diameter where it rests plus some room
@@ -52,8 +57,14 @@ gusset_t = 5;
 // Gusset height below the shelf
 gusset_h = 45;
 
+/* [Modular] */
+// Print one module per slot, joined side by side with sliding dovetails
+modular = false;
+// Modular only: 0 lays out every module for printing, 1..n just that one
+print_slot = 0;
+
 /* [Magnets] */
-// Magnet columns
+// Magnet columns (per module when modular)
 magnets_x = 4;
 // Magnet rows
 magnets_y = 2;
@@ -66,13 +77,14 @@ function slot_xs(ws, gaps, edge, i = 0, x = undef) =
         ? slot_xs(ws, gaps, edge, i + 1, x + ws[i] / 2 + per(gaps, i) + ws[i + 1] / 2)
         : []);
 
-module comb_profile(ws, xs, bottoms, l, shelf_depth, tip_r) {
+// Comb outline in the x / out-from-wall plane for x in [x0, x1].
+module comb_profile(x0, x1, ws, xs, bottoms, shelf_depth, tip_r) {
     // opening rounds the finger tips; the profile overruns below z = 0
     // so the base corners stay square, then gets clipped back
     intersection() {
         offset(r = tip_r) offset(r = -tip_r)
             difference() {
-                translate([0, -tip_r - 1]) square([l, shelf_depth + tip_r + 1]);
+                translate([x0, -tip_r - 1]) square([x1 - x0, shelf_depth + tip_r + 1]);
                 for (i = [0 : len(ws) - 1])
                     translate([xs[i], bottoms[i] + ws[i] / 2])
                         hull() {
@@ -80,7 +92,42 @@ module comb_profile(ws, xs, bottoms, l, shelf_depth, tip_r) {
                             translate([-ws[i] / 2, 0]) square([ws[i], shelf_depth]);
                         }
             }
-        square([l, shelf_depth]);
+        translate([x0, 0]) square([x1 - x0, shelf_depth]);
+    }
+}
+
+// One printed piece spanning x in [x0, x1] with the given slots. Gussets
+// sit at both edges and under every finger between the piece's slots.
+module rack_piece(x0, x1, ws, xs, bottoms, shelf_depth, r, shelf_t, plate_h,
+                  gusset_t, gusset_h, magnets_x, magnets_y, dovetails) {
+    n = len(ws);
+    y_shelf = plate_h - shelf_t;   // underside of the shelf
+    gx = concat([x0 + gusset_t / 2],
+                [for (i = [0 : n - 1]) if (i < n - 1)
+                    (xs[i] + ws[i] / 2 + xs[i + 1] - ws[i + 1] / 2) / 2],
+                [x1 - gusset_t / 2]);
+    difference() {
+        union() {
+            translate([x0, 0, 0]) linear_extrude(back_t)
+                let (pr = dovetails ? 0 : plate_r)
+                    offset(r = pr) offset(delta = -pr) square([x1 - x0, plate_h]);
+            translate([0, plate_h, 0]) rotate([90, 0, 0])
+                linear_extrude(shelf_t)
+                    comb_profile(x0, x1, ws, xs, bottoms, shelf_depth, r);
+            for (x = gx)
+                translate([x - gusset_t / 2, 0, 0]) rotate([90, 0, 90])
+                    linear_extrude(gusset_t)
+                        polygon([[y_shelf + eps, back_t - eps],
+                                 [y_shelf + eps, shelf_depth - r],
+                                 [y_shelf - gusset_h, back_t - eps]]);
+            // the joint is modeled upright; lay it down like the rack
+            if (dovetails) rotate([-90, 0, 0]) {
+                dovetail_spines(x0, x1, plate_h);
+                dovetail_male(x1, plate_h);
+            }
+        }
+        magnet_pockets_flat(x0, x1, y_shelf, magnets_x, magnets_y);
+        if (dovetails) rotate([-90, 0, 0]) dovetail_female(x0, plate_h);
     }
 }
 
@@ -88,7 +135,8 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                 edge = edge, slot_depth = slot_depth, shelf_t = shelf_t,
                 root = root, tip_r = tip_r, plate_h = plate_h,
                 gusset_t = gusset_t, gusset_h = gusset_h,
-                magnets_x = magnets_x, magnets_y = magnets_y) {
+                magnets_x = magnets_x, magnets_y = magnets_y,
+                modular = modular, print_slot = print_slot, spacing = 12) {
     ws = as_list(slot_w);
     n = len(ws);
     xs = slot_xs(ws, gaps, edge);
@@ -96,31 +144,25 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     // distance from the wall to the bottom of each slot
     bottoms = [for (i = [0 : n - 1]) back_t + root + per(wall_offset, i)];
     shelf_depth = max([for (i = [0 : n - 1]) bottoms[i] + ws[i] / 2]) + slot_depth;
-    fingers = concat([edge], [for (i = [0 : n - 2]) per(gaps, i)], [edge]);
+    // modules split each finger in half
+    fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1)
+                                  per(gaps, i) / (modular ? 2 : 1)], [edge]);
     r = min(tip_r, min(fingers) / 2 - 0.5);
-    y_shelf = plate_h - shelf_t;   // underside of the shelf
-    // a gusset under the middle of every finger, flush with both ends
-    gx = concat([gusset_t / 2],
-                [for (i = [0 : n - 2]) (xs[i] + ws[i] / 2 + xs[i + 1] - ws[i + 1] / 2) / 2],
-                [l - gusset_t / 2]);
     for (f = fingers)
         assert(f > gusset_t, "a finger is narrower than gusset_t, widen the gap or edge");
-    difference() {
-        union() {
-            linear_extrude(back_t)
-                offset(r = plate_r) offset(delta = -plate_r) square([l, plate_h]);
-            translate([0, plate_h, 0]) rotate([90, 0, 0])
-                linear_extrude(shelf_t)
-                    comb_profile(ws, xs, bottoms, l, shelf_depth, r);
-            for (x = gx)
-                translate([x - gusset_t / 2, 0, 0]) rotate([90, 0, 90])
-                    linear_extrude(gusset_t)
-                        polygon([[y_shelf + eps, back_t - eps],
-                                 [y_shelf + eps, shelf_depth - r],
-                                 [y_shelf - gusset_h, back_t - eps]]);
-        }
-        magnet_pockets_flat(l, y_shelf, magnets_x, magnets_y);
-    }
+    // slot boundaries: rack ends and finger middles
+    bounds = concat([0], [for (i = [0 : n - 1]) if (i < n - 1)
+                              xs[i] + ws[i] / 2 + per(gaps, i) / 2], [l]);
+    assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
+    if (!modular)
+        rack_piece(0, l, ws, xs, bottoms, shelf_depth, r, shelf_t, plate_h,
+                   gusset_t, gusset_h, magnets_x, magnets_y, false);
+    else
+        for (i = print_slot == 0 ? [0 : n - 1] : [print_slot - 1])
+            translate([print_slot == 0 ? i * spacing : 0, 0, 0])
+                rack_piece(bounds[i], bounds[i + 1], [ws[i]], [xs[i]], [bottoms[i]],
+                           shelf_depth, r, shelf_t, plate_h, gusset_t, gusset_h,
+                           magnets_x, magnets_y, true);
 }
 
 gun_rack();

@@ -40,6 +40,23 @@ back_skin = 2;                  // plastic behind the magnet
 back_t = magnet_h + magnet_recess + back_skin; // back plate thickness
 plate_r = 4;                    // back plate corner radius
 
+// --- Module connector (sliding dovetail) ---
+// Modular prints (modular = true in a model) split a row into one module
+// per slot. Neighbours join with a symmetric dovetail along the side
+// edges of their back plates: tongue on the right edge, slot on the left,
+// sliding vertically. The slot is closed at the top, so a module slid
+// down onto its neighbour stops level with it. 45 degree flanks print
+// without support in either orientation. Shared by every model so
+// modules of the same row height can mix.
+dovetail_d = 2;             // how far the tongue reaches into the neighbour
+dovetail_neck = 2.5;        // tongue thickness at its root
+dovetail_wall = 1.6;        // plastic in front of and behind the slot
+dovetail_clearance = 0.2;   // MEASURED with cad/calibration/dovetail_gauge.scad
+dovetail_stop = 3;          // closed top end of the slot
+dovetail_spine_w = 8;       // width of the thickened plate edge carrying the joint
+// thickness of that edge: slot plus a wall in front and behind
+dovetail_spine_t = dovetail_neck + 2 * (dovetail_d + dovetail_clearance + dovetail_wall);
+
 // --- General print rules ---
 wall = 2.4;             // default shell wall (6 perimeters at 0.4)
 item_clearance = 1.0;   // added to a gun item's measured diameter for

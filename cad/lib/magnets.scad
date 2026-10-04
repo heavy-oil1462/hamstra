@@ -10,6 +10,7 @@
 // and are rotated into place by the assembly.
 
 include <../design_params.scad>
+use <dovetail.scad>
 
 // Evenly spread n positions over [a, b]; one position sits in the middle.
 function spread(n, a, b) =
@@ -32,40 +33,80 @@ module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
     }
 }
 
+// How many pockets fit in a span of length l with margin m at both ends
+// and 2 mm of plastic between pockets; asking for more caps at this.
+function pockets_fit(n, l, m) =
+    min(n, max(1, floor((l - 2 * m) / (magnet_d + magnet_clearance + 2)) + 1));
+
 // Pocket grid for the back face of a wall-mounted model. The plate spans
-// x in [-w/2, w/2], z in [0, h]; nx by nz pockets, axes along y. Upright
+// x in [x0, x1], z in [0, h]; nx by nz pockets, axes along y. Upright
 // prints want the teardrop roof; models modeled upright but printed on
 // their back (rotated so the back face lies on the bed) pass false.
-module magnet_pockets_wall(w, h, nx, nz, teardrop = true) {
+module magnet_pockets_wall(x0, x1, h, nx, nz, teardrop = true) {
     m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    for (x = spread(nx, -w / 2 + m, w / 2 - m), z = spread(nz, m, h - m))
+    for (x = spread(pockets_fit(nx, x1 - x0, m), x0 + m, x1 - m),
+         z = spread(pockets_fit(nz, h, m), m, h - m))
         translate([x, 0, z]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
 }
 
 // Pocket grid for a back face lying on the print bed (z = 0). The plate
-// spans x in [0, w], y in [0, h].
-module magnet_pockets_flat(w, h, nx, ny) {
+// spans x in [x0, x1], y in [0, h].
+module magnet_pockets_flat(x0, x1, h, nx, ny) {
     m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    for (x = spread(nx, m, w - m), y = spread(ny, m, h - m))
+    for (x = spread(pockets_fit(nx, x1 - x0, m), x0 + m, x1 - m),
+         y = spread(pockets_fit(ny, h, m), m, h - m))
         translate([x, y, 0]) magnet_pocket(teardrop = false);
 }
 
-// Upright back plate solid: x in [-w/2, w/2], z in [0, h], y in [-back_t, 0].
-module wall_plate(w, h, r = plate_r) {
+// Upright back plate solid: x in [x0, x1], z in [0, h], y in [-back_t, 0].
+module wall_plate(x0, x1, h, r = plate_r) {
     rotate([90, 0, 0])
         linear_extrude(back_t)
-            translate([-w / 2, 0])
-                offset(r = r) offset(delta = -r) square([w, h]);
+            translate([x0, 0])
+                offset(r = r) offset(delta = -r) square([x1 - x0, h]);
 }
 
 // Upright wall-mounted model: back plate plus children, magnet pockets
-// cut last so nothing the children add can fill them.
-module wall_mount(w, h, nx, nz, teardrop = true) {
+// cut last so nothing the children add can fill them. dovetails = true
+// adds the module joint on both side edges (and square plate corners,
+// so joined modules close up).
+module wall_mount(x0, x1, h, nx, nz, teardrop = true, dovetails = false) {
     difference() {
         union() {
-            wall_plate(w, h);
+            wall_plate(x0, x1, h, dovetails ? 0 : plate_r);
+            if (dovetails) {
+                dovetail_spines(x0, x1, h);
+                dovetail_male(x1, h);
+            }
             children();
         }
-        magnet_pockets_wall(w, h, nx, nz, teardrop);
+        magnet_pockets_wall(x0, x1, h, nx, nz, teardrop);
+        if (dovetails) dovetail_female(x0, h);
     }
+}
+
+// A row of slots on the wall, one piece or one module per slot.
+//   bounds      slot boundaries along x, n + 1 of them (module i spans
+//               bounds[i] to bounds[i + 1])
+//   modular     false: one plate for the whole row. true: one plate per
+//               slot, joined with dovetails.
+//   print_slot  modular only: 0 lays out every module, spacing apart;
+//               1..n just that module
+//   nx          magnet columns per row, or per module when modular;
+//               capped at what fits without pockets touching
+// Children draw the holders for the slot indices in $slots.
+module wall_row(bounds, h, nx, nz, teardrop = true, modular = false,
+                print_slot = 0, spacing = 12) {
+    n = len(bounds) - 1;
+    assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
+    if (!modular)
+        let ($slots = [for (i = [0 : n - 1]) i])
+            wall_mount(bounds[0], bounds[n], h, nx, nz, teardrop) children();
+    else
+        for (i = print_slot == 0 ? [0 : n - 1] : [print_slot - 1])
+            let ($slots = [i])
+                translate([print_slot == 0 ? i * spacing : 0, 0, 0])
+                    wall_mount(bounds[i], bounds[i + 1], h, nx, nz, teardrop,
+                               dovetails = true)
+                        children();
 }

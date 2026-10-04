@@ -27,8 +27,8 @@ module stand_in(d, h) {
 
 safe_wall();
 
-// gun rack along the top, model defaults
-color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack();
+// gun rack along the top, model defaults, slid together from modules
+color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack(modular = true, spacing = 0);
 
 // two suppressors, left
 translate([-150, 0, 120]) {

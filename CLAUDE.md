@@ -31,6 +31,14 @@ neodymium magnets on the back so nothing is drilled into the safe.
   underside floats), so tall holders print on their back with their
   rings open to the front as troughs. Features
   start at the bed rather than float above it.
+- Rows can print as one piece or, with `modular = true`, as one module
+  per slot. Modules split at the middle of each gap (so a joined row has
+  exactly the one-piece layout), carry their own magnets, and join with
+  a sliding dovetail along the plate side edges (lib/dovetail.scad,
+  shared values in design_params): tongue right, slot left, slot closed
+  at the top so modules stop level. `print_slot` picks one module or
+  lays them all out. New multi-slot models build on `wall_row` in
+  lib/magnets.scad, which handles both modes.
 - Two models that must agree on a dimension read it from
   `cad/design_params.scad`. Parts that must agree per slot (the barrel
   cup and clip) live in one file with a `part` dropdown instead, so one
@@ -49,11 +57,12 @@ neodymium magnets on the back so nothing is drilled into the safe.
   assembly can `use` it and pass overrides. A file printing several
   parts declares `part = "a"; // [a, b]` on one line and regen_all
   exports `<name>_<option>.stl` for every option.
-- `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge).
+- `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge,
+  dovetail_gauge).
   Print, pick the best fit, type it into design_params.
-- `cad/lib/`: shared helpers, not printable (magnets.scad: pockets and
-  back plate; holders.scad: per-slot layout and round sleeves, cups
-  and snap clips).
+- `cad/lib/`: shared helpers, not printable (magnets.scad: pockets,
+  back plate, wall_row; holders.scad: per-slot layout and round
+  sleeves, cups and snap clips; dovetail.scad: the module joint).
 - `cad/main_assembly.scad`: a stretch of safe wall with every safe model
   and stand-in items, renders to `main_assembly.png`.
 - `scripts/`: Python tools, stdlib only.
@@ -92,8 +101,12 @@ Conventions:
   and the Customizer can parse them.
 - The OpenSCAD Customizer edits lists of up to 4 numbers. Longer
   per-slot lists are edited in the file (or with a scalar for all slots).
-- magnet_clearance is MEASURED with the gauge, never tuned by eye. It is
-  printer, profile and filament specific.
+- magnet_clearance and dovetail_clearance are MEASURED with their
+  gauges, never tuned by eye. They are printer, profile and filament
+  specific.
+- OpenSCAD iterates a reversed range (`[1 : 0]`) backwards with a
+  warning instead of skipping it. Loops over "the gaps between slots"
+  must survive a single slot: `[for (i = [0 : n - 1]) if (i < n - 1) ...]`.
 
 ## Key off-the-shelf parts
 

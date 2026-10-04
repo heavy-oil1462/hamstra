@@ -14,6 +14,10 @@ wall and gap to its neighbour. Three break action shotguns can sit tight
 to the wall and close together while a scoped bolt action next to them
 sits further out with more room.
 
+Every row can also print as separate modules, one per slot, that slide
+together with a dovetail like building blocks: smaller prints, and a
+slot can be swapped for a different one later.
+
 Reloading equipment and other gear will follow.
 
 Status: early prototypes. Dimensions are still being tuned.
@@ -26,6 +30,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | Barrel holder (cup and clip) | `cad/safe/barrel_holder.scad` | upright, as modeled |
 | Gun rack | `cad/safe/gun_rack.scad` | on its back, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
+| Dovetail gauge | `cad/calibration/dovetail_gauge.scad` | as modeled |
 
 None of them need support.
 
@@ -53,9 +58,22 @@ The barrel holder prints as two parts from one file, picked with the
 `part` dropdown: the cup and the clip share the slot layout, so each
 barrel stands plumb.
 
+## Modular rows
+
+Set `modular = true` and the row prints as one module per slot, each
+with its own magnets. Neighbours join with a sliding dovetail on the
+plate edges: slide each module down onto the tongue of the one to its
+left until it stops, which leaves them level. With `print_slot = 0` all
+modules are laid out side by side for one print; `print_slot = 2` gives
+just the second, for reprinting or swapping one slot. `magnets_x` then
+counts columns per module.
+
+Print `dovetail_gauge` first and set `dovetail_clearance` to the
+tightest slot the key slides into by hand without wobble.
+
 A few values are shared by every model and live in
-`cad/design_params.scad` instead: the magnet size and pocket fit and the
-back plate thickness.
+`cad/design_params.scad` instead: the magnet size and pocket fit, the
+back plate thickness and the dovetail joint.
 
 ## Magnets
 

@@ -50,8 +50,14 @@ clip_clearance = 0.4;
 // Clip back plate height
 clip_plate_h = 40;
 
+/* [Modular] */
+// Print one module per slot, joined side by side with sliding dovetails
+modular = false;
+// Modular only: 0 lays out every module for printing, 1..n just that one
+print_slot = 0;
+
 /* [Magnets] */
-// Magnet columns
+// Magnet columns (per module when modular)
 magnets_x = 2;
 // Magnet rows
 magnets_z = 2;
@@ -63,7 +69,8 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      clip_h = clip_h, clip_wall = clip_wall, snap = snap,
                      clip_clearance = clip_clearance,
                      clip_plate_h = clip_plate_h, magnets_x = magnets_x,
-                     magnets_z = magnets_z) {
+                     magnets_z = magnets_z, modular = modular,
+                     print_slot = print_slot, spacing = 12) {
     bd = as_list(breech_d);
     n = len(bd);
     cup_ds = [for (d = bd) d + item_clearance];
@@ -71,17 +78,21 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
     layout = holder_pair_layout(cup_ds, wall, clip_ds, clip_wall, gaps, wall_offset);
     xs = layout[0];
     axes = layout[1];
-    plate_w = layout[2];
+    bounds = layout[2];
 
     if (part == "cup")
-        wall_mount(plate_w, max(cup_plate_h, cup_depth + floor_t), magnets_x, magnets_z)
-            holder_row(cup_ds, cup_depth + floor_t, xs, axes,
+        wall_row(bounds, max(cup_plate_h, cup_depth + floor_t), magnets_x, magnets_z,
+                 modular = modular, print_slot = print_slot, spacing = spacing)
+            holder_row(pick(cup_ds, $slots), cup_depth + floor_t, pick(xs, $slots),
+                       pick(axes, $slots),
                        bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
-                       lips = [for (d = cup_ds) (d - drain_d) / 2]);
+                       lips = [for (i = $slots) (cup_ds[i] - drain_d) / 2]);
     else if (part == "clip")
-        wall_mount(plate_w, max(clip_plate_h, clip_h), magnets_x, magnets_z)
-            holder_row(clip_ds, clip_h, xs, axes, w = clip_wall, bottom = "open",
-                       front_gaps = [for (i = [0 : n - 1]) per(barrel_d, i) * snap],
+        wall_row(bounds, max(clip_plate_h, clip_h), magnets_x, magnets_z,
+                 modular = modular, print_slot = print_slot, spacing = spacing)
+            holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots), pick(axes, $slots),
+                       w = clip_wall, bottom = "open",
+                       front_gaps = [for (i = $slots) per(barrel_d, i) * snap],
                        chamfer = 0.6);
     else
         assert(false, str("unknown part: ", part));

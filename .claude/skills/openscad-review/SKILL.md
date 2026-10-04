@@ -32,6 +32,10 @@ model; `...,60,0,150,0` shows the back with the magnet pockets.
 - Multi-slot models take per-slot lists (diameter, wall_offset, gaps)
   through lib/holders.scad's `per()`; render with uneven values
   (`-D 'wall_offset=[0,15]'`) to check slots stay independent.
+- Modular joints: neighbouring modules at their row positions must not
+  overlap. Intersect `print_slot = 1` with `print_slot = 2` of a model
+  (both `modular = true`) and export to STL: the volume must be zero,
+  only the shared joint plane may touch.
 - Magnet pockets: face flush with the back (magnet_recess default 0),
   teardrop roof pointing up on vertical faces, at least magnet_edge from
   the plate edge.

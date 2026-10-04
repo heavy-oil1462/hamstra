@@ -51,8 +51,14 @@ snap = 0.85;
 // Clearance added to the suppressor diameter in the clip (small, it should hug)
 clip_clearance = 0.6;
 
+/* [Modular] */
+// Print one module per slot, joined side by side with sliding dovetails
+modular = false;
+// Modular only: 0 lays out every module for printing, 1..n just that one
+print_slot = 0;
+
 /* [Magnets] */
-// Magnet columns
+// Magnet columns (per module when modular)
 magnets_x = 2;
 // Magnet rows
 magnets_z = 3;
@@ -63,7 +69,9 @@ module suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
                          clip_top = clip_top, clip_h = clip_h,
                          clip_wall = clip_wall, snap = snap,
                          clip_clearance = clip_clearance,
-                         magnets_x = magnets_x, magnets_z = magnets_z) {
+                         magnets_x = magnets_x, magnets_z = magnets_z,
+                         modular = modular, print_slot = print_slot,
+                         spacing = 12) {
     sd = as_list(suppressor_d);
     n = len(sd);
     cup_ds = [for (d = sd) d + item_clearance];
@@ -74,14 +82,16 @@ module suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
     cup_h = cup_depth + floor_t;
     assert(clip_top - clip_h >= cup_h, "the clip overlaps the cradle, raise clip_top");
     rotate([-90, 0, 0])
-        wall_mount(layout[2], clip_top, magnets_x, magnets_z, teardrop = false) {
-            holder_row(cup_ds, cup_h, xs, axes,
+        wall_row(layout[2], clip_top, magnets_x, magnets_z, teardrop = false,
+                 modular = modular, print_slot = print_slot, spacing = spacing) {
+            holder_row(pick(cup_ds, $slots), cup_h, pick(xs, $slots), pick(axes, $slots),
                        bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
-                       lips = [for (d = cup_ds) (d - drain_d) / 2],
-                       front_gaps = [for (d = sd) d * cup_snap]);
+                       lips = [for (i = $slots) (cup_ds[i] - drain_d) / 2],
+                       front_gaps = [for (i = $slots) sd[i] * cup_snap]);
             translate([0, 0, clip_top - clip_h])
-                holder_row(clip_ds, clip_h, xs, axes, w = clip_wall, bottom = "open",
-                           front_gaps = [for (d = sd) d * snap], chamfer = 0.6);
+                holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots),
+                           pick(axes, $slots), w = clip_wall, bottom = "open",
+                           front_gaps = [for (i = $slots) sd[i] * snap], chamfer = 0.6);
         }
 }
 

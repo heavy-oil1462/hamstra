@@ -17,6 +17,10 @@ A file that prints as several parts declares a Customizer dropdown on
 one line, `part = "cup"; // [cup, clip]`, and gets one STL per option:
 stl/<category>/<name>_<option>.stl.
 
+A file with a `modular = false;` line also gets every output rendered
+with modular = true (all modules laid out for printing) as
+<name>[_<option>]_modular.stl, so the modular path is gated too.
+
 Prototyping phase: stl/ and main_assembly.png are gitignored while the
 models are iterated by eye in OpenSCAD. When designs settle they become
 committed build products and --check gains a byte comparison against
@@ -43,6 +47,7 @@ CAD = ROOT / "cad"
 NON_MODELS = {"design_params", "main_assembly"}
 ASSEMBLY = CAD / "main_assembly.scad"
 PART_DROPDOWN = re.compile(r'(?m)^part\s*=\s*"\w+"\s*;\s*//\s*\[([^\]]+)\]')
+MODULAR = re.compile(r"(?m)^modular\s*=\s*false\s*;")
 
 
 def models():
@@ -55,12 +60,14 @@ def models():
 def outputs(scad: Path):
     """(stl path, extra openscad args) per printed part of a model."""
     base = ROOT / "stl" / scad.relative_to(CAD).with_suffix("")
-    m = PART_DROPDOWN.search(scad.read_text())
-    if not m:
-        yield base.with_suffix(".stl"), []
-        return
-    for opt in (o.strip() for o in m.group(1).split(",")):
-        yield base.with_name(f"{base.name}_{opt}.stl"), ["-D", f'part="{opt}"']
+    text = scad.read_text()
+    m = PART_DROPDOWN.search(text)
+    parts = ([("", [])] if not m else
+             [(f"_{o.strip()}", ["-D", f'part="{o.strip()}"']) for o in m.group(1).split(",")])
+    modes = [("", [])] + ([("_modular", ["-D", "modular=true"])] if MODULAR.search(text) else [])
+    for part, part_args in parts:
+        for mode, mode_args in modes:
+            yield base.with_name(f"{base.name}{part}{mode}.stl"), part_args + mode_args
 
 
 def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:

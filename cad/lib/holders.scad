@@ -44,11 +44,24 @@ function holder_xs(ds, w, gaps) =
 
 // Shared layout for two holder rows that must keep each item plumb (a cup
 // low on the wall, a clip higher up): spaced and set off the wall by the
-// fatter of the two per slot. Returns [xs, axes, row width].
+// fatter of the two per slot. Returns [xs, axes, bounds]: bounds are the
+// n + 1 slot boundaries along x for wall_row (row ends and gap middles).
 function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets) =
     let (w = max(w1, w2),
-         ds = [for (i = [0 : len(ds1) - 1]) max(ds1[i], ds2[i])])
-    [holder_xs(ds, w, gaps), holder_axes(ds, 1, offsets), holder_row_w(ds, w, gaps)];
+         ds = [for (i = [0 : len(ds1) - 1]) max(ds1[i], ds2[i])],
+         xs = holder_xs(ds, w, gaps))
+    [xs, holder_axes(ds, 1, offsets), holder_bounds(xs, ds, w)];
+
+// Slot boundaries for a holder row: the outer walls at both ends and the
+// middle of every gap in between.
+function holder_bounds(xs, ds, w) =
+    let (n = len(ds))
+    concat([xs[0] - ds[0] / 2 - w],
+           [for (i = [1 : max(n - 1, 1)]) if (i < n) (xs[i - 1] + ds[i - 1] / 2 + xs[i] - ds[i] / 2) / 2],
+           [xs[n - 1] + ds[n - 1] / 2 + w]);
+
+// The entries of list v at the indices ix (per-slot list v, or a number).
+function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 
 // A row of round holders from z = 0 to z = h, each merged into the back
 // plate by a web. Positions are explicit so two parts can share a layout.
