@@ -32,5 +32,7 @@ Pipeline:
 - Finish by looking at `main_assembly.png` with the Read tool: parts
   floating off the wall or stand-ins missing their holders are findings
   even when everything compiles.
-- Prototyping phase: the outputs are gitignored. Once they are committed
-  (see CLAUDE.md), regenerate them in the same change as their sources.
+- Prototyping phase: the STLs are gitignored. `main_assembly.png` is
+  committed as the README image, so a change to a model or the scene
+  commits the regenerated PNG with it. Its view is `ASSEMBLY_VIEW` in
+  regen_all.py; never hand-render it with other settings.

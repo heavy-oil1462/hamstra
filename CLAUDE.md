@@ -99,7 +99,10 @@ neodymium magnets on the back so nothing is drilled into the safe.
   back plate, wall_row; holders.scad: per-slot layout and round
   sleeves, cups and snap clips; dovetail.scad: the module joint).
 - `cad/main_assembly.scad`: a stretch of safe wall with every safe model
-  and stand-in items, renders to `main_assembly.png`.
+  and stand-in items, renders to `main_assembly.png`, the README image.
+  Its camera, size and supersampling live in `ASSEMBLY_VIEW` in
+  `regen_all.py`; colors and the `show_wall` toggle at the top of the
+  scene.
 - `scripts/`: Python tools, stdlib only.
 
 ## Tools and workflow
@@ -120,18 +123,22 @@ never download binaries). OpenSCAD comes from the nixpkgs pin in
   the pocket grids echo, each part rendered as its file is set up.
 - `python3 scripts/render_scad.py <file.scad> <out.png|stl> [args]`:
   one-off headless renders (see the openscad-review skill).
+  `--supersample=N` renders N times larger and averages down, since
+  OpenSCAD has no antialiasing.
 
 ## Prototyping phase
 
 The models are being iterated by eye: the user opens them in OpenSCAD
 and judges them there. Until they settle:
 
-- `stl/` and `main_assembly.png` are gitignored, not committed.
+- `stl/` is gitignored, not committed. `main_assembly.png` is committed
+  as the README image: regenerate it in the same change as any model
+  or scene change it shows.
 - verify gates on the shared-param check plus every model rendering
   warning-free and manifold. No geometry or byte-drift gates yet.
 
 When a model is accepted, the plan is to follow skua: commit the STLs
-and assembly image as build products, add a byte comparison to
+as build products, add a byte comparison to
 `--check`, and add a geometry check script for fits that matter (pocket
 walls, holder clearances, bed size).
 

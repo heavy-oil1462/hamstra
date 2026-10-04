@@ -14,22 +14,27 @@ use <my_safe/suppressors.scad>
 use <my_safe/barrels.scad>
 use <my_safe/rifles.scad>
 
+// Show the safe wall and floor behind the parts
+show_wall = true;
+
+part_color = "#d9822b";  // printed parts
+item_color = "#34383d";  // stand-in guns, barrels and suppressors
 
 // the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-280, 0, 0]) cube([680, 2, 1000]);
-    color("gray") translate([-280, -150, -2]) cube([680, 152, 2]);
+    color("#c3c7cc") translate([-280, 0, 0]) cube([680, 2, 1000]);
+    color("#9ea3a9") translate([-280, -150, -2]) cube([680, 152, 2]);
 }
 
 module stand_in(d, h) {
-    color("black") cylinder(d = d, h = h);
+    color(item_color) cylinder(d = d, h = h);
 }
 
 // A round barrel tapers from breech to muzzle; an over and under set is
 // its monoblock with the stacked barrels above it. a1 / a2: wall to axis
 // of the breech and of the barrels.
 module barrel_stand_in(breech, muzzle, l, a1, a2) {
-    color("black")
+    color(item_color)
         if (is_list(breech)) {
             translate([0, -a1, 0]) linear_extrude(80) bore2d(breech);
             translate([0, -a2, 0]) linear_extrude(l) bore2d(muzzle);
@@ -38,7 +43,7 @@ module barrel_stand_in(breech, muzzle, l, a1, a2) {
         }
 }
 
-safe_wall();
+if (show_wall) safe_wall();
 
 // my long guns: the cad/my_safe gun rack, slid together from modules,
 // with a stand-in muzzle resting in each slot (the guns themselves stand
@@ -48,12 +53,12 @@ let (data = my_rifles_data(),
                               edge = data[3]),
      l = layout[2])
     translate([-l / 2 - 30, 0, data[5] - gun_rack_plate_h()]) {
-        color("peru") translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0])
+        color(part_color) translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0])
             my_rifles(modular = true, spacing = 0);
         for (i = [0 : len(data[0]) - 1])
             let (s = data[4][i])
                 translate([layout[0][i], -(layout[1][i] + sy(s) / 2), gun_rack_plate_h() - 140])
-                    color("black") linear_extrude(200) bore2d(s);
+                    color(item_color) linear_extrude(200) bore2d(s);
     }
 
 // my suppressors, left: the cad/my_safe build, cradle row with the clip
@@ -63,8 +68,8 @@ translate([-150, 0, 120]) {
     sd = data[0];
     sl = data[1];
     layout = suppressor_layout(suppressor_d = sd, wall_offset = data[2], gaps = data[3]);
-    color("peru") my_suppressors(part = "cradle", modular = false);
-    color("peru") translate([0, 0, data[4] - suppressor_clip_h()])
+    color(part_color) my_suppressors(part = "cradle", modular = false);
+    color(part_color) translate([0, 0, data[4] - suppressor_clip_h()])
         my_suppressors(part = "clip", modular = false);
     for (i = [0 : len(sd) - 1])
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
@@ -79,8 +84,8 @@ translate([320, 0, 0]) {
     bl = data[2];
     layout = barrel_layout(breech_d = bd, barrel_d = md, wall_offset = data[3],
                            gaps = data[4], clip_align = data[5]);
-    color("peru") my_barrels(part = "cup", modular = false);
-    color("peru") translate([0, 0, barrel_floor_t() + data[7] - barrel_clip_h()])
+    color(part_color) my_barrels(part = "cup", modular = false);
+    color(part_color) translate([0, 0, barrel_floor_t() + data[7] - barrel_clip_h()])
         my_barrels(part = "clip", modular = false);
     for (i = [0 : len(bd) - 1])
         translate([layout[0][i], 0, barrel_floor_t()])
