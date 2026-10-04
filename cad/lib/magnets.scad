@@ -42,10 +42,13 @@ function pockets_fit(n, l, m) =
 // x in [x0, x1], z in [0, h]; nx by nz pockets, axes along y. Upright
 // prints want the teardrop roof; models modeled upright but printed on
 // their back (rotated so the back face lies on the bed) pass false.
+// Both grids echo `magnets = n` for scripts/count_magnets.py.
 module magnet_pockets_wall(x0, x1, h, nx, nz, teardrop = true) {
     m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    for (x = spread(pockets_fit(nx, x1 - x0, m), x0 + m, x1 - m),
-         z = spread(pockets_fit(nz, h, m), m, h - m))
+    cx = pockets_fit(nx, x1 - x0, m);
+    cz = pockets_fit(nz, h, m);
+    echo(magnets = cx * cz);
+    for (x = spread(cx, x0 + m, x1 - m), z = spread(cz, m, h - m))
         translate([x, 0, z]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
 }
 
@@ -53,8 +56,10 @@ module magnet_pockets_wall(x0, x1, h, nx, nz, teardrop = true) {
 // spans x in [x0, x1], y in [0, h].
 module magnet_pockets_flat(x0, x1, h, nx, ny) {
     m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    for (x = spread(pockets_fit(nx, x1 - x0, m), x0 + m, x1 - m),
-         y = spread(pockets_fit(ny, h, m), m, h - m))
+    cx = pockets_fit(nx, x1 - x0, m);
+    cy = pockets_fit(ny, h, m);
+    echo(magnets = cx * cy);
+    for (x = spread(cx, x0 + m, x1 - m), y = spread(cy, m, h - m))
         translate([x, y, 0]) magnet_pocket(teardrop = false);
 }
 

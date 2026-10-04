@@ -98,6 +98,9 @@ never download binaries). OpenSCAD comes from the nixpkgs pin in
   `main_assembly.png`. `--check` is the read-only gate (the verify skill
   and CI).
 - `python3 scripts/check_params.py`: no file may shadow a design_params name.
+- `python3 scripts/count_magnets.py [files]`: magnets a set of models
+  needs (default: the cad/my_safe builds), summed from the `magnets = n`
+  the pocket grids echo, each part rendered as its file is set up.
 - `python3 scripts/render_scad.py <file.scad> <out.png|stl> [args]`:
   one-off headless renders (see the openscad-review skill).
 
