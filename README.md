@@ -109,7 +109,7 @@ slot. Try both on the slot gauge first.
 
 ## Magnets
 
-The defaults use 15x5 mm neodymium disc magnets. Change `magnet_d` and
+The defaults use 12x5 mm neodymium disc magnets. Change `magnet_d` and
 `magnet_h` in `cad/design_params.scad` for other sizes.
 
 1. Print `magnet_pocket_gauge` first, press a magnet into each pocket and
@@ -118,7 +118,7 @@ The defaults use 15x5 mm neodymium disc magnets. Change `magnet_d` and
    until it stops on the thin skin at the bottom: that leaves its face
    flush with the back.
 3. A magnet holds far less sideways on a vertical wall than its rated
-   pull, about a quarter: roughly 1.2 kg for a 15x5 magnet on bare
+   pull, about a quarter: roughly 0.8 kg for a 12x5 magnet on bare
    steel. The defaults give the rows that carry weight (the suppressor
    cradle) about twice the margin they need, and two magnets to rows
    that stand on the floor or only keep items in place. A felt or

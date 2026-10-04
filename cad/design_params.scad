@@ -23,7 +23,7 @@
 // pull force collapses with any gap, so never bury the magnet behind
 // a printed skin. Holding force on a vertical wall is shear, roughly
 // a quarter of the rated pull, so count magnets generously.
-magnet_d = 15;          // disc diameter
+magnet_d = 12;          // disc diameter
 magnet_h = 5;           // disc thickness
 magnet_clearance = 0.2; // added to magnet_d for the pocket. MEASURED with
                         // cad/calibration/magnet_pocket_gauge.scad, never
@@ -59,7 +59,7 @@ plate_r = 4;                    // back plate corner radius
 dovetail_d = 2;             // how far the tongue reaches into the neighbour
 dovetail_neck = 2.5;        // tongue thickness at its root
 dovetail_wall = 1.6;        // plastic in front of and behind the slot
-dovetail_clearance = 0.2;   // MEASURED with cad/calibration/dovetail_gauge.scad
+dovetail_clearance = 0.3;   // MEASURED with cad/calibration/dovetail_gauge.scad
 dovetail_stop = 3;          // closed top end of the slot
 dovetail_spine_w = 8;       // width of the thickened plate edge carrying the joint
 // thickness of that edge: slot plus a wall in front and behind

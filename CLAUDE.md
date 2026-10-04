@@ -55,7 +55,7 @@ neodymium magnets on the back so nothing is drilled into the safe.
   on upright prints);
   rack shelf depth is per slot; cups only locate, clips hold. Magnet
   counts follow the load: a row carrying weight gets enough for about
-  2x margin at ~1.2 kg shear per 15x5 magnet on bare steel; rows that
+  2x margin at ~0.8 kg shear per 12x5 magnet on bare steel; rows that
   stand on the floor or only keep items in get 2 (one per rack module,
   the dovetails tie the row together). `scripts/count_magnets.py`
   checks the total; measure part volumes before and after a change.
@@ -150,6 +150,6 @@ Conventions:
 
 ## Key off-the-shelf parts
 
-- Neodymium disc magnets, default 15x5 mm (magnet_d, magnet_h). Glue
+- Neodymium disc magnets, default 12x5 mm (magnet_d, magnet_h). Glue
   them in with epoxy or CA; mind the polarity only if two models should
   stick to each other.
