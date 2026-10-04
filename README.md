@@ -11,6 +11,8 @@ magnets, so nothing is drilled into the safe:
   barrels and over and under barrel sets can share one base row.
 - Gun rack: a comb shelf for the top of the safe
 
+![The safe models on a stretch of safe wall with stand-in rifles, barrels and suppressors](main_assembly.png)
+
 Every slot is configured on its own: diameter, distance from the safe
 wall and gap to its neighbour. Three break action shotguns can sit tight
 to the wall and close together while a scoped bolt action next to them

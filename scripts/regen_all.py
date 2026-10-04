@@ -24,10 +24,11 @@ modular = true and print_slot = n. The module count comes from the
 model itself: it echoes `modules = n` when modular, read from a cheap
 echo-only pass, so it always matches the slot lists in the file.
 
-Prototyping phase: stl/ and main_assembly.png are gitignored while the
-models are iterated by eye in OpenSCAD. When designs settle they become
-committed build products and --check gains a byte comparison against
-them, the way skua does it.
+Prototyping phase: stl/ is gitignored while the models are iterated by
+eye in OpenSCAD. main_assembly.png is committed as the README image, so
+regenerate it in the same change as the models it shows. When designs
+settle the STLs become committed build products too and --check gains a
+byte comparison against them, the way skua does it.
 
 Usage:
     scripts/regen_all.py [model ...]   # no args = everything
@@ -49,6 +50,9 @@ ROOT = Path(__file__).resolve().parent.parent
 CAD = ROOT / "cad"
 NON_MODELS = {"design_params", "main_assembly"}
 ASSEMBLY = CAD / "main_assembly.scad"
+# README image: front three-quarter view, supersampled for smooth edges
+ASSEMBLY_VIEW = ["--colorscheme=Tomorrow", "--imgsize=1200,1000",
+                 "--camera=60,-75,500,72,0,18,2800", "--supersample=2"]
 PART_DROPDOWN = re.compile(r'(?m)^part\s*=\s*"\w+"\s*;\s*//\s*\[([^\]]+)\]')
 MODULAR = re.compile(r"(?m)^modular\s*=\s*(true|false)\s*;")
 MODULE_COUNT = re.compile(r"ECHO: modules = (\d+)")
@@ -135,7 +139,7 @@ def main(argv):
 
         if not stl_only and (not only or "main_assembly" in only):
             png = ROOT / "main_assembly.png"
-            ok &= run_one(ASSEMBLY, target(png), png)
+            ok &= run_one(ASSEMBLY, target(png), png, ASSEMBLY_VIEW)
 
     return 0 if ok else 1
 
