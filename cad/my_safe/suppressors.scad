@@ -34,6 +34,12 @@ gaps = [6, 6, 6, 6];
 // (only the assembly scene uses it)
 clip_top = 80;
 
+/* [Magnets] */
+// Magnet columns on the cradle row, two rows each. About 1.25 kg of
+// suppressors: 3 columns give about 4.8 kg shear on bare steel, and the
+// middle one holds the 250 mm plate flat where the heavy cans sit.
+magnets_x = 3;
+
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
 modular = false;
@@ -47,8 +53,8 @@ function my_suppressors_data() = [suppressor_d, suppressor_l, wall_offset, gaps,
 module my_suppressors(part = part, modular = modular, print_slot = print_slot,
                       spacing = 12) {
     suppressor_holder(part = part, suppressor_d = suppressor_d,
-                      wall_offset = wall_offset, gaps = gaps, modular = modular,
-                      print_slot = print_slot, spacing = spacing);
+                      wall_offset = wall_offset, gaps = gaps, magnets_x = magnets_x,
+                      modular = modular, print_slot = print_slot, spacing = spacing);
 }
 
 my_suppressors();
