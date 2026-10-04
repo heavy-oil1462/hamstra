@@ -38,5 +38,7 @@ See CLAUDE.md for the plan once models settle.
 ## Notes
 
 - The sandbox PAT has no workflow scope, so it cannot push changes to
-  .github/workflows/. Commit those separately and leave the push to the
-  user.
+  .github/workflows/. Commit those on their own local branch (for now
+  `ci-workflow`) and leave the push to the user. Never keep such a
+  commit on the working branch: every later push then needs a commit
+  reorder, which already cost time twice.
