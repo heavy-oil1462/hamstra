@@ -30,7 +30,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | --- | --- | --- |
 | Suppressor holder (cradle and clip) | `cad/safe/suppressor_holder.scad` | upright, as modeled |
 | Barrel holder (cup and clip) | `cad/safe/barrel_holder.scad` | upright, as modeled |
-| Gun rack | `cad/safe/gun_rack.scad` | on its back, as modeled |
+| Gun rack | `cad/safe/gun_rack.scad` | shelf down, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
 | Dovetail gauge | `cad/calibration/dovetail_gauge.scad` | as modeled |
 | Fit gauge (rings and rack slots) | `cad/calibration/fit_gauge.scad` | flat, as modeled |

@@ -6,7 +6,7 @@
 //   - the safe wall is the plane y = 0, the wall itself is y > 0
 //   - the model sticks out toward -y, z is up
 //   - the back plate occupies y in [-back_t, 0]
-// Models that print lying on their back use magnet_pockets_flat instead
+// Models built lying on their back use magnet_pockets_flat instead
 // and are rotated into place by the assembly.
 
 include <../design_params.scad>
@@ -78,19 +78,23 @@ module magnet_bosses_wall(x0, x1, h, nx, nz, teardrop = true) {
         translate([p[0], 0, p[1]]) rotate([90, 0, 0]) linear_extrude(back_t) boss2d(teardrop);
 }
 
-// Pocket grid for a back face lying on the print bed (z = 0). The plate
-// spans x in [x0, x1], y in [0, h].
-module magnet_pockets_flat(x0, x1, h, nx, ny) {
+// Pocket grid for a back face on the plane z = 0, pockets toward +z. The
+// plate spans x in [x0, x1], y in [0, h]. Lying on the bed the pockets
+// are plain; roof_down = true gives them a teardrop roof toward -y, for
+// a part built this way and then stood up with -y on top (the gun rack).
+module magnet_pockets_flat(x0, x1, h, nx, ny, roof_down = false) {
     g = pocket_grid(x0, x1, h, nx, ny);
     echo(magnets = len(g));
-    for (p = g) translate([p[0], p[1], 0]) magnet_pocket(teardrop = false);
+    for (p = g) translate([p[0], p[1], 0]) rotate([0, 0, roof_down ? 180 : 0])
+        magnet_pocket(teardrop = roof_down);
 }
 
 // Bosses for magnet_pockets_flat: full back_t tall from the bed. Only
 // when the plate is thinner than that.
-module magnet_bosses_flat(x0, x1, h, nx, ny) {
+module magnet_bosses_flat(x0, x1, h, nx, ny, roof_down = false) {
     if (plate_t < back_t) for (p = pocket_grid(x0, x1, h, nx, ny))
-        translate([p[0], p[1], 0]) linear_extrude(back_t) boss2d(false);
+        translate([p[0], p[1], 0]) rotate([0, 0, roof_down ? 180 : 0])
+            linear_extrude(back_t) boss2d(roof_down);
 }
 
 // Upright back plate solid: x in [x0, x1], z in [0, h], y in [-plate_t, 0].

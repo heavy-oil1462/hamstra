@@ -25,8 +25,11 @@ neodymium magnets on the back so nothing is drilled into the safe.
   the rated pull, so magnet counts are generous and configurable.
 - Models are modeled in their print orientation and print without
   support. Upright models (back plate vertical, holders standing on the
-  bed) use horizontal teardrop magnet pockets; models printed on their
-  back (the gun rack) use plain pockets opening onto the bed. Features
+  bed) use horizontal teardrop magnet pockets. The gun rack prints shelf
+  down for the same reason: its plate stands, so its pockets are
+  teardrops too, its fingers lie in the layers (sideways loads run along
+  them) and the dovetail rises straight off the bed. No model bridges a
+  pocket floor. Features
   start at the bed rather than float above it: a holder high up a tall
   plate cannot print upright. Prefer splitting into short pieces (cup
   row plus clip row, as the barrel and suppressor holders do, sharing

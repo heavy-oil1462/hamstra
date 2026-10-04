@@ -48,7 +48,8 @@ let (data = my_rifles_data(),
                               edge = data[3]),
      l = layout[2])
     translate([-l / 2 - 30, 0, data[5] - gun_rack_plate_h()]) {
-        color("peru") rotate([90, 0, 0]) my_rifles(modular = true, spacing = 0);
+        color("peru") translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0])
+            my_rifles(modular = true, spacing = 0);
         for (i = [0 : len(data[0]) - 1])
             let (s = data[4][i])
                 translate([layout[0][i], -(layout[1][i] + sy(s) / 2), gun_rack_plate_h() - 140])

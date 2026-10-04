@@ -18,12 +18,19 @@
 // dovetail between slots (the rack's outer ends stay plain); modules
 // split at the middle of each finger and carry a gusset at both edges.
 //
-// Prints lying on its back: back plate flat on the bed with the magnet
-// pockets opening downward, the comb standing up from it. Modeled in
-// that print orientation:
+// Prints shelf down: the shelf's top face on the bed, the back plate
+// standing up from its back edge, gussets rising between them. Nothing
+// floats: the magnet pockets are teardrops in the standing plate, the
+// dovetail rises straight off the bed with the slot's closed end on it,
+// and the fingers lie in the layers, so a gun pushing one sideways loads
+// it along the layers, not across them.
+//
+// Built lying on its back, then turned shelf down at the end:
 //   x  along the rack
 //   y  height on the safe wall (the comb is at the top, y = plate_h)
 //   z  out from the wall
+// The printed part: x along, y out from the wall, z down the wall from
+// the shelf top (z = 0) to the plate bottom (z = plate_h).
 
 include <../design_params.scad>
 use <../lib/magnets.scad>
@@ -131,7 +138,7 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
         union() {
             translate([x0, 0, 0]) linear_extrude(plate_t)
                 offset(r = plate_r) offset(delta = -plate_r) square([x1 - x0, plate_h]);
-            magnet_bosses_flat(x0, x1, y_shelf, magnets_x, magnets_y);
+            magnet_bosses_flat(x0, x1, y_shelf, magnets_x, magnets_y, roof_down = true);
             translate([0, plate_h, 0]) rotate([90, 0, 0])
                 linear_extrude(shelf_t) comb_profile(segs, ws, xs, bottoms, r, joints);
             for (g = gs)
@@ -143,7 +150,7 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
             // the joint is modeled upright; lay it down like the rack
             rotate([-90, 0, 0]) dovetail_joints(x0, x1, plate_h, joints);
         }
-        magnet_pockets_flat(x0, x1, y_shelf, magnets_x, magnets_y);
+        magnet_pockets_flat(x0, x1, y_shelf, magnets_x, magnets_y, roof_down = true);
         rotate([-90, 0, 0]) dovetail_cuts(x0, plate_h, joints);
     }
 }
@@ -159,6 +166,8 @@ function gun_rack_layout(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps
      xs[n - 1] + ws[n - 1] / 2 + edge];
 
 // Back plate height: the shelf top sits this far above the plate bottom.
+// The printed rack stands upright again with
+// translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0]).
 function gun_rack_plate_h() = plate_h;
 
 module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
@@ -187,6 +196,8 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
     // regen_all.py reads this to export every module to its own STL
     if (modular) echo(modules = n);
+    // turn the on-its-back build shelf down for printing
+    translate([0, 0, plate_h]) rotate([-90, 0, 0])
     if (!modular)
         rack_piece(0, l, ws, xs, bottoms, depths, depths[0], depths[n - 1], r, shelf_t,
                    plate_h, gusset_t, gusset_h, magnets_x, magnets_y, [false, false]);

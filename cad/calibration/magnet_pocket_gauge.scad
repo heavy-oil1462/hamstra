@@ -1,13 +1,11 @@
 // Magnet pocket gauge: find magnet_clearance for your printer, profile and
 // filament before printing the real models.
 //
-// Two separate plates, one per orientation the models print their
-// pockets in, each a real back plate (back_t thick, pockets with the
-// back_skin floor), with one pocket per candidate clearance:
-//   - the flat plate lies on the bed, pockets opening downward, like
-//     the gun rack; labels on top
-//   - the standing plate prints on its edge like the upright holders,
-//     teardrop pockets in its back face; labels on its front face
+// A standing plate printed on its edge exactly like every model's back
+// plate (back_t thick, teardrop pockets with the back_skin floor in its
+// back face), one pocket per candidate clearance, labels on the front.
+// Every model prints its pockets this way, the gun rack included, so this
+// one orientation is all that needs calibrating.
 // Press a magnet into each until it stops on the floor. Pick the
 // tightest clearance a magnet goes into fully by hand (it gets glued
 // anyway, but a sloppy pocket lets the glue set crooked) and type it into
@@ -31,18 +29,6 @@ module label(txt) {
 
 function gauge_x(i) = 2 + (i + 0.5) * gauge_pitch;
 
-// Lying on the bed: x along, y across, pockets open at z = 0.
-module flat_plate() {
-    difference() {
-        cube([gauge_l, plate_w, back_t]);
-        for (i = [0 : len(clearances) - 1]) {
-            translate([gauge_x(i), pocket_m, 0])
-                magnet_pocket(teardrop = false, clearance = clearances[i]);
-            translate([gauge_x(i), plate_w - 5, back_t - label_depth]) label(str(clearances[i]));
-        }
-    }
-}
-
 // Standing on its edge, modeled like a holder's back plate: back face at
 // y = 0, plate toward -y, pockets in the back face with their roof up.
 module standing_plate() {
@@ -59,8 +45,7 @@ module standing_plate() {
 }
 
 module magnet_pocket_gauge() {
-    flat_plate();
-    translate([0, -10, 0]) standing_plate();
+    standing_plate();
 }
 
 magnet_pocket_gauge();
