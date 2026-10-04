@@ -17,8 +17,8 @@ use <my_safe/rifles.scad>
 
 // the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 960]);
-    color("gray") translate([-260, -150, -2]) cube([520, 152, 2]);
+    color("dimgray") translate([-280, 0, 0]) cube([680, 2, 760]);
+    color("gray") translate([-280, -150, -2]) cube([680, 152, 2]);
 }
 
 module stand_in(d, h) {
@@ -47,7 +47,7 @@ let (data = my_rifles_data(),
      layout = gun_rack_layout(slot_w = data[0], wall_offset = data[1], gaps = data[2],
                               edge = data[3]),
      l = layout[2])
-    translate([-l / 2, 0, data[5] - gun_rack_plate_h()]) {
+    translate([-l / 2 - 30, 0, data[5] - gun_rack_plate_h()]) {
         color("peru") rotate([90, 0, 0]) my_rifles(modular = true, spacing = 0);
         for (i = [0 : len(data[0]) - 1])
             let (s = data[4][i])
@@ -71,7 +71,7 @@ translate([-150, 0, 120]) {
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
 // one clip row above it; right of the gun rack so the long barrels clear it
-translate([185, 0, 0]) {
+translate([320, 0, 0]) {
     data = my_barrels_data();
     bd = data[0];
     md = data[1];
