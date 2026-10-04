@@ -18,6 +18,8 @@ use <../safe/suppressor_holder.scad>
 /* [Slots] */
 // Outer diameter of each suppressor, measured
 suppressor_d = [45, 45, 41, 31.5];
+// Length of each suppressor, measured (for the assembly scene)
+suppressor_l = [230.7, 230.7, 265, 130];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 wall_offset = [0, 0, 0, 0];
 // Space between neighbouring holders, one entry per pair
@@ -31,6 +33,14 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
-suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
-                  gaps = gaps, clip_top = clip_top, modular = modular,
-                  print_slot = print_slot);
+// These values for the assembly scene: [diameters, lengths, wall
+// offsets, gaps, clip tops].
+function my_suppressors_data() = [suppressor_d, suppressor_l, wall_offset, gaps, clip_top];
+
+module my_suppressors(modular = modular, print_slot = print_slot, spacing = 12) {
+    suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
+                      gaps = gaps, clip_top = clip_top, modular = modular,
+                      print_slot = print_slot, spacing = spacing);
+}
+
+my_suppressors();

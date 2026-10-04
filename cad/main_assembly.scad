@@ -2,16 +2,17 @@
 // suppressors and barrels. Visual fit check only, renders to
 // main_assembly.png. Not a printable part.
 //
-// The scene passes its own slot layouts to the models so the stand-ins
-// can be placed with the same holders.scad functions the models use.
+// The suppressors come from the cad/my_safe build; the other models use
+// scene values. Stand-ins are placed with the models' own layout
+// functions.
 
 include <design_params.scad>
 use <lib/holders.scad>
 use <safe/suppressor_holder.scad>
 use <safe/barrel_holder.scad>
 use <safe/gun_rack.scad>
+use <my_safe/suppressors.scad>
 
-scene_suppressor_d = [50, 44];
 scene_breech_d = [32, 30];
 scene_barrel_d = [20, 18];
 scene_barrel_offset = [0, 10];
@@ -30,14 +31,16 @@ safe_wall();
 // gun rack along the top, model defaults, slid together from modules
 color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack(modular = true, spacing = 0);
 
-// two suppressors, left
+// my suppressors, left: the cad/my_safe build with stand-ins at their
+// measured diameters and lengths
 translate([-150, 0, 120]) {
-    color("peru") rotate([90, 0, 0]) suppressor_holder(suppressor_d = scene_suppressor_d);
-    // mirrors suppressor_holder's layout with its default knobs
-    layout = holder_pair_layout([for (d = scene_suppressor_d) d + item_clearance], wall,
-                                [for (d = scene_suppressor_d) d + 0.6], 3, 6, 0);
-    for (i = [0 : len(scene_suppressor_d) - 1])
-        translate([layout[0][i], -layout[1][i], 3]) stand_in(scene_suppressor_d[i], 180);
+    data = my_suppressors_data();
+    sd = data[0];
+    sl = data[1];
+    layout = suppressor_layout(suppressor_d = sd, wall_offset = data[2], gaps = data[3]);
+    color("peru") rotate([90, 0, 0]) my_suppressors(modular = false);
+    for (i = [0 : len(sd) - 1])
+        translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
 }
 
 // two spare barrels, right: cup at the bottom, clip up the wall. Mirrors

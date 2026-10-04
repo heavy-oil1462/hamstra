@@ -64,6 +64,18 @@ magnets_x = 2;
 // Magnet rows
 magnets_z = 3;
 
+// Slot layout [xs, axes, bounds] for these knobs: the holder uses it, and
+// so does the assembly to stand suppressors in it.
+function suppressor_layout(suppressor_d = suppressor_d, wall_offset = wall_offset,
+                           gaps = gaps, clip_wall = clip_wall,
+                           clip_clearance = clip_clearance) =
+    let (sd = as_list(suppressor_d))
+    holder_pair_layout([for (d = sd) d + item_clearance], wall,
+                       [for (d = sd) d + clip_clearance], clip_wall, gaps, wall_offset);
+
+// Height of the cradle floor the suppressors stand on.
+function suppressor_floor_t() = floor_t;
+
 module suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
                          gaps = gaps, cup_depth = cup_depth, floor_t = floor_t,
                          drain_d = drain_d, cup_snap = cup_snap,
@@ -77,7 +89,7 @@ module suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
     n = len(sd);
     cup_ds = [for (d = sd) d + item_clearance];
     clip_ds = [for (d = sd) d + clip_clearance];
-    layout = holder_pair_layout(cup_ds, wall, clip_ds, clip_wall, gaps, wall_offset);
+    layout = suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance);
     xs = layout[0];
     axes = layout[1];
     cup_h = cup_depth + floor_t;
