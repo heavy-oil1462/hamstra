@@ -130,6 +130,6 @@ Conventions:
 
 ## Key off-the-shelf parts
 
-- Neodymium disc magnets, default 12x3 mm (magnet_d, magnet_h). Glue
+- Neodymium disc magnets, default 12x5 mm (magnet_d, magnet_h). Glue
   them in with epoxy or CA; mind the polarity only if two models should
   stick to each other.

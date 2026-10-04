@@ -58,8 +58,7 @@ translate([-150, 0, 120]) {
 }
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
-// each clip sits just below its barrel's muzzle; right of the gun rack so
-// the long barrel clears it
+// one clip row above it; right of the gun rack so the long barrels clear it
 translate([185, 0, 0]) {
     data = my_barrels_data();
     bd = data[0];
@@ -68,10 +67,9 @@ translate([185, 0, 0]) {
     layout = barrel_layout(breech_d = bd, barrel_d = md, wall_offset = data[3],
                            gaps = data[4], clip_align = data[5]);
     color("peru") my_barrels(part = "cup", modular = false);
-    for (i = [0 : len(bd) - 1]) {
-        color("peru") translate([0, 0, barrel_floor_t() + bl[i] - 30 - 15])
-            my_barrels(part = "clip", print_slot = i + 1);
+    color("peru") translate([0, 0, barrel_floor_t() + data[7] - barrel_clip_h()])
+        my_barrels(part = "clip", modular = false);
+    for (i = [0 : len(bd) - 1])
         translate([layout[0][i], 0, barrel_floor_t()])
-            barrel_stand_in(bd[i], md[i], bl[i], layout[1][i], layout[3][i]);
-    }
+            barrel_stand_in(bd[i], data[6][i], bl[i], layout[1][i], layout[3][i]);
 }

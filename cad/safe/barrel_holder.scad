@@ -96,6 +96,9 @@ function barrel_layout(breech_d = breech_d, barrel_d = barrel_d,
 // Height of the cup floor the barrels stand on.
 function barrel_floor_t() = floor_t;
 
+// Height of the clip ring, at the bottom of the clip piece.
+function barrel_clip_h() = clip_h;
+
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
                      clip_align = clip_align, cup_depth = cup_depth, floor_t = floor_t,

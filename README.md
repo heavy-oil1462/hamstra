@@ -109,7 +109,7 @@ slot. Try both on the slot gauge first.
 
 ## Magnets
 
-The defaults use 12x3 mm neodymium disc magnets. Change `magnet_d` and
+The defaults use 12x5 mm neodymium disc magnets. Change `magnet_d` and
 `magnet_h` in `cad/design_params.scad` for other sizes.
 
 1. Print `magnet_pocket_gauge` first, press a magnet into each pocket and
