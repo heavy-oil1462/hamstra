@@ -45,9 +45,11 @@ neodymium magnets on the back so nothing is drilled into the safe.
   (an over and under pair stacked front to back), via sx/sy/bore2d in
   lib/holders.scad. Round and oblong slots mix in one row.
 - Efficiency: print time, plastic and magnets no more than needed, no
-  fewer. Back plates are plate_t thin with a boss only around each
-  magnet, the magnet plus a back_skin floor to glue and index against
-  (pointed underside on upright prints, flat back face);
+  fewer. Back plates are one solid back_t thick (the magnet plus a
+  back_skin floor to glue and index against), so the front never shows
+  the magnets; that is the user's choice over saving plastic. plate_t
+  below back_t switches to a thin plate with bosses (pointed underside
+  on upright prints);
   rack shelf depth is per slot; cups only locate, clips hold. Magnet
   counts follow the load: a row carrying weight gets enough for about
   2x margin at ~1.2 kg shear per 15x5 magnet on bare steel; rows that

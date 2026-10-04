@@ -71,9 +71,10 @@ module magnet_pockets_wall(x0, x1, h, nx, nz, teardrop = true) {
     for (p = g) translate([p[0], 0, p[1]]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
 }
 
-// Bosses for magnet_pockets_wall: full back_t thick, toward -y.
+// Bosses for magnet_pockets_wall: full back_t thick, toward -y. Only
+// when the plate is thinner than that.
 module magnet_bosses_wall(x0, x1, h, nx, nz, teardrop = true) {
-    for (p = pocket_grid(x0, x1, h, nx, nz))
+    if (plate_t < back_t) for (p = pocket_grid(x0, x1, h, nx, nz))
         translate([p[0], 0, p[1]]) rotate([90, 0, 0]) linear_extrude(back_t) boss2d(teardrop);
 }
 
@@ -85,9 +86,10 @@ module magnet_pockets_flat(x0, x1, h, nx, ny) {
     for (p = g) translate([p[0], p[1], 0]) magnet_pocket(teardrop = false);
 }
 
-// Bosses for magnet_pockets_flat: full back_t tall from the bed.
+// Bosses for magnet_pockets_flat: full back_t tall from the bed. Only
+// when the plate is thinner than that.
 module magnet_bosses_flat(x0, x1, h, nx, ny) {
-    for (p = pocket_grid(x0, x1, h, nx, ny))
+    if (plate_t < back_t) for (p = pocket_grid(x0, x1, h, nx, ny))
         translate([p[0], p[1], 0]) linear_extrude(back_t) boss2d(false);
 }
 
