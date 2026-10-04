@@ -43,8 +43,9 @@ translate([-150, 0, 120]) {
 }
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
-// each clip sits just below its barrel's muzzle
-translate([120, 0, 0]) {
+// each clip sits just below its barrel's muzzle; right of the gun rack so
+// the long barrel clears it
+translate([195, 0, 0]) {
     data = my_barrels_data();
     bd = data[0];
     md = data[1];

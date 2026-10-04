@@ -3,8 +3,9 @@
 // and regen_all.py exports this build like any other model.
 //
 // Measured barrels (mm):
-//   1   27 at the breech, 24 at the muzzle
-//   2   27 at the breech, 17.5 at the muzzle
+//   1   27 at the breech, 24 at the muzzle, 660 long: SSG 3000 / STR 200
+//       drop-in, 6 mm Creedmoor, M24 profile, 26 inch (from the spec)
+//   2   27 at the breech, 17.5 at the muzzle, about 450 long (estimate)
 // The clips use the muzzle diameters, so mount each clip just below its
 // muzzle. The cup row stands on the safe floor.
 //
@@ -21,8 +22,8 @@ part = "cup"; // [cup, clip]
 breech_d = [27, 27];
 // Muzzle diameter per barrel, measured (the clip sits just below it)
 barrel_d = [24, 17.5];
-// Barrel length, PLACEHOLDER until measured (only the assembly scene uses it)
-barrel_l = [600, 600];
+// Barrel length (only the assembly scene uses it); the second is an estimate
+barrel_l = [660, 450];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 wall_offset = [0, 0];
 // Space between neighbouring cups, one entry per pair
