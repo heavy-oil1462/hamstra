@@ -49,7 +49,7 @@ print_slot = 0;
 muzzle_d = [[20.5, 41], [20.5, 41], [20, 40], [43, 21.5], 17, 17, 22, 19];
 // Height of the rack's shelf top above the safe floor (scene only): just
 // below the muzzle of the shortest gun standing on the floor, for now the
-// Bergara at 91 cm overall, leaving about 5 cm of barrel above the shelf
+// Bergara at 96 cm overall, leaving about 10 cm of barrel above the shelf
 rack_top = 860;
 
 // These values for the assembly scene: [slot widths, wall offsets, gaps,
