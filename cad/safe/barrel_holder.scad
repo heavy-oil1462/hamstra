@@ -42,6 +42,9 @@ barrel_d = [20, 18];
 wall_offset = [0, 0];
 // Space between neighbouring cups, one entry per pair
 gaps = [8];
+// Clip position per slot: 0 centered over the cup (round barrels), 1 back
+// flush with the cup's back (an O/U set flush with its monoblock's back)
+clip_align = [0, 0];
 
 /* [Cup] */
 // Cup depth, inside
@@ -83,18 +86,19 @@ magnets_z = 2;
 // so does the assembly to stand barrels in it.
 function barrel_layout(breech_d = breech_d, barrel_d = barrel_d,
                        wall_offset = wall_offset, gaps = gaps,
-                       clip_wall = clip_wall, clip_clearance = clip_clearance) =
+                       clip_wall = clip_wall, clip_clearance = clip_clearance,
+                       clip_align = clip_align) =
     let (bd = as_list(breech_d))
     holder_pair_layout([for (d = bd) grow(d, item_clearance)], wall,
                        [for (i = [0 : len(bd) - 1]) grow(per(barrel_d, i), clip_clearance)],
-                       clip_wall, gaps, wall_offset);
+                       clip_wall, gaps, wall_offset, clip_align);
 
 // Height of the cup floor the barrels stand on.
 function barrel_floor_t() = floor_t;
 
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
-                     cup_depth = cup_depth, floor_t = floor_t,
+                     clip_align = clip_align, cup_depth = cup_depth, floor_t = floor_t,
                      drain_d = drain_d, cup_plate_h = cup_plate_h,
                      clip_h = clip_h, clip_wall = clip_wall, snap = snap,
                      clip_clearance = clip_clearance,
@@ -105,7 +109,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
     bd = as_list(breech_d);
     n = len(bd);
     cup_clip_part(part, barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall,
-                                      clip_clearance),
+                                      clip_clearance, clip_align),
                   [for (d = bd) grow(d, item_clearance)],
                   [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,

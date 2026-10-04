@@ -61,13 +61,20 @@ function holder_xs(ds, w, gaps) =
 
 // Shared layout for two holder rows that must keep each item plumb (a cup
 // low on the wall, a clip higher up): spaced and set off the wall by the
-// bigger of the two per slot. Returns [xs, axes, bounds]: bounds are the
-// n + 1 slot boundaries along x for wall_row (row ends and gap middles).
-function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets) =
+// bigger of the two per slot. Returns [xs, axes, bounds, axes2]: bounds
+// are the n + 1 slot boundaries along x for wall_row (row ends and gap
+// middles), axes2 the second row's axes. align per slot: 0 puts the
+// second row on the same axis (a tapered round barrel), 1 puts the backs
+// of both bores flush, toward the wall (an over and under set whose
+// barrels run flush with the back of its deeper monoblock).
+function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets, align = 0) =
     let (w = max(w1, w2),
          ds = [for (i = [0 : len(ds1) - 1]) shape_max(ds1[i], ds2[i])],
-         xs = holder_xs(ds, w, gaps))
-    [xs, holder_axes(ds, 1, offsets), holder_bounds(xs, ds, w)];
+         xs = holder_xs(ds, w, gaps),
+         axes = holder_axes(ds, 1, offsets))
+    [xs, axes, holder_bounds(xs, ds, w),
+     [for (i = [0 : len(ds1) - 1])
+         axes[i] - per(align, i) * (sy(ds1[i]) - sy(ds2[i])) / 2]];
 
 // Slot boundaries for a holder row: the outer walls at both ends and the
 // middle of every gap in between.
@@ -131,7 +138,7 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
 // row of snap clips higher up, both from one slot layout so every item
 // stands plumb. Used by the barrel and suppressor holders.
 //   part        "cup" or "clip"
-//   layout      [xs, axes, bounds] from holder_pair_layout
+//   layout      [xs, axes, bounds, clip axes] from holder_pair_layout
 //   cup_ds      cup bore per slot; clip_ds clip bore per slot
 //   cup_h       cup height including its floor_t floor
 //   drain_d     drain hole in the cup floor, 0 for none
@@ -157,8 +164,8 @@ module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
         wall_row(bounds, max(clip_plate_h, clip_h), magnets_x, magnets_z,
                  modular = clip_row ? modular : true, joined = clip_row,
                  print_slot = print_slot, spacing = spacing)
-            holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots), pick(axes, $slots),
-                       w = clip_wall, bottom = "open",
+            holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots),
+                       pick(layout[3], $slots), w = clip_wall, bottom = "open",
                        front_gaps = pick(clip_gaps, $slots), chamfer = 0.6);
     else
         assert(false, str("unknown part: ", part));

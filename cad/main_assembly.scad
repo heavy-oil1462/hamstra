@@ -17,12 +17,25 @@ use <my_safe/barrels.scad>
 
 // the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 700]);
+    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 760]);
     color("gray") translate([-260, -150, -2]) cube([520, 152, 2]);
 }
 
 module stand_in(d, h) {
     color("black") cylinder(d = d, h = h);
+}
+
+// A round barrel tapers from breech to muzzle; an over and under set is
+// its monoblock with the stacked barrels above it. a1 / a2: wall to axis
+// of the breech and of the barrels.
+module barrel_stand_in(breech, muzzle, l, a1, a2) {
+    color("black")
+        if (is_list(breech)) {
+            translate([0, -a1, 0]) linear_extrude(80) bore2d(breech);
+            translate([0, -a2, 0]) linear_extrude(l) bore2d(muzzle);
+        } else {
+            translate([0, -a1, 0]) cylinder(d1 = breech, d2 = muzzle, h = l);
+        }
 }
 
 safe_wall();
@@ -47,18 +60,18 @@ translate([-150, 0, 120]) {
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
 // each clip sits just below its barrel's muzzle; right of the gun rack so
 // the long barrel clears it
-translate([195, 0, 0]) {
+translate([185, 0, 0]) {
     data = my_barrels_data();
     bd = data[0];
     md = data[1];
     bl = data[2];
     layout = barrel_layout(breech_d = bd, barrel_d = md, wall_offset = data[3],
-                           gaps = data[4]);
+                           gaps = data[4], clip_align = data[5]);
     color("peru") my_barrels(part = "cup", modular = false);
     for (i = [0 : len(bd) - 1]) {
         color("peru") translate([0, 0, barrel_floor_t() + bl[i] - 30 - 15])
             my_barrels(part = "clip", print_slot = i + 1);
-        translate([layout[0][i], -layout[1][i], barrel_floor_t()])
-            color("black") cylinder(d1 = bd[i], d2 = md[i], h = bl[i]);
+        translate([layout[0][i], 0, barrel_floor_t()])
+            barrel_stand_in(bd[i], md[i], bl[i], layout[1][i], layout[3][i]);
     }
 }
