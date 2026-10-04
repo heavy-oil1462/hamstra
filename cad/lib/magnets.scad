@@ -28,7 +28,8 @@ module pocket2d(d, teardrop) {
 // One pocket cutter. Opening on the plane z = 0, depth toward +z.
 module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
     d = magnet_d + clearance;
-    depth = magnet_h + magnet_recess;
+    // with no skin the pocket runs through the boss: cut past its face
+    depth = magnet_h + magnet_recess + (back_skin > 0 ? 0 : eps);
     translate([0, 0, -eps]) {
         linear_extrude(depth + eps) pocket2d(d, teardrop);
         cylinder(d1 = d + 2 * magnet_chamfer + 2 * eps, d2 = d,

@@ -146,7 +146,8 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
 function gun_rack_layout(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                          edge = edge, root = root) =
     let (ws = as_list(slot_w), n = len(ws), xs = slot_xs(ws, gaps, edge))
-    [xs, [for (i = [0 : n - 1]) back_t + root + per(wall_offset, i)],
+    // slot bottoms clear the magnet bosses and the dovetail edge strip
+    [xs, [for (i = [0 : n - 1]) max(back_t + root, dovetail_spine_t + 1) + per(wall_offset, i)],
      xs[n - 1] + ws[n - 1] / 2 + edge];
 
 // Back plate height: the shelf top sits this far above the plate bottom.

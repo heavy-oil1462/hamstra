@@ -36,9 +36,11 @@ magnet_edge = 4;        // minimum plastic from a pocket to the plate edge
 
 // --- Wall plates ---
 // Every safe-mounted model has a flat back plate carrying the magnets.
-// The plate is thin; only a boss around each magnet is full thickness,
-// which saves most of the plate's plastic. The back face stays flat.
-back_skin = 2;                  // plastic behind the magnet
+// The plate is thin; only a boss around each magnet is as thick as the
+// magnet, which saves most of the plate's plastic. The back face stays
+// flat. With back_skin 0 the pocket runs through the boss: the magnet is
+// flush with the wall behind and with the boss in front, glued in.
+back_skin = 0;                  // plastic in front of the magnet, 0 = none
 back_t = magnet_h + magnet_recess + back_skin; // thickness at a magnet (boss)
 plate_t = 3;                    // plate thickness away from the magnets
 boss_wall = 2;                  // plastic around a pocket in its boss

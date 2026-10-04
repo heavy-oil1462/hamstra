@@ -114,7 +114,10 @@ The defaults use 15x5 mm neodymium disc magnets. Change `magnet_d` and
 
 1. Print `magnet_pocket_gauge` first, press a magnet into each pocket and
    set `magnet_clearance` to the tightest one that seats fully flush.
-2. Glue the magnets in with epoxy or CA, face flush with the back.
+2. The pockets go right through the thin bosses around them. Lay the
+   part back down on a flat surface, press each magnet in until it
+   touches the surface, and glue it with epoxy or CA, so its face is
+   flush with the back.
 3. A magnet holds far less sideways on a vertical wall than its rated
    pull, about a quarter: roughly 1.2 kg for a 15x5 magnet on bare
    steel. The defaults give the rows that carry weight (the suppressor
