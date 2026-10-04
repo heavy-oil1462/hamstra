@@ -4,7 +4,8 @@ Parametric, 3D printable organizers for guns and hunting gear, written in
 OpenSCAD. The first set lives in the gun safe and holds on with neodymium
 magnets, so nothing is drilled into the safe:
 
-- Suppressor holder: upright sleeves, the suppressor rests on a bottom lip
+- Suppressor holder: a tall plate with a floor cradle at the bottom and a
+  snap clip near the top
 - Spare barrel holder: a cup for the breech end plus a snap clip higher up
 - Gun rack: a comb shelf for the top of the safe
 
@@ -21,7 +22,7 @@ Status: early prototypes. Dimensions are still being tuned.
 
 | Model | File | Prints |
 | --- | --- | --- |
-| Suppressor holder | `cad/safe/suppressor_holder.scad` | upright, as modeled |
+| Suppressor holder | `cad/safe/suppressor_holder.scad` | on its back, as modeled |
 | Barrel holder (cup and clip) | `cad/safe/barrel_holder.scad` | upright, as modeled |
 | Gun rack | `cad/safe/gun_rack.scad` | on its back, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |

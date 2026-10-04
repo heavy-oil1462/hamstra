@@ -26,7 +26,10 @@ neodymium magnets on the back so nothing is drilled into the safe.
 - Models are modeled in their print orientation and print without
   support. Upright models (back plate vertical, holders standing on the
   bed) use horizontal teardrop magnet pockets; models printed on their
-  back (the gun rack) use plain pockets opening onto the bed. Features
+  back (the gun rack, the suppressor holder) use plain pockets opening
+  onto the bed. A holder high up a tall plate cannot print upright (its
+  underside floats), so tall holders print on their back with their
+  rings open to the front as troughs. Features
   start at the bed rather than float above it.
 - Two models that must agree on a dimension read it from
   `cad/design_params.scad`. Parts that must agree per slot (the barrel

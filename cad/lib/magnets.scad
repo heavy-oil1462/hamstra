@@ -32,12 +32,14 @@ module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
     }
 }
 
-// Pocket grid for a vertical back face (upright models). The plate spans
-// x in [-w/2, w/2], z in [0, h]; nx by nz pockets, axes along y.
-module magnet_pockets_wall(w, h, nx, nz) {
+// Pocket grid for the back face of a wall-mounted model. The plate spans
+// x in [-w/2, w/2], z in [0, h]; nx by nz pockets, axes along y. Upright
+// prints want the teardrop roof; models modeled upright but printed on
+// their back (rotated so the back face lies on the bed) pass false.
+module magnet_pockets_wall(w, h, nx, nz, teardrop = true) {
     m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
     for (x = spread(nx, -w / 2 + m, w / 2 - m), z = spread(nz, m, h - m))
-        translate([x, 0, z]) rotate([90, 0, 0]) magnet_pocket(teardrop = true);
+        translate([x, 0, z]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
 }
 
 // Pocket grid for a back face lying on the print bed (z = 0). The plate
@@ -58,12 +60,12 @@ module wall_plate(w, h, r = plate_r) {
 
 // Upright wall-mounted model: back plate plus children, magnet pockets
 // cut last so nothing the children add can fill them.
-module wall_mount(w, h, nx, nz) {
+module wall_mount(w, h, nx, nz, teardrop = true) {
     difference() {
         union() {
             wall_plate(w, h);
             children();
         }
-        magnet_pockets_wall(w, h, nx, nz);
+        magnet_pockets_wall(w, h, nx, nz, teardrop);
     }
 }

@@ -31,13 +31,13 @@ safe_wall();
 color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack();
 
 // two suppressors, left
-translate([-150, 0, 150]) {
-    color("peru") suppressor_holder(suppressor_d = scene_suppressor_d);
-    ds = [for (d = scene_suppressor_d) d + item_clearance];
-    xs = holder_xs(ds, wall, 4);
-    axes = holder_axes(ds, 1, 0);
-    for (i = [0 : len(ds) - 1])
-        translate([xs[i], -axes[i], 2]) stand_in(scene_suppressor_d[i], 180);
+translate([-150, 0, 120]) {
+    color("peru") rotate([90, 0, 0]) suppressor_holder(suppressor_d = scene_suppressor_d);
+    // mirrors suppressor_holder's layout with its default knobs
+    layout = holder_pair_layout([for (d = scene_suppressor_d) d + item_clearance], wall,
+                                [for (d = scene_suppressor_d) d + 0.6], 3, 6, 0);
+    for (i = [0 : len(scene_suppressor_d) - 1])
+        translate([layout[0][i], -layout[1][i], 3]) stand_in(scene_suppressor_d[i], 180);
 }
 
 // two spare barrels, right: cup at the bottom, clip up the wall. Mirrors

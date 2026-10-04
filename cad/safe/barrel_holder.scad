@@ -68,12 +68,10 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
     n = len(bd);
     cup_ds = [for (d = bd) d + item_clearance];
     clip_ds = [for (i = [0 : n - 1]) per(barrel_d, i) + clip_clearance];
-    // shared layout: spaced and set off the wall by the fatter part per slot
-    lay_w = max(wall, clip_wall);
-    lay_ds = [for (i = [0 : n - 1]) max(cup_ds[i], clip_ds[i])];
-    xs = holder_xs(lay_ds, lay_w, gaps);
-    axes = holder_axes(lay_ds, 1, wall_offset);
-    plate_w = holder_row_w(lay_ds, lay_w, gaps);
+    layout = holder_pair_layout(cup_ds, wall, clip_ds, clip_wall, gaps, wall_offset);
+    xs = layout[0];
+    axes = layout[1];
+    plate_w = layout[2];
 
     if (part == "cup")
         wall_mount(plate_w, max(cup_plate_h, cup_depth + floor_t), magnets_x, magnets_z)
