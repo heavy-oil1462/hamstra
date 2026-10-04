@@ -62,8 +62,10 @@ barrel stands plumb.
 
 Set `modular = true` and the row prints as one module per slot, each
 with its own magnets. Neighbours join with a sliding dovetail on the
-plate edges: slide each module down onto the tongue of the one to its
-left until it stops, which leaves them level. With `print_slot = 0` all
+plate edges between slots; the outer ends of the row stay plain. Slide
+each module down onto the tongue of the one to its left until it stops,
+which leaves them level. `scripts/regen_all.py` writes every module to
+its own STL, numbered from the left (`gun_rack_modular_1.stl`, ...). With `print_slot = 0` all
 modules are laid out side by side for one print; `print_slot = 2` gives
 just the second, for reprinting or swapping one slot. `magnets_x` then
 counts columns per module.

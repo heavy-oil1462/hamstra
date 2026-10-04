@@ -16,8 +16,10 @@ Pipeline:
 2. every model in cad/ (lib excluded) -> `stl/<category>/<name>.stl`;
    a model with a `part = "a"; // [a, b]` dropdown line exports
    `<name>_a.stl` and `<name>_b.stl` instead, and a model with a
-   `modular = false;` line also exports every output with modular = true
-   as `..._modular.stl`
+   `modular = ...;` line also exports every module to its own file,
+   `..._modular_<n>.stl`. The module count comes from the model's
+   `echo(modules = n)` (wall_row and gun_rack emit it when modular), so
+   a new modular model must echo it too or regen stops with an error.
 3. `cad/main_assembly.scad` -> `main_assembly.png`
 
 ## Rules

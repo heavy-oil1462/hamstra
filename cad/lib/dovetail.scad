@@ -34,8 +34,18 @@ module dovetail_female(x0, h) {
             dovetail_profile(dovetail_clearance);
 }
 
-// Thickened edge strips at both side edges.
-module dovetail_spines(x0, x1, h) {
-    for (x = [x0, x1 - dovetail_spine_w])
-        translate([x, -dovetail_spine_t, 0]) cube([dovetail_spine_w, dovetail_spine_t, h]);
+// Joint parts for a module spanning x in [x0, x1]. joints = [left, right]
+// says which edges join a neighbour: the outer ends of a row get none.
+// Each jointed edge gets a thickened strip (the spine) and squares the
+// plate corner so neighbours close up; the right edge carries the tongue.
+module dovetail_joints(x0, x1, h, joints) {
+    for (side = [0, 1]) if (joints[side])
+        translate([side == 0 ? x0 : x1 - dovetail_spine_w, -dovetail_spine_t, 0])
+            cube([dovetail_spine_w, dovetail_spine_t, h]);
+    if (joints[1]) dovetail_male(x1, h);
+}
+
+// Slot cut for a module whose left edge joins a neighbour.
+module dovetail_cuts(x0, h, joints) {
+    if (joints[0]) dovetail_female(x0, h);
 }

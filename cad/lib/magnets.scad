@@ -67,21 +67,17 @@ module wall_plate(x0, x1, h, r = plate_r) {
 }
 
 // Upright wall-mounted model: back plate plus children, magnet pockets
-// cut last so nothing the children add can fill them. dovetails = true
-// adds the module joint on both side edges (and square plate corners,
-// so joined modules close up).
-module wall_mount(x0, x1, h, nx, nz, teardrop = true, dovetails = false) {
+// cut last so nothing the children add can fill them. joints = [left,
+// right] adds the module joint on those side edges (lib/dovetail.scad).
+module wall_mount(x0, x1, h, nx, nz, teardrop = true, joints = [false, false]) {
     difference() {
         union() {
-            wall_plate(x0, x1, h, dovetails ? 0 : plate_r);
-            if (dovetails) {
-                dovetail_spines(x0, x1, h);
-                dovetail_male(x1, h);
-            }
+            wall_plate(x0, x1, h);
+            dovetail_joints(x0, x1, h, joints);
             children();
         }
         magnet_pockets_wall(x0, x1, h, nx, nz, teardrop);
-        if (dovetails) dovetail_female(x0, h);
+        dovetail_cuts(x0, h, joints);
     }
 }
 
@@ -89,7 +85,8 @@ module wall_mount(x0, x1, h, nx, nz, teardrop = true, dovetails = false) {
 //   bounds      slot boundaries along x, n + 1 of them (module i spans
 //               bounds[i] to bounds[i + 1])
 //   modular     false: one plate for the whole row. true: one plate per
-//               slot, joined with dovetails.
+//               slot, joined with dovetails between slots (the row's
+//               outer ends stay plain).
 //   print_slot  modular only: 0 lays out every module, spacing apart;
 //               1..n just that module
 //   nx          magnet columns per row, or per module when modular;
@@ -99,6 +96,8 @@ module wall_row(bounds, h, nx, nz, teardrop = true, modular = false,
                 print_slot = 0, spacing = 12) {
     n = len(bounds) - 1;
     assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
+    // regen_all.py reads this to export every module to its own STL
+    if (modular) echo(modules = n);
     if (!modular)
         let ($slots = [for (i = [0 : n - 1]) i])
             wall_mount(bounds[0], bounds[n], h, nx, nz, teardrop) children();
@@ -107,6 +106,6 @@ module wall_row(bounds, h, nx, nz, teardrop = true, modular = false,
             let ($slots = [i])
                 translate([print_slot == 0 ? i * spacing : 0, 0, 0])
                     wall_mount(bounds[i], bounds[i + 1], h, nx, nz, teardrop,
-                               dovetails = true)
+                               joints = [i > 0, i < n - 1])
                         children();
 }

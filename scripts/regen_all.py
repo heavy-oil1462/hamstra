@@ -17,9 +17,11 @@ A file that prints as several parts declares a Customizer dropdown on
 one line, `part = "cup"; // [cup, clip]`, and gets one STL per option:
 stl/<category>/<name>_<option>.stl.
 
-A file with a `modular = false;` line also gets every output rendered
-with modular = true (all modules laid out for printing) as
-<name>[_<option>]_modular.stl, so the modular path is gated too.
+A file with a `modular = ...;` line also gets every module exported to
+its own STL, <name>[_<option>]_modular_<n>.stl, rendered with
+modular = true and print_slot = n. The module count comes from the
+model itself: it echoes `modules = n` when modular, read from a cheap
+echo-only pass, so it always matches the slot lists in the file.
 
 Prototyping phase: stl/ and main_assembly.png are gitignored while the
 models are iterated by eye in OpenSCAD. When designs settle they become
@@ -47,7 +49,8 @@ CAD = ROOT / "cad"
 NON_MODELS = {"design_params", "main_assembly"}
 ASSEMBLY = CAD / "main_assembly.scad"
 PART_DROPDOWN = re.compile(r'(?m)^part\s*=\s*"\w+"\s*;\s*//\s*\[([^\]]+)\]')
-MODULAR = re.compile(r"(?m)^modular\s*=\s*false\s*;")
+MODULAR = re.compile(r"(?m)^modular\s*=\s*(true|false)\s*;")
+MODULE_COUNT = re.compile(r"ECHO: modules = (\d+)")
 
 
 def models():
@@ -57,17 +60,33 @@ def models():
             yield p
 
 
-def outputs(scad: Path):
-    """(stl path, extra openscad args) per printed part of a model."""
+def module_count(scad: Path, args, td: str) -> int:
+    """How many modules the model makes with these args and modular on."""
+    echo = Path(td) / "modules.echo"
+    render(str(scad), str(echo), args + ["-D", "modular=true"])
+    m = MODULE_COUNT.search(echo.read_text()) if echo.exists() else None
+    if not m:
+        raise SystemExit(f"{scad.relative_to(ROOT)} has a modular flag but echoed"
+                         " no module count (see wall_row in lib/magnets.scad)")
+    return int(m.group(1))
+
+
+def outputs(scad: Path, td: str):
+    """(stl path, extra openscad args) per printed part of a model: the
+    one-piece part, then each module on its own when the model is modular."""
     base = ROOT / "stl" / scad.relative_to(CAD).with_suffix("")
     text = scad.read_text()
     m = PART_DROPDOWN.search(text)
     parts = ([("", [])] if not m else
              [(f"_{o.strip()}", ["-D", f'part="{o.strip()}"']) for o in m.group(1).split(",")])
-    modes = [("", [])] + ([("_modular", ["-D", "modular=true"])] if MODULAR.search(text) else [])
-    for part, part_args in parts:
-        for mode, mode_args in modes:
-            yield base.with_name(f"{base.name}{part}{mode}.stl"), part_args + mode_args
+    modular = bool(MODULAR.search(text))
+    for part, args in parts:
+        yield (base.with_name(f"{base.name}{part}.stl"),
+               args + (["-D", "modular=false"] if modular else []))
+        if modular:
+            for i in range(1, module_count(scad, args, td) + 1):
+                yield (base.with_name(f"{base.name}{part}_modular_{i}.stl"),
+                       args + ["-D", "modular=true", "-D", f"print_slot={i}"])
 
 
 def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:
@@ -105,7 +124,7 @@ def main(argv):
         for scad in models():
             if only and scad.stem not in only:
                 continue
-            for stl, extra in outputs(scad):
+            for stl, extra in outputs(scad, td):
                 ok &= run_one(scad, target(stl), stl, extra)
 
         if not stl_only and (not only or "main_assembly" in only):

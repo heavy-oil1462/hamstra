@@ -34,9 +34,10 @@ neodymium magnets on the back so nothing is drilled into the safe.
 - Rows can print as one piece or, with `modular = true`, as one module
   per slot. Modules split at the middle of each gap (so a joined row has
   exactly the one-piece layout), carry their own magnets, and join with
-  a sliding dovetail along the plate side edges (lib/dovetail.scad,
-  shared values in design_params): tongue right, slot left, slot closed
-  at the top so modules stop level. `print_slot` picks one module or
+  a sliding dovetail along the plate side edges between slots
+  (lib/dovetail.scad, shared values in design_params): tongue right,
+  slot left, slot closed at the top so modules stop level, outer row
+  ends plain. regen exports each module to its own STL. `print_slot` picks one module or
   lays them all out. New multi-slot models build on `wall_row` in
   lib/magnets.scad, which handles both modes.
 - Two models that must agree on a dimension read it from
