@@ -17,7 +17,7 @@ use <my_safe/rifles.scad>
 
 // the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-280, 0, 0]) cube([680, 2, 760]);
+    color("dimgray") translate([-280, 0, 0]) cube([680, 2, 1000]);
     color("gray") translate([-280, -150, -2]) cube([680, 152, 2]);
 }
 
