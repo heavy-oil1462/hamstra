@@ -1,11 +1,24 @@
-// Spare barrel holder: a cup for the breech end at the bottom of the wall
-// and a snap clip higher up, two parts printed from this one file. Both
-// come from the same slot layout, so every barrel stands plumb.
+// Spare barrel holder: a row of cups for the breech ends, standing on the
+// floor of the safe, and a snap clip for each barrel higher up, all from
+// one slot layout so every barrel stands plumb.
 //
-// Every slot has its own breech and barrel diameter, wall offset and gap
-// to the next one. Per-slot knobs take one entry per slot, or a single
-// number for all (a short list repeats its last entry). The layout is
-// spaced by whichever is fatter per slot, breech or barrel.
+// Barrels are heavy and safe walls are slippery, so the cup row stands
+// on the safe floor and carries the weight there: cup floors and back
+// plate share one flat bottom. Its magnets only hold it to the wall, and
+// the clips only keep the barrels upright.
+//
+// Barrels differ in length, so by default each clip is its own piece
+// with its own plate and magnets, mounted just below its barrel's muzzle
+// straight above its cup. clip_row = true joins the clips in one row for
+// barrels of about the same length.
+//
+// Every slot has its own size, wall offset and gap to the next one.
+// Per-slot knobs take one entry per slot, or a single value for all (a
+// short list repeats its last entry). A size is a diameter, or
+// [width, depth] for an oblong item such as an over and under barrel set
+// stacked front to back: breech_d = [27, [42, 50]] is a round breech and
+// an O/U monoblock, barrel_d = [17.5, [21, 42]] the matching tops. The
+// layout is spaced by whichever is bigger per slot, breech or barrel.
 //
 // Prints as modeled: back plate vertical, cups and rings standing on the
 // bed. Pick the part to show or export with `part`; regen_all.py exports
@@ -19,9 +32,11 @@ use <../lib/holders.scad>
 part = "cup"; // [cup, clip]
 
 /* [Slots] */
-// Breech end diameter per slot, measured (stands in the cup)
+// Breech end size per slot, measured (stands in the cup)
 breech_d = [32, 30];
-// Barrel diameter per slot where the clip grips it, measured
+// Barrel size per slot where the clip grips it, measured. Tapered
+// barrels: measure where the clip will sit, or mount it just below the
+// muzzle and use the muzzle diameter.
 barrel_d = [20, 18];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 wall_offset = [0, 0];
@@ -31,10 +46,10 @@ gaps = [8];
 /* [Cup] */
 // Cup depth, inside
 cup_depth = 40;
-// Cup floor thickness
-floor_t = 2;
+// Cup floor thickness, it carries the barrel onto the safe floor
+floor_t = 3;
 // Drain hole in the floor (0 for none)
-drain_d = 6;
+drain_d = 0;
 // Cup back plate height (at least cup depth plus floor)
 cup_plate_h = 50;
 
@@ -49,6 +64,8 @@ snap = 0.85;
 clip_clearance = 0.4;
 // Clip back plate height
 clip_plate_h = 40;
+// Join the clips in one row (only for barrels of about the same length)
+clip_row = false;
 
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
@@ -62,20 +79,34 @@ magnets_x = 2;
 // Magnet rows
 magnets_z = 2;
 
+// Slot layout [xs, axes, bounds] for these knobs: the holder uses it, and
+// so does the assembly to stand barrels in it.
+function barrel_layout(breech_d = breech_d, barrel_d = barrel_d,
+                       wall_offset = wall_offset, gaps = gaps,
+                       clip_wall = clip_wall, clip_clearance = clip_clearance) =
+    let (bd = as_list(breech_d))
+    holder_pair_layout([for (d = bd) grow(d, item_clearance)], wall,
+                       [for (i = [0 : len(bd) - 1]) grow(per(barrel_d, i), clip_clearance)],
+                       clip_wall, gaps, wall_offset);
+
+// Height of the cup floor the barrels stand on.
+function barrel_floor_t() = floor_t;
+
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
                      cup_depth = cup_depth, floor_t = floor_t,
                      drain_d = drain_d, cup_plate_h = cup_plate_h,
                      clip_h = clip_h, clip_wall = clip_wall, snap = snap,
                      clip_clearance = clip_clearance,
-                     clip_plate_h = clip_plate_h, magnets_x = magnets_x,
+                     clip_plate_h = clip_plate_h, clip_row = clip_row,
+                     magnets_x = magnets_x,
                      magnets_z = magnets_z, modular = modular,
                      print_slot = print_slot, spacing = 12) {
     bd = as_list(breech_d);
     n = len(bd);
-    cup_ds = [for (d = bd) d + item_clearance];
-    clip_ds = [for (i = [0 : n - 1]) per(barrel_d, i) + clip_clearance];
-    layout = holder_pair_layout(cup_ds, wall, clip_ds, clip_wall, gaps, wall_offset);
+    cup_ds = [for (d = bd) grow(d, item_clearance)];
+    clip_ds = [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)];
+    layout = barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall, clip_clearance);
     xs = layout[0];
     axes = layout[1];
     bounds = layout[2];
@@ -86,13 +117,15 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
             holder_row(pick(cup_ds, $slots), cup_depth + floor_t, pick(xs, $slots),
                        pick(axes, $slots),
                        bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
-                       lips = [for (i = $slots) (cup_ds[i] - drain_d) / 2]);
+                       lips = [for (i = $slots) (sx(cup_ds[i]) - drain_d) / 2]);
     else if (part == "clip")
+        // separate clips unless clip_row: then they follow modular
         wall_row(bounds, max(clip_plate_h, clip_h), magnets_x, magnets_z,
-                 modular = modular, print_slot = print_slot, spacing = spacing)
+                 modular = clip_row ? modular : true, joined = clip_row,
+                 print_slot = print_slot, spacing = spacing)
             holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots), pick(axes, $slots),
                        w = clip_wall, bottom = "open",
-                       front_gaps = [for (i = $slots) per(barrel_d, i) * snap],
+                       front_gaps = [for (i = $slots) sx(per(barrel_d, i)) * snap],
                        chamfer = 0.6);
     else
         assert(false, str("unknown part: ", part));

@@ -40,6 +40,14 @@ neodymium magnets on the back so nothing is drilled into the safe.
   ends plain. regen exports each module to its own STL. `print_slot` picks one module or
   lays them all out. New multi-slot models build on `wall_row` in
   lib/magnets.scad, which handles both modes.
+- Holder slot sizes are a diameter or [width, depth] for oblong items
+  (an over and under pair stacked front to back), via sx/sy/bore2d in
+  lib/holders.scad. Round and oblong slots mix in one row.
+- Heavy items stand on the safe floor, they do not hang on magnets: the
+  barrel holder's cup row has one flat bottom on the safe floor and
+  carries the weight; magnets only hold it to the wall. Barrel clips are
+  separate pieces by default (barrels differ in length, each clip sits
+  below its own muzzle); only base rows dovetail.
 - Two models that must agree on a dimension read it from
   `cad/design_params.scad`. Parts that must agree per slot (the barrel
   cup and clip) live in one file with a `part` dropdown instead, so one

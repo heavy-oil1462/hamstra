@@ -2,8 +2,8 @@
 // suppressors and barrels. Visual fit check only, renders to
 // main_assembly.png. Not a printable part.
 //
-// The suppressors come from the cad/my_safe build; the other models use
-// scene values. Stand-ins are placed with the models' own layout
+// The suppressors and barrels come from the cad/my_safe builds; the gun
+// rack uses its defaults. Stand-ins are placed with the models' own layout
 // functions.
 
 include <design_params.scad>
@@ -12,14 +12,13 @@ use <safe/suppressor_holder.scad>
 use <safe/barrel_holder.scad>
 use <safe/gun_rack.scad>
 use <my_safe/suppressors.scad>
+use <my_safe/barrels.scad>
 
-scene_breech_d = [32, 30];
-scene_barrel_d = [20, 18];
-scene_barrel_offset = [0, 10];
-scene_barrel_gaps = [8];
 
+// the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-260, 0, -20]) cube([520, 2, 700]);
+    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 700]);
+    color("gray") translate([-260, -150, -2]) cube([520, 152, 2]);
 }
 
 module stand_in(d, h) {
@@ -43,23 +42,20 @@ translate([-150, 0, 120]) {
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
 }
 
-// two spare barrels, right: cup at the bottom, clip up the wall. Mirrors
-// barrel_holder's layout rule: spaced by the fatter part per slot.
+// my spare barrels, right: the cup row stands on the safe floor (z = 0),
+// each clip sits just below its barrel's muzzle
 translate([120, 0, 0]) {
-    color("peru") barrel_holder(part = "cup", breech_d = scene_breech_d,
-                                barrel_d = scene_barrel_d,
-                                wall_offset = scene_barrel_offset,
-                                gaps = scene_barrel_gaps);
-    color("peru") translate([0, 0, 420])
-        barrel_holder(part = "clip", breech_d = scene_breech_d,
-                      barrel_d = scene_barrel_d,
-                      wall_offset = scene_barrel_offset, gaps = scene_barrel_gaps);
-    ds = [for (d = scene_breech_d) d + item_clearance];
-    xs = holder_xs(ds, 3, scene_barrel_gaps);
-    axes = holder_axes(ds, 1, scene_barrel_offset);
-    for (i = [0 : len(ds) - 1])
-        translate([xs[i], -axes[i], 2]) {
-            stand_in(scene_breech_d[i], 60);
-            stand_in(scene_barrel_d[i], 520);
-        }
+    data = my_barrels_data();
+    bd = data[0];
+    md = data[1];
+    bl = data[2];
+    layout = barrel_layout(breech_d = bd, barrel_d = md, wall_offset = data[3],
+                           gaps = data[4]);
+    color("peru") my_barrels(part = "cup", modular = false);
+    for (i = [0 : len(bd) - 1]) {
+        color("peru") translate([0, 0, barrel_floor_t() + bl[i] - 30 - 15])
+            my_barrels(part = "clip", print_slot = i + 1);
+        translate([layout[0][i], -layout[1][i], barrel_floor_t()])
+            color("black") cylinder(d1 = bd[i], d2 = md[i], h = bl[i]);
+    }
 }

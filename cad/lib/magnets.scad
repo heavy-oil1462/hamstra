@@ -89,11 +89,13 @@ module wall_mount(x0, x1, h, nx, nz, teardrop = true, joints = [false, false]) {
 //               outer ends stay plain).
 //   print_slot  modular only: 0 lays out every module, spacing apart;
 //               1..n just that module
+//   joined      modular only: false leaves out the dovetails, for pieces
+//               that each mount on their own (separate barrel clips)
 //   nx          magnet columns per row, or per module when modular;
 //               capped at what fits without pockets touching
 // Children draw the holders for the slot indices in $slots.
 module wall_row(bounds, h, nx, nz, teardrop = true, modular = false,
-                print_slot = 0, spacing = 12) {
+                print_slot = 0, spacing = 12, joined = true) {
     n = len(bounds) - 1;
     assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
     // regen_all.py reads this to export every module to its own STL
@@ -106,6 +108,6 @@ module wall_row(bounds, h, nx, nz, teardrop = true, modular = false,
             let ($slots = [i])
                 translate([print_slot == 0 ? i * spacing : 0, 0, 0])
                     wall_mount(bounds[i], bounds[i + 1], h, nx, nz, teardrop,
-                               joints = [i > 0, i < n - 1])
+                               joints = joined ? [i > 0, i < n - 1] : [false, false])
                         children();
 }

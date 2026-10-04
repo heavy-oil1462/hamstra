@@ -1,4 +1,4 @@
-// Round holder helpers shared by the safe models. Lives under cad/lib/ so
+// Holder helpers shared by the safe models. Lives under cad/lib/ so
 // regen_all.py does not export it as a printable model.
 //
 // Same convention as magnets.scad: wall at y = 0, back plate in
@@ -7,7 +7,7 @@
 // Holder rows are configured per slot. Every per-slot argument takes a
 // list (one entry per slot) or a single number for all slots; a list
 // shorter than the slot count repeats its last entry. The slot count
-// comes from the diameter list.
+// comes from the size list.
 
 include <../design_params.scad>
 
@@ -17,9 +17,24 @@ function per(v, i) = is_list(v) ? v[min(i, len(v) - 1)] : v;
 // Diameter list from a number or a list.
 function as_list(v) = is_list(v) ? v : [v];
 
-// Closest distance from the wall to the axis of a holder with bore d:
-// the bore and its entry chamfer stay 1 mm clear of the back plate.
-function holder_min_axis(d, chamfer) = back_t + chamfer + 1 + d / 2;
+// Holder shapes. A slot's size is a number (a round item of that
+// diameter) or [width, depth]: an oblong item, width along the wall and
+// depth away from it, such as an over and under barrel pair stacked
+// front to back ([21, 42] for two 21 mm barrels).
+function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
+function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
+function grow(s, c) = is_list(s) ? [s[0] + c, s[1] + c] : s + c;
+function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
+
+// Bore outline of shape s centered on the origin: a circle, or a stadium
+// running along y. Convex, so hulls of it stay true.
+module bore2d(s) {
+    hull() for (y = [-1, 1]) translate([0, y * (sy(s) - sx(s)) / 2]) circle(d = sx(s));
+}
+
+// Closest distance from the wall to the axis of a holder of shape s: the
+// bore and its entry chamfer stay 1 mm clear of the back plate.
+function holder_min_axis(s, chamfer) = back_t + chamfer + 1 + sy(s) / 2;
 
 // Wall to axis distance per slot: the closest allowed plus the offset.
 function holder_axes(ds, chamfer, offsets) =
@@ -29,26 +44,27 @@ function holder_axes(ds, chamfer, offsets) =
 function _holder_xs(ds, w, gaps, i = 0, x = 0) =
     i >= len(ds) ? [] :
     concat([x], i + 1 < len(ds)
-        ? _holder_xs(ds, w, gaps, i + 1, x + ds[i] / 2 + 2 * w + per(gaps, i) + ds[i + 1] / 2)
+        ? _holder_xs(ds, w, gaps, i + 1,
+                     x + sx(ds[i]) / 2 + 2 * w + per(gaps, i) + sx(ds[i + 1]) / 2)
         : []);
 
 // Width of a holder row from outer wall to outer wall.
 function holder_row_w(ds, w, gaps) =
     let (xs = _holder_xs(ds, w, gaps), n = len(ds))
-    xs[n - 1] + ds[n - 1] / 2 + ds[0] / 2 + 2 * w;
+    xs[n - 1] + sx(ds[n - 1]) / 2 + sx(ds[0]) / 2 + 2 * w;
 
 // Holder centers, the row centered on x = 0.
 function holder_xs(ds, w, gaps) =
-    let (xs = _holder_xs(ds, w, gaps), x0 = -holder_row_w(ds, w, gaps) / 2 + ds[0] / 2 + w)
+    let (xs = _holder_xs(ds, w, gaps), x0 = -holder_row_w(ds, w, gaps) / 2 + sx(ds[0]) / 2 + w)
     [for (x = xs) x + x0];
 
 // Shared layout for two holder rows that must keep each item plumb (a cup
 // low on the wall, a clip higher up): spaced and set off the wall by the
-// fatter of the two per slot. Returns [xs, axes, bounds]: bounds are the
+// bigger of the two per slot. Returns [xs, axes, bounds]: bounds are the
 // n + 1 slot boundaries along x for wall_row (row ends and gap middles).
 function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets) =
     let (w = max(w1, w2),
-         ds = [for (i = [0 : len(ds1) - 1]) max(ds1[i], ds2[i])],
+         ds = [for (i = [0 : len(ds1) - 1]) shape_max(ds1[i], ds2[i])],
          xs = holder_xs(ds, w, gaps))
     [xs, holder_axes(ds, 1, offsets), holder_bounds(xs, ds, w)];
 
@@ -56,16 +72,17 @@ function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets) =
 // middle of every gap in between.
 function holder_bounds(xs, ds, w) =
     let (n = len(ds))
-    concat([xs[0] - ds[0] / 2 - w],
-           [for (i = [1 : max(n - 1, 1)]) if (i < n) (xs[i - 1] + ds[i - 1] / 2 + xs[i] - ds[i] / 2) / 2],
-           [xs[n - 1] + ds[n - 1] / 2 + w]);
+    concat([xs[0] - sx(ds[0]) / 2 - w],
+           [for (i = [1 : max(n - 1, 1)]) if (i < n)
+               (xs[i - 1] + sx(ds[i - 1]) / 2 + xs[i] - sx(ds[i]) / 2) / 2],
+           [xs[n - 1] + sx(ds[n - 1]) / 2 + w]);
 
 // The entries of list v at the indices ix (per-slot list v, or a number).
 function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 
-// A row of round holders from z = 0 to z = h, each merged into the back
-// plate by a web. Positions are explicit so two parts can share a layout.
-//   ds         bore diameter per slot (item diameter plus clearance)
+// A row of holders from z = 0 to z = h, each merged into the back plate
+// by a web. Positions are explicit so two parts can share a layout.
+//   ds         bore shape per slot (item size plus clearance), see sx/sy
 //   xs         center x per slot
 //   axes       wall to axis distance per slot
 //   w          holder wall
@@ -74,7 +91,8 @@ function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 //              "open":   no floor at all (clips)
 //   lips       ring width per slot for "lip"
 //   front_gaps snap opening width per slot toward -y, 0 for none; it
-//              starts above the floor so the floor stays whole
+//              starts above the floor so the floor stays whole, and on an
+//              oblong bore it wraps the front item
 //   chamfer    entry chamfer at the top of the bore
 module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
                   lips = 4, front_gaps = 0, chamfer = 1) {
@@ -84,19 +102,26 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
     difference() {
         union()
             for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
-                r = ds[i] / 2;
-                cylinder(r = r + w, h = h);
+                linear_extrude(h) offset(r = w) bore2d(ds[i]);
                 // web tying the holder into the plate
-                translate([-r * 0.7, 0, 0]) cube([r * 1.4, axes[i] - back_t / 2, h]);
+                translate([-sx(ds[i]) * 0.35, 0, 0])
+                    cube([sx(ds[i]) * 0.7, axes[i] - back_t / 2, h]);
             }
         for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
-            r = ds[i] / 2;
+            s = ds[i];
             z0 = bottom == "open" ? -eps : floor_t;
-            translate([0, 0, z0]) cylinder(r = r, h = h - z0 + eps);
-            translate([0, 0, h - chamfer]) cylinder(r1 = r, r2 = r + chamfer + eps, h = chamfer + eps);
+            translate([0, 0, z0]) linear_extrude(h - z0 + eps) bore2d(s);
+            hull() {
+                translate([0, 0, h - chamfer]) linear_extrude(eps) bore2d(s);
+                translate([0, 0, h]) linear_extrude(2 * eps) offset(delta = chamfer) bore2d(s);
+            }
             if (bottom == "lip")
-                translate([0, 0, -eps]) cylinder(r = r - per(lips, i), h = floor_t + 2 * eps);
-            if (per(front_gaps, i) > 0) snap_opening(r, w, per(front_gaps, i), bottom == "open" ? -eps : floor_t, h);
+                translate([0, 0, -eps]) linear_extrude(floor_t + 2 * eps)
+                    offset(delta = -per(lips, i)) bore2d(s);
+            if (per(front_gaps, i) > 0)
+                translate([0, -(sy(s) - sx(s)) / 2, 0])
+                    snap_opening(sx(s) / 2, w, per(front_gaps, i),
+                                 bottom == "open" ? -eps : floor_t, h);
         }
     }
 }

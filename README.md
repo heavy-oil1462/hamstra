@@ -6,7 +6,9 @@ magnets, so nothing is drilled into the safe:
 
 - Suppressor holder: a tall plate with a floor cradle at the bottom and a
   snap clip near the top
-- Spare barrel holder: a cup for the breech end plus a snap clip higher up
+- Spare barrel holder: a base row of cups standing on the safe floor, and
+  a separate snap clip for each barrel just below its muzzle. Round
+  barrels and over and under barrel sets can share one base row.
 - Gun rack: a comb shelf for the top of the safe
 
 Every slot is configured on its own: diameter, distance from the safe
