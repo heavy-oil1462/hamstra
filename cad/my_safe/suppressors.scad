@@ -7,8 +7,9 @@
 //   2   45   x 230.7
 //   3   41   x 265
 //   4   31.5 x 130
+//   5   29   x 120  (IMS22 for the AR22, not bought yet: listed size)
 // One clip row for all, mounted with its top 80 mm above the cradle
-// row's bottom: low enough for the short .22 can, and it still holds the
+// row's bottom: low enough for the short .22 cans, and it still holds the
 // long ones.
 //
 // Why a wrapper and not a Customizer preset: a preset must match the
@@ -22,13 +23,13 @@ part = "cradle"; // [cradle, clip]
 
 /* [Slots] */
 // Outer diameter of each suppressor, measured
-suppressor_d = [45, 45, 41, 31.5];
+suppressor_d = [45, 45, 41, 31.5, 29];
 // Length of each suppressor, measured (for the assembly scene)
-suppressor_l = [230.7, 230.7, 265, 130];
+suppressor_l = [230.7, 230.7, 265, 130, 120];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
-wall_offset = [0, 0, 0, 0];
+wall_offset = [0, 0, 0, 0, 0];
 // Space between neighbouring holders, one entry per pair
-gaps = [6, 6, 6];
+gaps = [6, 6, 6, 6];
 // Where to mount the clip row: its top edge above the cradle row's bottom
 // (only the assembly scene uses it)
 clip_top = 80;
