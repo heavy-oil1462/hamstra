@@ -59,7 +59,10 @@ neodymium magnets on the back so nothing is drilled into the safe.
   parts declares `part = "a"; // [a, b]` on one line and regen_all
   exports `<name>_<option>.stl` for every option.
 - `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge,
-  dovetail_gauge).
+  dovetail_gauge) and fit_gauge, which slices the real holder and rack
+  geometry so users can test their own gear cheaply. fit_gauge reuses
+  snap_opening and the rack's comb_profile: keep it on those, never a
+  copy, so a gauge always matches what the holders print.
   Print, pick the best fit, type it into design_params.
 - `cad/lib/`: shared helpers, not printable (magnets.scad: pockets,
   back plate, wall_row; holders.scad: per-slot layout and round

@@ -31,6 +31,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | Gun rack | `cad/safe/gun_rack.scad` | on its back, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
 | Dovetail gauge | `cad/calibration/dovetail_gauge.scad` | as modeled |
+| Fit gauge (rings and rack slots) | `cad/calibration/fit_gauge.scad` | flat, as modeled |
 
 None of them need support.
 
@@ -76,6 +77,25 @@ tightest slot the key slides into by hand without wobble.
 A few values are shared by every model and live in
 `cad/design_params.scad` instead: the magnet size and pocket fit, the
 back plate thickness and the dovetail joint.
+
+## Fitting your own gear
+
+Before printing a full holder, print `fit_gauge`: thin slices of the real
+holder geometry, a few grams each.
+
+- `part = rings`: snap clip rings in a grid, columns stepping the
+  clearance and rows stepping the snap opening. Set `ring_d` to the
+  measured diameter and press the item into each ring; use the winning
+  clearance and snap in the holder. A snap of 1 is a closed ring and
+  tests the cup and cradle fit.
+- `part = slots`: a slice of the gun rack comb with one slot per width.
+  Drop each gun's muzzle end in to pick its `slot_w`.
+
+Double guns fit the rack with per-slot widths. A side by side needs a
+slot about as wide as both barrels together at the shelf height (often
+around 40 mm for a 12 gauge); an over and under needs a slot about one
+barrel wide, and stands with the barrels stacked front to back in the
+slot. Try both on the slot gauge first.
 
 ## Magnets
 
