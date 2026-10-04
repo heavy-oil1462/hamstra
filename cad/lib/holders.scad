@@ -150,12 +150,13 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
 //   clip_gaps   snap opening per clip
 //   clip_row    true: clips in one row that follows modular. false: each
 //               clip a separate piece with its own plate and magnets
-//   magnets_x   magnet columns on the cup row (it carries the load);
-//               clip_magnets_x on the clip row (it only keeps items in)
+//   magnets_x   magnet columns and magnets_z rows on the cup row (it
+//               carries the load); clip_magnets_x and clip_magnets_z on
+//               the clip row (it only keeps items in)
 module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
                      cup_gaps, cup_plate_h, clip_h, clip_wall, clip_gaps,
                      clip_plate_h, clip_row, magnets_x, magnets_z, modular,
-                     print_slot, spacing, clip_magnets_x = 2) {
+                     print_slot, spacing, clip_magnets_x = 2, clip_magnets_z = 1) {
     xs = layout[0];
     axes = layout[1];
     bounds = layout[2];
@@ -167,7 +168,7 @@ module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
                        lips = [for (i = $slots) (sx(cup_ds[i]) - drain_d) / 2],
                        front_gaps = pick(cup_gaps, $slots));
     else if (part == "clip")
-        wall_row(bounds, max(clip_plate_h, clip_h), clip_magnets_x, magnets_z,
+        wall_row(bounds, max(clip_plate_h, clip_h), clip_magnets_x, clip_magnets_z,
                  modular = clip_row ? modular : true, joined = clip_row,
                  print_slot = print_slot, spacing = spacing)
             holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots),

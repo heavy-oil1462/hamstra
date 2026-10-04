@@ -82,8 +82,10 @@ print_slot = 0;
 magnets_x = 2;
 // Magnet columns on the clip row (it only keeps items in)
 clip_magnets_x = 2;
-// Magnet rows
+// Magnet rows on the cup row
 magnets_z = 1;
+// Magnet rows on the clip row
+clip_magnets_z = 1;
 
 // Slot layout [xs, axes, bounds] for these knobs: the holder uses it, and
 // so does the assembly to stand barrels in it.
@@ -110,7 +112,8 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      clip_clearance = clip_clearance,
                      clip_plate_h = clip_plate_h, clip_row = clip_row,
                      magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
-                     magnets_z = magnets_z, modular = modular,
+                     magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
+                     modular = modular,
                      print_slot = print_slot, spacing = 12) {
     bd = as_list(breech_d);
     n = len(bd);
@@ -121,7 +124,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
                   clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
-                  spacing, clip_magnets_x);
+                  spacing, clip_magnets_x, clip_magnets_z);
 }
 
 barrel_holder();

@@ -66,8 +66,10 @@ print_slot = 0;
 magnets_x = 4;
 // Magnet columns on the clip row (it only keeps items in)
 clip_magnets_x = 2;
-// Magnet rows
+// Magnet rows on the cradle row
 magnets_z = 2;
+// Magnet rows on the clip row
+clip_magnets_z = 1;
 
 // Slot layout [xs, axes, bounds] for these knobs: the holder uses it, and
 // so does the assembly to stand suppressors in it.
@@ -93,7 +95,7 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          clip_clearance = clip_clearance,
                          clip_plate_h = clip_plate_h, clip_row = clip_row,
                          magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
-                         magnets_z = magnets_z,
+                         magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
                          modular = modular, print_slot = print_slot,
                          spacing = 12) {
     sd = as_list(suppressor_d);
@@ -104,7 +106,7 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],
                   cup_plate_h, clip_h, clip_wall, [for (d = sd) d * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
-                  spacing, clip_magnets_x);
+                  spacing, clip_magnets_x, clip_magnets_z);
 }
 
 suppressor_holder();
