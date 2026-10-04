@@ -44,6 +44,15 @@ neodymium magnets on the back so nothing is drilled into the safe.
 - Holder slot sizes are a diameter or [width, depth] for oblong items
   (an over and under pair stacked front to back), via sx/sy/bore2d in
   lib/holders.scad. Round and oblong slots mix in one row.
+- Efficiency: print time, plastic and magnets no more than needed, no
+  fewer. Back plates are plate_t thin with a back_t boss only around
+  each magnet (pointed underside on upright prints, flat back face);
+  rack shelf depth is per slot; cups only locate, clips hold. Magnet
+  counts follow the load: a row carrying weight gets enough for about
+  2x margin at ~1.2 kg shear per 15x5 magnet on bare steel; rows that
+  stand on the floor or only keep items in get 2 (one per rack module,
+  the dovetails tie the row together). `scripts/count_magnets.py`
+  checks the total; measure part volumes before and after a change.
 - Heavy items stand on the safe floor, they do not hang on magnets: the
   barrel holder's cup row has one flat bottom on the safe floor and
   carries the weight; magnets only hold it to the wall. Barrel clips are

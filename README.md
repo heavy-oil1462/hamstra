@@ -116,8 +116,13 @@ The defaults use 15x5 mm neodymium disc magnets. Change `magnet_d` and
    set `magnet_clearance` to the tightest one that seats fully flush.
 2. Glue the magnets in with epoxy or CA, face flush with the back.
 3. A magnet holds far less sideways on a vertical wall than its rated
-   pull, about a quarter. Raise the magnet rows and columns for heavy
-   items. A felt or carpet lined safe wall weakens the hold further.
+   pull, about a quarter: roughly 1.2 kg for a 15x5 magnet on bare
+   steel. The defaults give the rows that carry weight (the suppressor
+   cradle) about twice the margin they need, and two magnets to rows
+   that stand on the floor or only keep items in place. A felt or
+   carpet lined safe wall weakens the hold; add magnets there.
+4. `python3 scripts/count_magnets.py` counts the magnets your builds
+   need.
 
 ## Working on the design
 

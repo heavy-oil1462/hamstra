@@ -62,8 +62,10 @@ modular = false;
 print_slot = 0;
 
 /* [Magnets] */
-// Magnet columns (per module when modular)
-magnets_x = 2;
+// Magnet columns on the cradle row (the cradle carries the suppressors' weight; per module when modular)
+magnets_x = 4;
+// Magnet columns on the clip row (it only keeps items in)
+clip_magnets_x = 2;
 // Magnet rows
 magnets_z = 2;
 
@@ -90,7 +92,8 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          clip_wall = clip_wall, snap = snap,
                          clip_clearance = clip_clearance,
                          clip_plate_h = clip_plate_h, clip_row = clip_row,
-                         magnets_x = magnets_x, magnets_z = magnets_z,
+                         magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
+                         magnets_z = magnets_z,
                          modular = modular, print_slot = print_slot,
                          spacing = 12) {
     sd = as_list(suppressor_d);
@@ -101,7 +104,7 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],
                   cup_plate_h, clip_h, clip_wall, [for (d = sd) d * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
-                  spacing);
+                  spacing, clip_magnets_x);
 }
 
 suppressor_holder();

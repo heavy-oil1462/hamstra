@@ -47,14 +47,15 @@ gaps = [8];
 clip_align = [0, 0];
 
 /* [Cup] */
-// Cup depth, inside
-cup_depth = 40;
+// Cup depth, inside: it only locates the breech, the clip row keeps the
+// barrel upright
+cup_depth = 25;
 // Cup floor thickness, it carries the barrel onto the safe floor
 floor_t = 3;
 // Drain hole in the floor (0 for none)
 drain_d = 0;
 // Cup back plate height (at least cup depth plus floor)
-cup_plate_h = 50;
+cup_plate_h = 40;
 
 /* [Clip] */
 // Clip ring height
@@ -77,10 +78,12 @@ modular = false;
 print_slot = 0;
 
 /* [Magnets] */
-// Magnet columns (per module when modular)
+// Magnet columns on the cup row (the cup row stands on the floor, magnets only hold it to the wall; per module when modular)
 magnets_x = 2;
+// Magnet columns on the clip row (it only keeps items in)
+clip_magnets_x = 2;
 // Magnet rows
-magnets_z = 2;
+magnets_z = 1;
 
 // Slot layout [xs, axes, bounds] for these knobs: the holder uses it, and
 // so does the assembly to stand barrels in it.
@@ -106,7 +109,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      clip_h = clip_h, clip_wall = clip_wall, snap = snap,
                      clip_clearance = clip_clearance,
                      clip_plate_h = clip_plate_h, clip_row = clip_row,
-                     magnets_x = magnets_x,
+                     magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
                      magnets_z = magnets_z, modular = modular,
                      print_slot = print_slot, spacing = 12) {
     bd = as_list(breech_d);
@@ -118,7 +121,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
                   clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
-                  spacing);
+                  spacing, clip_magnets_x);
 }
 
 barrel_holder();

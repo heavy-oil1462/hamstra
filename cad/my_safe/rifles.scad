@@ -36,6 +36,13 @@ gaps = [12, 12, 12, 45, 45, 60, 35];
 // Finger at each end of the rack
 edge = 15;
 
+/* [Magnets] */
+// One magnet per module: the guns stand on the floor and lean back into
+// the slots, pressing the rack to the wall, and the dovetails tie the
+// modules into one piece
+magnets_x = 1;
+magnets_y = 1;
+
 /* [Modular] */
 // Print one module per gun, joined side by side with sliding dovetails
 // (the whole rack is wider than a print bed)
@@ -58,6 +65,7 @@ function my_rifles_data() = [slot_w, wall_offset, gaps, edge, muzzle_d, rack_top
 
 module my_rifles(modular = modular, print_slot = print_slot, spacing = 12) {
     gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps, edge = edge,
+             magnets_x = magnets_x, magnets_y = magnets_y,
              modular = modular, print_slot = print_slot, spacing = spacing);
 }
 

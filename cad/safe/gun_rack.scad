@@ -8,8 +8,9 @@
 // default: three break action shotguns tight to the wall and close
 // together, then a scoped bolt action further out with more room.
 //
-// All slots open at the same shelf edge. The slot furthest from the wall
-// gets slot_depth; slots closer to the wall are deeper by the difference.
+// Each slot's stretch of shelf is only as deep as that slot needs
+// (its wall offset plus slot_depth); a finger takes the depth of its
+// deeper neighbour, so depth only steps at slot edges.
 // With equal gaps and edge = gap / 2, racks placed edge to edge continue
 // the slot pattern.
 //
@@ -38,7 +39,8 @@ wall_offset = [0, 0, 0, 25];
 gaps = [20, 20, 45];
 // Finger width at each end of the rack
 edge = 15;
-// Slot depth for the slot furthest from the wall (retention)
+// Shelf in front of each slot's barrel resting point (retention); each
+// slot's stretch of shelf is only as deep as that slot needs
 slot_depth = 40;
 
 /* [Shelf] */
@@ -77,48 +79,59 @@ function slot_xs(ws, gaps, edge, i = 0, x = undef) =
         ? slot_xs(ws, gaps, edge, i + 1, x + ws[i] / 2 + per(gaps, i) + ws[i + 1] / 2)
         : []);
 
-// Comb outline in the x / out-from-wall plane for x in [x0, x1].
-module comb_profile(x0, x1, ws, xs, bottoms, shelf_depth, tip_r) {
+// Comb outline in the x / out-from-wall plane. segs: [[x_left, x_right,
+// depth], ...] covering the piece left to right.
+module comb_profile(segs, ws, xs, bottoms, tip_r) {
+    top = max([for (g = segs) g[2]]);
     // opening rounds the finger tips; the profile overruns below z = 0
     // so the base corners stay square, then gets clipped back
     intersection() {
         offset(r = tip_r) offset(r = -tip_r)
             difference() {
-                translate([x0, -tip_r - 1]) square([x1 - x0, shelf_depth + tip_r + 1]);
+                for (g = segs) translate([g[0], -tip_r - 1]) square([g[1] - g[0], g[2] + tip_r + 1]);
                 for (i = [0 : len(ws) - 1])
                     translate([xs[i], bottoms[i] + ws[i] / 2])
                         hull() {
                             circle(d = ws[i]);
-                            translate([-ws[i] / 2, 0]) square([ws[i], shelf_depth]);
+                            translate([-ws[i] / 2, 0]) square([ws[i], top]);
                         }
             }
-        translate([x0, 0]) square([x1 - x0, shelf_depth]);
+        for (g = segs) translate([g[0], 0]) square([g[1] - g[0], g[2]]);
     }
 }
 
-// One printed piece spanning x in [x0, x1] with the given slots. Gussets
-// sit at both edges and under every finger between the piece's slots.
-module rack_piece(x0, x1, ws, xs, bottoms, shelf_depth, r, shelf_t, plate_h,
+// One printed piece spanning x in [x0, x1] with the given slots. depths:
+// shelf depth per slot; dl / dr: depth of the piece's edge fingers.
+// Gussets sit at both edges and under every finger between the slots.
+module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
                   gusset_t, gusset_h, magnets_x, magnets_y, joints) {
     n = len(ws);
     y_shelf = plate_h - shelf_t;   // underside of the shelf
-    gx = concat([x0 + gusset_t / 2],
-                [for (i = [0 : n - 1]) if (i < n - 1)
-                    (xs[i] + ws[i] / 2 + xs[i + 1] - ws[i + 1] / 2) / 2],
-                [x1 - gusset_t / 2]);
+    fd = [for (k = [0 : n - 1]) if (k < n - 1) max(depths[k], depths[k + 1])];
+    segs = concat(
+        [[x0, xs[0] - ws[0] / 2, dl]],
+        [for (k = [0 : n - 1]) each concat(
+            [[xs[k] - ws[k] / 2, xs[k] + ws[k] / 2, depths[k]]],
+            k < n - 1 ? [[xs[k] + ws[k] / 2, xs[k + 1] - ws[k + 1] / 2, fd[k]]] : [])],
+        [[xs[n - 1] + ws[n - 1] / 2, x1, dr]]);
+    // [x, depth] per gusset
+    gs = concat([[x0 + gusset_t / 2, dl]],
+                [for (k = [0 : n - 1]) if (k < n - 1)
+                    [(xs[k] + ws[k] / 2 + xs[k + 1] - ws[k + 1] / 2) / 2, fd[k]]],
+                [[x1 - gusset_t / 2, dr]]);
     difference() {
         union() {
-            translate([x0, 0, 0]) linear_extrude(back_t)
+            translate([x0, 0, 0]) linear_extrude(plate_t)
                 offset(r = plate_r) offset(delta = -plate_r) square([x1 - x0, plate_h]);
+            magnet_bosses_flat(x0, x1, y_shelf, magnets_x, magnets_y);
             translate([0, plate_h, 0]) rotate([90, 0, 0])
-                linear_extrude(shelf_t)
-                    comb_profile(x0, x1, ws, xs, bottoms, shelf_depth, r);
-            for (x = gx)
-                translate([x - gusset_t / 2, 0, 0]) rotate([90, 0, 90])
+                linear_extrude(shelf_t) comb_profile(segs, ws, xs, bottoms, r);
+            for (g = gs)
+                translate([g[0] - gusset_t / 2, 0, 0]) rotate([90, 0, 90])
                     linear_extrude(gusset_t)
-                        polygon([[y_shelf + eps, back_t - eps],
-                                 [y_shelf + eps, shelf_depth - r],
-                                 [y_shelf - gusset_h, back_t - eps]]);
+                        polygon([[y_shelf + eps, plate_t - eps],
+                                 [y_shelf + eps, g[1] - r],
+                                 [y_shelf - gusset_h, plate_t - eps]]);
             // the joint is modeled upright; lay it down like the rack
             rotate([-90, 0, 0]) dovetail_joints(x0, x1, plate_h, joints);
         }
@@ -151,7 +164,7 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     xs = layout[0];
     bottoms = layout[1];   // distance from the wall to the bottom of each slot
     l = layout[2];
-    shelf_depth = max([for (i = [0 : n - 1]) bottoms[i] + ws[i] / 2]) + slot_depth;
+    depths = [for (i = [0 : n - 1]) bottoms[i] + ws[i] / 2 + slot_depth];
     // modules split each finger in half
     fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1)
                                   per(gaps, i) / (modular ? 2 : 1)], [edge]);
@@ -165,13 +178,16 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     // regen_all.py reads this to export every module to its own STL
     if (modular) echo(modules = n);
     if (!modular)
-        rack_piece(0, l, ws, xs, bottoms, shelf_depth, r, shelf_t, plate_h,
-                   gusset_t, gusset_h, magnets_x, magnets_y, [false, false]);
+        rack_piece(0, l, ws, xs, bottoms, depths, depths[0], depths[n - 1], r, shelf_t,
+                   plate_h, gusset_t, gusset_h, magnets_x, magnets_y, [false, false]);
     else
         for (i = print_slot == 0 ? [0 : n - 1] : [print_slot - 1])
             translate([print_slot == 0 ? i * spacing : 0, 0, 0])
                 rack_piece(bounds[i], bounds[i + 1], [ws[i]], [xs[i]], [bottoms[i]],
-                           shelf_depth, r, shelf_t, plate_h, gusset_t, gusset_h,
+                           [depths[i]],
+                           i > 0 ? max(depths[i - 1], depths[i]) : depths[i],
+                           i < n - 1 ? max(depths[i], depths[i + 1]) : depths[i],
+                           r, shelf_t, plate_h, gusset_t, gusset_h,
                            magnets_x, magnets_y, [i > 0, i < n - 1]);
 }
 

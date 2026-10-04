@@ -86,7 +86,7 @@ module slot_gauge() {
     depth = base + max(ws) / 2 + slot_depth;
     difference() {
         linear_extrude(slot_t)
-            comb_profile(0, l, ws, xs, [for (w = ws) base], depth, 3);
+            comb_profile([[0, l, depth]], ws, xs, [for (w = ws) base], 3);
         for (i = [0 : n - 1])
             translate([xs[i], base / 2, slot_t - label_depth]) label(str(ws[i]));
     }

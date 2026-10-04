@@ -16,20 +16,34 @@ use <dovetail.scad>
 function spread(n, a, b) =
     n <= 1 ? [(a + b) / 2] : [for (i = [0 : n - 1]) a + (b - a) * i / (n - 1)];
 
+// Pocket outline, d across. teardrop = true adds a 45 degree roof toward
+// +y so the pocket prints without support when its axis is horizontal.
+module pocket2d(d, teardrop) {
+    hull() {
+        circle(d = d);
+        if (teardrop) translate([0, d / 2 * sqrt(2)]) square(eps, center = true);
+    }
+}
+
 // One pocket cutter. Opening on the plane z = 0, depth toward +z.
-// teardrop = true adds a 45 degree roof toward +y so the pocket prints
-// without support when its axis is horizontal.
 module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
     d = magnet_d + clearance;
     depth = magnet_h + magnet_recess;
     translate([0, 0, -eps]) {
-        linear_extrude(depth + eps)
-            hull() {
-                circle(d = d);
-                if (teardrop) translate([0, d / 2 * sqrt(2)]) square(eps, center = true);
-            }
+        linear_extrude(depth + eps) pocket2d(d, teardrop);
         cylinder(d1 = d + 2 * magnet_chamfer + 2 * eps, d2 = d,
                  h = magnet_chamfer + eps);
+    }
+}
+
+// Boss outline around a pocket. On an upright plate (teardrop) it also
+// comes to a 45 degree point at the bottom, so its underside needs no
+// support.
+module boss2d(teardrop) {
+    d = magnet_d + magnet_clearance;
+    hull() {
+        offset(r = boss_wall) pocket2d(d, teardrop);
+        if (teardrop) translate([0, -(d / 2 + boss_wall) * sqrt(2)]) square(eps, center = true);
     }
 }
 
@@ -38,35 +52,48 @@ module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
 function pockets_fit(n, l, m) =
     min(n, max(1, floor((l - 2 * m) / (magnet_d + magnet_clearance + 2)) + 1));
 
+// Pocket positions [[x, z], ...] on a plate spanning x in [x0, x1] and
+// [0, h] the other way, nx by nz asked for, capped at what fits.
+function pocket_grid(x0, x1, h, nx, nz) =
+    let (m = (magnet_d + magnet_clearance) / 2 + magnet_edge,
+         cx = pockets_fit(nx, x1 - x0, m), cz = pockets_fit(nz, h, m))
+    [for (x = spread(cx, x0 + m, x1 - m), z = spread(cz, m, h - m)) [x, z]];
+
 // Pocket grid for the back face of a wall-mounted model. The plate spans
-// x in [x0, x1], z in [0, h]; nx by nz pockets, axes along y. Upright
-// prints want the teardrop roof; models modeled upright but printed on
-// their back (rotated so the back face lies on the bed) pass false.
-// Both grids echo `magnets = n` for scripts/count_magnets.py.
+// x in [x0, x1], z in [0, h]; axes along y. Upright prints want the
+// teardrop roof; models modeled upright but printed on their back pass
+// false. Echoes `magnets = n` for scripts/count_magnets.py, as does the
+// flat grid.
 module magnet_pockets_wall(x0, x1, h, nx, nz, teardrop = true) {
-    m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    cx = pockets_fit(nx, x1 - x0, m);
-    cz = pockets_fit(nz, h, m);
-    echo(magnets = cx * cz);
-    for (x = spread(cx, x0 + m, x1 - m), z = spread(cz, m, h - m))
-        translate([x, 0, z]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
+    g = pocket_grid(x0, x1, h, nx, nz);
+    echo(magnets = len(g));
+    for (p = g) translate([p[0], 0, p[1]]) rotate([90, 0, 0]) magnet_pocket(teardrop = teardrop);
+}
+
+// Bosses for magnet_pockets_wall: full back_t thick, toward -y.
+module magnet_bosses_wall(x0, x1, h, nx, nz, teardrop = true) {
+    for (p = pocket_grid(x0, x1, h, nx, nz))
+        translate([p[0], 0, p[1]]) rotate([90, 0, 0]) linear_extrude(back_t) boss2d(teardrop);
 }
 
 // Pocket grid for a back face lying on the print bed (z = 0). The plate
 // spans x in [x0, x1], y in [0, h].
 module magnet_pockets_flat(x0, x1, h, nx, ny) {
-    m = (magnet_d + magnet_clearance) / 2 + magnet_edge;
-    cx = pockets_fit(nx, x1 - x0, m);
-    cy = pockets_fit(ny, h, m);
-    echo(magnets = cx * cy);
-    for (x = spread(cx, x0 + m, x1 - m), y = spread(cy, m, h - m))
-        translate([x, y, 0]) magnet_pocket(teardrop = false);
+    g = pocket_grid(x0, x1, h, nx, ny);
+    echo(magnets = len(g));
+    for (p = g) translate([p[0], p[1], 0]) magnet_pocket(teardrop = false);
 }
 
-// Upright back plate solid: x in [x0, x1], z in [0, h], y in [-back_t, 0].
+// Bosses for magnet_pockets_flat: full back_t tall from the bed.
+module magnet_bosses_flat(x0, x1, h, nx, ny) {
+    for (p = pocket_grid(x0, x1, h, nx, ny))
+        translate([p[0], p[1], 0]) linear_extrude(back_t) boss2d(false);
+}
+
+// Upright back plate solid: x in [x0, x1], z in [0, h], y in [-plate_t, 0].
 module wall_plate(x0, x1, h, r = plate_r) {
     rotate([90, 0, 0])
-        linear_extrude(back_t)
+        linear_extrude(plate_t)
             translate([x0, 0])
                 offset(r = r) offset(delta = -r) square([x1 - x0, h]);
 }
@@ -78,6 +105,7 @@ module wall_mount(x0, x1, h, nx, nz, teardrop = true, joints = [false, false]) {
     difference() {
         union() {
             wall_plate(x0, x1, h);
+            magnet_bosses_wall(x0, x1, h, nx, nz, teardrop);
             dovetail_joints(x0, x1, h, joints);
             children();
         }
