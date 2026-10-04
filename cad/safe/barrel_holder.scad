@@ -104,31 +104,14 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      print_slot = print_slot, spacing = 12) {
     bd = as_list(breech_d);
     n = len(bd);
-    cup_ds = [for (d = bd) grow(d, item_clearance)];
-    clip_ds = [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)];
-    layout = barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall, clip_clearance);
-    xs = layout[0];
-    axes = layout[1];
-    bounds = layout[2];
-
-    if (part == "cup")
-        wall_row(bounds, max(cup_plate_h, cup_depth + floor_t), magnets_x, magnets_z,
-                 modular = modular, print_slot = print_slot, spacing = spacing)
-            holder_row(pick(cup_ds, $slots), cup_depth + floor_t, pick(xs, $slots),
-                       pick(axes, $slots),
-                       bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
-                       lips = [for (i = $slots) (sx(cup_ds[i]) - drain_d) / 2]);
-    else if (part == "clip")
-        // separate clips unless clip_row: then they follow modular
-        wall_row(bounds, max(clip_plate_h, clip_h), magnets_x, magnets_z,
-                 modular = clip_row ? modular : true, joined = clip_row,
-                 print_slot = print_slot, spacing = spacing)
-            holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots), pick(axes, $slots),
-                       w = clip_wall, bottom = "open",
-                       front_gaps = [for (i = $slots) sx(per(barrel_d, i)) * snap],
-                       chamfer = 0.6);
-    else
-        assert(false, str("unknown part: ", part));
+    cup_clip_part(part, barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall,
+                                      clip_clearance),
+                  [for (d = bd) grow(d, item_clearance)],
+                  [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],
+                  cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
+                  clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
+                  clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
+                  spacing);
 }
 
 barrel_holder();

@@ -26,11 +26,12 @@ neodymium magnets on the back so nothing is drilled into the safe.
 - Models are modeled in their print orientation and print without
   support. Upright models (back plate vertical, holders standing on the
   bed) use horizontal teardrop magnet pockets; models printed on their
-  back (the gun rack, the suppressor holder) use plain pockets opening
-  onto the bed. A holder high up a tall plate cannot print upright (its
-  underside floats), so tall holders print on their back with their
-  rings open to the front as troughs. Features
-  start at the bed rather than float above it.
+  back (the gun rack) use plain pockets opening onto the bed. Features
+  start at the bed rather than float above it: a holder high up a tall
+  plate cannot print upright. Prefer splitting into short pieces (cup
+  row plus clip row, as the barrel and suppressor holders do, sharing
+  cup_clip_part in lib/holders.scad) over one tall plate: far less
+  print time.
 - Rows can print as one piece or, with `modular = true`, as one module
   per slot. Modules split at the middle of each gap (so a joined row has
   exactly the one-piece layout), carry their own magnets, and join with

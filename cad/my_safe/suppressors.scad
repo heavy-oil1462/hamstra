@@ -7,13 +7,18 @@
 //   2   45   x 230.7
 //   3   41   x 265
 //   4   31.5 x 130
-// Each clip sits at about 60 % of its suppressor's length.
+// One clip row for all, mounted with its top 80 mm above the cradle
+// row's bottom: low enough for the short .22 can, and it still holds the
+// long ones.
 //
 // Why a wrapper and not a Customizer preset: a preset must match the
 // type and list length of the model's defaults (2 slots there), so it
 // cannot hold a 4-slot row. Here the lists are the defaults.
 
 use <../safe/suppressor_holder.scad>
+
+// Which piece to show
+part = "cradle"; // [cradle, clip]
 
 /* [Slots] */
 // Outer diameter of each suppressor, measured
@@ -24,8 +29,9 @@ suppressor_l = [230.7, 230.7, 265, 130];
 wall_offset = [0, 0, 0, 0];
 // Space between neighbouring holders, one entry per pair
 gaps = [6, 6, 6];
-// Height of each clip's top edge above the bottom of the plate
-clip_top = [140, 140, 160, 80];
+// Where to mount the clip row: its top edge above the cradle row's bottom
+// (only the assembly scene uses it)
+clip_top = 80;
 
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
@@ -37,9 +43,10 @@ print_slot = 0;
 // offsets, gaps, clip tops].
 function my_suppressors_data() = [suppressor_d, suppressor_l, wall_offset, gaps, clip_top];
 
-module my_suppressors(modular = modular, print_slot = print_slot, spacing = 12) {
-    suppressor_holder(suppressor_d = suppressor_d, wall_offset = wall_offset,
-                      gaps = gaps, clip_top = clip_top, modular = modular,
+module my_suppressors(part = part, modular = modular, print_slot = print_slot,
+                      spacing = 12) {
+    suppressor_holder(part = part, suppressor_d = suppressor_d,
+                      wall_offset = wall_offset, gaps = gaps, modular = modular,
                       print_slot = print_slot, spacing = spacing);
 }
 

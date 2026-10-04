@@ -30,14 +30,16 @@ safe_wall();
 // gun rack along the top, model defaults, slid together from modules
 color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack(modular = true, spacing = 0);
 
-// my suppressors, left: the cad/my_safe build with stand-ins at their
-// measured diameters and lengths
+// my suppressors, left: the cad/my_safe build, cradle row with the clip
+// row mounted above it, stand-ins at the measured diameters and lengths
 translate([-150, 0, 120]) {
     data = my_suppressors_data();
     sd = data[0];
     sl = data[1];
     layout = suppressor_layout(suppressor_d = sd, wall_offset = data[2], gaps = data[3]);
-    color("peru") rotate([90, 0, 0]) my_suppressors(modular = false);
+    color("peru") my_suppressors(part = "cradle", modular = false);
+    color("peru") translate([0, 0, data[4] - suppressor_clip_h()])
+        my_suppressors(part = "clip", modular = false);
     for (i = [0 : len(sd) - 1])
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
 }

@@ -10,6 +10,7 @@
 // comes from the size list.
 
 include <../design_params.scad>
+use <magnets.scad>
 
 // Per-slot value i from a number or a list (last entry repeats).
 function per(v, i) = is_list(v) ? v[min(i, len(v) - 1)] : v;
@@ -124,6 +125,43 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
                                  bottom == "open" ? -eps : floor_t, h);
         }
     }
+}
+
+// One part of a cup and clip pair: a row of cups low on the wall and a
+// row of snap clips higher up, both from one slot layout so every item
+// stands plumb. Used by the barrel and suppressor holders.
+//   part        "cup" or "clip"
+//   layout      [xs, axes, bounds] from holder_pair_layout
+//   cup_ds      cup bore per slot; clip_ds clip bore per slot
+//   cup_h       cup height including its floor_t floor
+//   drain_d     drain hole in the cup floor, 0 for none
+//   cup_gaps    front opening per cup (0 = closed cup)
+//   clip_gaps   snap opening per clip
+//   clip_row    true: clips in one row that follows modular. false: each
+//               clip a separate piece with its own plate and magnets
+module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
+                     cup_gaps, cup_plate_h, clip_h, clip_wall, clip_gaps,
+                     clip_plate_h, clip_row, magnets_x, magnets_z, modular,
+                     print_slot, spacing) {
+    xs = layout[0];
+    axes = layout[1];
+    bounds = layout[2];
+    if (part == "cup")
+        wall_row(bounds, max(cup_plate_h, cup_h), magnets_x, magnets_z,
+                 modular = modular, print_slot = print_slot, spacing = spacing)
+            holder_row(pick(cup_ds, $slots), cup_h, pick(xs, $slots), pick(axes, $slots),
+                       bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
+                       lips = [for (i = $slots) (sx(cup_ds[i]) - drain_d) / 2],
+                       front_gaps = pick(cup_gaps, $slots));
+    else if (part == "clip")
+        wall_row(bounds, max(clip_plate_h, clip_h), magnets_x, magnets_z,
+                 modular = clip_row ? modular : true, joined = clip_row,
+                 print_slot = print_slot, spacing = spacing)
+            holder_row(pick(clip_ds, $slots), clip_h, pick(xs, $slots), pick(axes, $slots),
+                       w = clip_wall, bottom = "open",
+                       front_gaps = pick(clip_gaps, $slots), chamfer = 0.6);
+    else
+        assert(false, str("unknown part: ", part));
 }
 
 // Cutter for a snap opening toward -y, flared outward so the item is
