@@ -6,7 +6,12 @@ magnets, so nothing is drilled into the safe:
 
 - Suppressor holder: upright sleeves, the suppressor rests on a bottom lip
 - Spare barrel holder: a cup for the breech end plus a snap clip higher up
-- Gun rack: a comb shelf for the top of the safe, modules tile edge to edge
+- Gun rack: a comb shelf for the top of the safe
+
+Every slot is configured on its own: diameter, distance from the safe
+wall and gap to its neighbour. Three break action shotguns can sit tight
+to the wall and close together while a scoped bolt action next to them
+sits further out with more room.
 
 Reloading equipment and other gear will follow.
 
@@ -17,8 +22,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | Model | File | Prints |
 | --- | --- | --- |
 | Suppressor holder | `cad/safe/suppressor_holder.scad` | upright, as modeled |
-| Barrel cup | `cad/safe/barrel_cup.scad` | upright, as modeled |
-| Barrel clip | `cad/safe/barrel_clip.scad` | upright, as modeled |
+| Barrel holder (cup and clip) | `cad/safe/barrel_holder.scad` | upright, as modeled |
 | Gun rack | `cad/safe/gun_rack.scad` | on its back, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
 
@@ -27,14 +31,30 @@ None of them need support.
 ## Customizing
 
 Open a model in OpenSCAD and use the Customizer (Window, Customizer). Every
-model lists its knobs there: item diameters, counts, heights, magnet rows
-and columns. Measure your suppressor, barrel or breech with calipers and
-type the measured diameter in; the models add the clearance themselves.
+model lists its knobs there: item diameters, heights, magnet rows and
+columns. Measure your suppressor, barrel or breech with calipers and type
+the measured diameter in; the models add the clearance themselves.
 
-A few values are shared by several models and live in
-`cad/design_params.scad` instead: the magnet size and pocket fit, the back
-plate thickness, and the spacing the barrel cup and barrel clip must agree
-on so a barrel stands plumb.
+Per-slot knobs are lists with one entry per slot, and the number of
+diameters sets the number of slots:
+
+```
+suppressor_d = [50, 44];   // two slots
+wall_offset  = [0, 15];    // the second sits 15 mm further from the wall
+gaps         = [12];       // 12 mm between them
+```
+
+A single number applies to every slot, and a short list repeats its last
+entry. The Customizer edits lists of up to four numbers; for more slots
+edit the file.
+
+The barrel holder prints as two parts from one file, picked with the
+`part` dropdown: the cup and the clip share the slot layout, so each
+barrel stands plumb.
+
+A few values are shared by every model and live in
+`cad/design_params.scad` instead: the magnet size and pocket fit and the
+back plate thickness.
 
 ## Magnets
 

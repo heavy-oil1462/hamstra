@@ -29,6 +29,9 @@ model; `...,60,0,150,0` shows the back with the magnet pockets.
 - Every knob a user might change is a Customizer parameter at the top of
   the model file and an argument of the model's module.
 - Shared values come from cad/design_params.scad, never a local copy.
+- Multi-slot models take per-slot lists (diameter, wall_offset, gaps)
+  through lib/holders.scad's `per()`; render with uneven values
+  (`-D 'wall_offset=[0,15]'`) to check slots stay independent.
 - Magnet pockets: face flush with the back (magnet_recess default 0),
   teardrop roof pointing up on vertical faces, at least magnet_edge from
   the plate edge.

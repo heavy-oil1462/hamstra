@@ -13,7 +13,9 @@ python3 scripts/regen_all.py --stl-only      # every STL, skip the assembly PNG
 
 Pipeline:
 1. `scripts/check_params.py`: no file may shadow a design_params.scad name
-2. every model in cad/ (lib excluded) -> `stl/<category>/<name>.stl`
+2. every model in cad/ (lib excluded) -> `stl/<category>/<name>.stl`;
+   a model with a `part = "a"; // [a, b]` dropdown line exports
+   `<name>_a.stl` and `<name>_b.stl` instead
 3. `cad/main_assembly.scad` -> `main_assembly.png`
 
 ## Rules

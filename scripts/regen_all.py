@@ -13,6 +13,10 @@ A model is any .scad under cad/ except cad/lib/ (helpers),
 design_params.scad (data) and main_assembly.scad (the scene). Each model
 must render warning-free with manifold status NoError.
 
+A file that prints as several parts declares a Customizer dropdown on
+one line, `part = "cup"; // [cup, clip]`, and gets one STL per option:
+stl/<category>/<name>_<option>.stl.
+
 Prototyping phase: stl/ and main_assembly.png are gitignored while the
 models are iterated by eye in OpenSCAD. When designs settle they become
 committed build products and --check gains a byte comparison against
@@ -38,6 +42,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CAD = ROOT / "cad"
 NON_MODELS = {"design_params", "main_assembly"}
 ASSEMBLY = CAD / "main_assembly.scad"
+PART_DROPDOWN = re.compile(r'(?m)^part\s*=\s*"\w+"\s*;\s*//\s*\[([^\]]+)\]')
 
 
 def models():
@@ -47,15 +52,22 @@ def models():
             yield p
 
 
-def stl_path(scad: Path) -> Path:
-    return ROOT / "stl" / scad.relative_to(CAD).with_suffix(".stl")
+def outputs(scad: Path):
+    """(stl path, extra openscad args) per printed part of a model."""
+    base = ROOT / "stl" / scad.relative_to(CAD).with_suffix("")
+    m = PART_DROPDOWN.search(scad.read_text())
+    if not m:
+        yield base.with_suffix(".stl"), []
+        return
+    for opt in (o.strip() for o in m.group(1).split(",")):
+        yield base.with_name(f"{base.name}_{opt}.stl"), ["-D", f'part="{opt}"']
 
 
-def run_one(scad: Path, out: Path, shown: Path) -> bool:
+def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:
     """Render scad -> out and report. shown is the path to print (the
     real target when out is a temp file in check mode)."""
     out.parent.mkdir(parents=True, exist_ok=True)
-    proc = render(str(scad), str(out))
+    proc = render(str(scad), str(out), extra)
     warnings = sorted({l.strip() for l in proc.stderr.splitlines()
                        if "WARNING" in l or "ERROR" in l})
     # Manifold backend reports geometry health as "Status: NoError"
@@ -86,7 +98,8 @@ def main(argv):
         for scad in models():
             if only and scad.stem not in only:
                 continue
-            ok &= run_one(scad, target(stl_path(scad)), stl_path(scad))
+            for stl, extra in outputs(scad):
+                ok &= run_one(scad, target(stl), stl, extra)
 
         if not stl_only and (not only or "main_assembly" in only):
             png = ROOT / "main_assembly.png"

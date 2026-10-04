@@ -23,8 +23,8 @@
 // pull force collapses with any gap, so never bury the magnet behind
 // a printed skin. Holding force on a vertical wall is shear, roughly
 // a quarter of the rated pull, so count magnets generously.
-magnet_d = 12;          // disc diameter
-magnet_h = 3;           // disc thickness
+magnet_d = 15;          // disc diameter
+magnet_h = 5;           // disc thickness
 magnet_clearance = 0.2; // added to magnet_d for the pocket. MEASURED with
                         // cad/calibration/magnet_pocket_gauge.scad, never
                         // tuned by eye. Printer, profile and filament specific.
@@ -39,13 +39,6 @@ magnet_edge = 4;        // minimum plastic from a pocket to the plate edge
 back_skin = 2;                  // plastic behind the magnet
 back_t = magnet_h + magnet_recess + back_skin; // back plate thickness
 plate_r = 4;                    // back plate corner radius
-
-// --- Spare barrel holder (barrel_cup + barrel_clip) ---
-// The cup and the clip must put each barrel on the same vertical axis,
-// so they share the pitch and the wall offset. Set barrel_axis_y to fit
-// the fattest part of the barrel (the cup asserts it fits).
-barrel_pitch = 50;      // center to center between barrels
-barrel_axis_y = 30;     // safe wall to barrel axis
 
 // --- General print rules ---
 wall = 2.4;             // default shell wall (6 perimeters at 0.4)

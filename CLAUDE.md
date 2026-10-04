@@ -11,6 +11,13 @@ neodymium magnets on the back so nothing is drilled into the safe.
   its file in OpenSCAD Customizer sections (`/* [Section] */`, one comment
   line above each knob). A hard-coded number inside a module that a user
   could reasonably want to change is a finding.
+- Multi-slot models are configured per slot: diameter (or slot width),
+  wall_offset (extra distance from the safe wall, 0 = tight) and gaps
+  (edge to edge, one per neighbouring pair). Each per-slot knob takes a
+  list or a single number; a short list repeats its last entry
+  (`per()` in lib/holders.scad). The slot count comes from the diameter
+  list. Example: a gun rack with three break actions tight and close
+  and a scoped bolt action set out from the wall with a wide gap.
 - Safe models mount with magnets, never screws. Disc magnets are glued
   into pockets in a flat back plate with their face flush with the back:
   pull force collapses with any gap, so a magnet is never buried behind a
@@ -22,8 +29,9 @@ neodymium magnets on the back so nothing is drilled into the safe.
   back (the gun rack) use plain pockets opening onto the bed. Features
   start at the bed rather than float above it.
 - Two models that must agree on a dimension read it from
-  `cad/design_params.scad`. Example: barrel_cup and barrel_clip share
-  barrel_pitch and barrel_axis_y so a barrel stands plumb in both.
+  `cad/design_params.scad`. Parts that must agree per slot (the barrel
+  cup and clip) live in one file with a `part` dropdown instead, so one
+  slot layout drives both and the whole layout stays in the Customizer.
 
 ## Layout
 
@@ -35,11 +43,14 @@ neodymium magnets on the back so nothing is drilled into the safe.
   `safe/` (gun safe organizers). Future: `reloading/`, and so on. Each
   model defines a module of the same name with every knob as an argument
   defaulting to the file's Customizer value, then calls it once, so the
-  assembly can `use` it and pass overrides.
+  assembly can `use` it and pass overrides. A file printing several
+  parts declares `part = "a"; // [a, b]` on one line and regen_all
+  exports `<name>_<option>.stl` for every option.
 - `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge).
   Print, pick the best fit, type it into design_params.
 - `cad/lib/`: shared helpers, not printable (magnets.scad: pockets and
-  back plate; holders.scad: round sleeves, cups and snap clips).
+  back plate; holders.scad: per-slot layout and round sleeves, cups
+  and snap clips).
 - `cad/main_assembly.scad`: a stretch of safe wall with every safe model
   and stand-in items, renders to `main_assembly.png`.
 - `scripts/`: Python tools, stdlib only.
@@ -76,6 +87,8 @@ Conventions:
 - Review CAD by rendering and looking at the PNG, never from source alone.
 - Keep top-level `name = value;` parameters on one line so the tooling
   and the Customizer can parse them.
+- The OpenSCAD Customizer edits lists of up to 4 numbers. Longer
+  per-slot lists are edited in the file (or with a scalar for all slots).
 - magnet_clearance is MEASURED with the gauge, never tuned by eye. It is
   printer, profile and filament specific.
 

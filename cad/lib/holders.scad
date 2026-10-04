@@ -3,57 +3,78 @@
 //
 // Same convention as magnets.scad: wall at y = 0, back plate in
 // [-back_t, 0], holders stick out toward -y, z up, bottom on the bed.
+//
+// Holder rows are configured per slot. Every per-slot argument takes a
+// list (one entry per slot) or a single number for all slots; a list
+// shorter than the slot count repeats its last entry. The slot count
+// comes from the diameter list.
 
 include <../design_params.scad>
 
-// Distance from the back plate's front face to a holder bore. Keeps the
-// bore and its entry chamfer out of the plate.
-function holder_standoff(chamfer) = chamfer + 1;
+// Per-slot value i from a number or a list (last entry repeats).
+function per(v, i) = is_list(v) ? v[min(i, len(v) - 1)] : v;
 
-// Center y of a holder with bore diameter d.
-function holder_y(d, chamfer) = -(back_t + holder_standoff(chamfer) + d / 2);
+// Diameter list from a number or a list.
+function as_list(v) = is_list(v) ? v : [v];
 
-// Center-to-center pitch of a row of holders.
-function holder_pitch(d, w, gap) = d + 2 * w + gap;
+// Closest distance from the wall to the axis of a holder with bore d:
+// the bore and its entry chamfer stay 1 mm clear of the back plate.
+function holder_min_axis(d, chamfer) = back_t + chamfer + 1 + d / 2;
 
-// Total width of a row of n holders at pitch p.
-function holder_row_w(n, d, w, p) = (n - 1) * p + d + 2 * w;
+// Wall to axis distance per slot: the closest allowed plus the offset.
+function holder_axes(ds, chamfer, offsets) =
+    [for (i = [0 : len(ds) - 1]) holder_min_axis(ds[i], chamfer) + per(offsets, i)];
 
-// A row of n round holders, centered on x = 0, merged into the plate by a
-// web, from z = 0 to z = h.
-//   d        bore diameter (item diameter plus clearance)
-//   w        holder wall
-//   gap      plastic-free space between neighbouring holders
-//   bottom   "closed": floor of floor_t
-//            "lip":    floor_t ring the item rests on, open center
-//            "open":   no floor at all (clips, sleeves)
-//   lip      ring width for "lip"
-//   front_gap  > 0 cuts a snap opening of that width toward -y
-//   chamfer  entry chamfer at the top of the bore
-//   pitch    center to center, defaults to touching walls plus gap
-//   axis_y   distance from the wall to the holder axis, defaults to the
-//            closest the bore may come to the plate
-module holder_row(n, d, h, w = wall, gap = 4, bottom = "closed", floor_t = 2,
-                  lip = 4, front_gap = 0, chamfer = 1, pitch, axis_y) {
-    p = is_undef(pitch) ? holder_pitch(d, w, gap) : pitch;
-    y0 = is_undef(axis_y) ? holder_y(d, chamfer) : -axis_y;
-    assert(-y0 >= -holder_y(d, chamfer), "holder bore would cut into the back plate");
-    assert(p >= d + w, "holders overlap, raise the pitch");
-    xs = [for (i = [0 : n - 1]) (i - (n - 1) / 2) * p];
-    r = d / 2;
+// Uncentered holder centers: neighbours sit gap apart, wall to wall.
+function _holder_xs(ds, w, gaps, i = 0, x = 0) =
+    i >= len(ds) ? [] :
+    concat([x], i + 1 < len(ds)
+        ? _holder_xs(ds, w, gaps, i + 1, x + ds[i] / 2 + 2 * w + per(gaps, i) + ds[i + 1] / 2)
+        : []);
+
+// Width of a holder row from outer wall to outer wall.
+function holder_row_w(ds, w, gaps) =
+    let (xs = _holder_xs(ds, w, gaps), n = len(ds))
+    xs[n - 1] + ds[n - 1] / 2 + ds[0] / 2 + 2 * w;
+
+// Holder centers, the row centered on x = 0.
+function holder_xs(ds, w, gaps) =
+    let (xs = _holder_xs(ds, w, gaps), x0 = -holder_row_w(ds, w, gaps) / 2 + ds[0] / 2 + w)
+    [for (x = xs) x + x0];
+
+// A row of round holders from z = 0 to z = h, each merged into the back
+// plate by a web. Positions are explicit so two parts can share a layout.
+//   ds         bore diameter per slot (item diameter plus clearance)
+//   xs         center x per slot
+//   axes       wall to axis distance per slot
+//   w          holder wall
+//   bottom     "closed": floor of floor_t
+//              "lip":    floor_t ring the item rests on, open center
+//              "open":   no floor at all (clips)
+//   lips       ring width per slot for "lip"
+//   front_gaps snap opening width per slot toward -y, 0 for none
+//   chamfer    entry chamfer at the top of the bore
+module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
+                  lips = 4, front_gaps = 0, chamfer = 1) {
+    for (i = [0 : len(ds) - 1])
+        assert(axes[i] >= holder_min_axis(ds[i], chamfer) - eps,
+               str("slot ", i + 1, ": holder bore would cut into the back plate"));
     difference() {
         union()
-            for (x = xs) translate([x, 0, 0]) {
-                translate([0, y0, 0]) cylinder(r = r + w, h = h);
+            for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
+                r = ds[i] / 2;
+                cylinder(r = r + w, h = h);
                 // web tying the holder into the plate
-                translate([-r * 0.7, y0, 0]) cube([r * 1.4, -y0 - back_t / 2, h]);
+                translate([-r * 0.7, 0, 0]) cube([r * 1.4, axes[i] - back_t / 2, h]);
             }
-        for (x = xs) translate([x, y0, 0]) {
+        for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
+            r = ds[i] / 2;
             z0 = bottom == "open" ? -eps : floor_t;
             translate([0, 0, z0]) cylinder(r = r, h = h - z0 + eps);
             translate([0, 0, h - chamfer]) cylinder(r1 = r, r2 = r + chamfer + eps, h = chamfer + eps);
-            if (bottom == "lip") translate([0, 0, -eps]) cylinder(r = r - lip, h = floor_t + 2 * eps);
-            if (front_gap > 0) snap_opening(r, w, front_gap, h);
+            if (bottom == "lip")
+                translate([0, 0, -eps]) cylinder(r = r - per(lips, i), h = floor_t + 2 * eps);
+            if (per(front_gaps, i) > 0) snap_opening(r, w, per(front_gaps, i), h);
         }
     }
 }
