@@ -21,16 +21,20 @@ function as_list(v) = is_list(v) ? v : [v];
 // Holder shapes. A slot's size is a number (a round item of that
 // diameter) or [width, depth]: an oblong item, width along the wall and
 // depth away from it, such as an over and under barrel pair stacked
-// front to back ([21, 42] for two 21 mm barrels).
+// front to back ([21, 42] for two 21 mm barrels), or a side by side
+// pair along the wall ([43, 21.5]).
 function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
 function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
 function grow(s, c) = is_list(s) ? [s[0] + c, s[1] + c] : s + c;
 function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
 
 // Bore outline of shape s centered on the origin: a circle, or a stadium
-// running along y. Convex, so hulls of it stay true.
+// along its longer side (y for an over and under, x for a side by side).
+// Convex, so hulls of it stay true.
 module bore2d(s) {
-    hull() for (y = [-1, 1]) translate([0, y * (sy(s) - sx(s)) / 2]) circle(d = sx(s));
+    d = min(sx(s), sy(s));
+    hull() for (k = [-1, 1])
+        translate([k * (sx(s) - d) / 2, k * (sy(s) - d) / 2]) circle(d = d);
 }
 
 // Closest distance from the wall to the axis of a holder of shape s: the

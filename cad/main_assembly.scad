@@ -2,8 +2,7 @@
 // suppressors and barrels. Visual fit check only, renders to
 // main_assembly.png. Not a printable part.
 //
-// The suppressors and barrels come from the cad/my_safe builds; the gun
-// rack uses its defaults. Stand-ins are placed with the models' own layout
+// Everything comes from the cad/my_safe builds. Stand-ins are placed with the models' own layout
 // functions.
 
 include <design_params.scad>
@@ -13,11 +12,12 @@ use <safe/barrel_holder.scad>
 use <safe/gun_rack.scad>
 use <my_safe/suppressors.scad>
 use <my_safe/barrels.scad>
+use <my_safe/rifles.scad>
 
 
 // the safe's back wall and floor; the floor top is z = 0
 module safe_wall() {
-    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 760]);
+    color("dimgray") translate([-260, 0, 0]) cube([520, 2, 960]);
     color("gray") translate([-260, -150, -2]) cube([520, 152, 2]);
 }
 
@@ -40,8 +40,20 @@ module barrel_stand_in(breech, muzzle, l, a1, a2) {
 
 safe_wall();
 
-// gun rack along the top, model defaults, slid together from modules
-color("peru") translate([-107, 0, 560]) rotate([90, 0, 0]) gun_rack(modular = true, spacing = 0);
+// my long guns: the cad/my_safe gun rack, slid together from modules,
+// with a stand-in muzzle resting in each slot (the guns themselves stand
+// on the floor in front of everything else, left out to keep it legible)
+let (data = my_rifles_data(),
+     layout = gun_rack_layout(slot_w = data[0], wall_offset = data[1], gaps = data[2],
+                              edge = data[3]),
+     l = layout[2])
+    translate([-l / 2, 0, data[5] - gun_rack_plate_h()]) {
+        color("peru") rotate([90, 0, 0]) my_rifles(modular = true, spacing = 0);
+        for (i = [0 : len(data[0]) - 1])
+            let (s = data[4][i])
+                translate([layout[0][i], -(layout[1][i] + sy(s) / 2), gun_rack_plate_h() - 140])
+                    color("black") linear_extrude(200) bore2d(s);
+    }
 
 // my suppressors, left: the cad/my_safe build, cradle row with the clip
 // row mounted above it, stand-ins at the measured diameters and lengths

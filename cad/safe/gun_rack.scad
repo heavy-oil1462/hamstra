@@ -127,6 +127,18 @@ module rack_piece(x0, x1, ws, xs, bottoms, shelf_depth, r, shelf_t, plate_h,
     }
 }
 
+// Slot layout [xs, bottoms, length] for these knobs: slot centers along
+// the rack, wall to slot bottom per slot, rack length. The rack uses it,
+// and so does the assembly to put guns in the slots.
+function gun_rack_layout(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
+                         edge = edge, root = root) =
+    let (ws = as_list(slot_w), n = len(ws), xs = slot_xs(ws, gaps, edge))
+    [xs, [for (i = [0 : n - 1]) back_t + root + per(wall_offset, i)],
+     xs[n - 1] + ws[n - 1] / 2 + edge];
+
+// Back plate height: the shelf top sits this far above the plate bottom.
+function gun_rack_plate_h() = plate_h;
+
 module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                 edge = edge, slot_depth = slot_depth, shelf_t = shelf_t,
                 root = root, tip_r = tip_r, plate_h = plate_h,
@@ -135,10 +147,10 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                 modular = modular, print_slot = print_slot, spacing = 12) {
     ws = as_list(slot_w);
     n = len(ws);
-    xs = slot_xs(ws, gaps, edge);
-    l = xs[n - 1] + ws[n - 1] / 2 + edge;
-    // distance from the wall to the bottom of each slot
-    bottoms = [for (i = [0 : n - 1]) back_t + root + per(wall_offset, i)];
+    layout = gun_rack_layout(ws, wall_offset, gaps, edge, root);
+    xs = layout[0];
+    bottoms = layout[1];   // distance from the wall to the bottom of each slot
+    l = layout[2];
     shelf_depth = max([for (i = [0 : n - 1]) bottoms[i] + ws[i] / 2]) + slot_depth;
     // modules split each finger in half
     fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1)
