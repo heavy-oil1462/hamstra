@@ -28,24 +28,48 @@ module dovetail_male(x1, h) {
 }
 
 // Slot cutter for the left edge x0, open at the bottom, closed at the top.
+// The closed end is a 45 degree roof closing in on the plate edge, so the
+// slot prints without bridging.
 module dovetail_female(x0, h) {
-    translate([x0, 0, -eps])
-        linear_extrude(h - dovetail_stop + dovetail_clearance + eps)
-            dovetail_profile(dovetail_clearance);
+    c = dovetail_clearance;
+    top = h - dovetail_stop + c;
+    assert(dovetail_stop > dovetail_d + 2 * c, "dovetail_stop too short for the slot roof");
+    translate([x0, 0, 0]) {
+        translate([0, 0, -eps]) linear_extrude(top + eps) dovetail_profile(c);
+        hull() {
+            translate([0, 0, top - eps]) linear_extrude(eps) dovetail_profile(c);
+            translate([0, 0, top + dovetail_d + c]) linear_extrude(eps)
+                intersection() {
+                    dovetail_profile(c);
+                    translate([-10, -50]) square([10, 100]);
+                }
+        }
+    }
+}
+
+// Upside down about the plate's mid height when flip is set.
+module dovetail_flip(h, flip) {
+    if (flip) translate([0, 0, h]) mirror([0, 0, 1]) children();
+    else children();
 }
 
 // Joint parts for a module spanning x in [x0, x1]. joints = [left, right]
 // says which edges join a neighbour: the outer ends of a row get none.
 // Each jointed edge gets a thickened strip (the spine) and squares the
 // plate corner so neighbours close up; the right edge carries the tongue.
-module dovetail_joints(x0, x1, h, joints) {
+// The tongue must start on the bed: plates printed upright keep it from
+// the bottom and the slot closed at the top. flip = true is for a plate
+// printed top down (the gun rack): the tongue runs from the top edge and
+// the slot is closed at the bottom, so the module with the slot goes on
+// the wall first and its neighbour drops in from above.
+module dovetail_joints(x0, x1, h, joints, flip = false) {
     for (side = [0, 1]) if (joints[side])
         translate([side == 0 ? x0 : x1 - dovetail_spine_w, -dovetail_spine_t, 0])
             cube([dovetail_spine_w, dovetail_spine_t, h]);
-    if (joints[1]) dovetail_male(x1, h);
+    if (joints[1]) dovetail_flip(h, flip) dovetail_male(x1, h);
 }
 
 // Slot cut for a module whose left edge joins a neighbour.
-module dovetail_cuts(x0, h, joints) {
-    if (joints[0]) dovetail_female(x0, h);
+module dovetail_cuts(x0, h, joints, flip = false) {
+    if (joints[0]) dovetail_flip(h, flip) dovetail_female(x0, h);
 }

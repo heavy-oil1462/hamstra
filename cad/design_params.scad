@@ -81,15 +81,18 @@ plate_r = 4;                    // back plate corner radius
 // Modular prints (modular = true in a model) split a row into one module
 // per slot. Neighbours join with a symmetric dovetail along the side
 // edges of their back plates: tongue on the right edge, slot on the left,
-// sliding vertically. The slot is closed at the top, so a module slid
-// down onto its neighbour stops level with it. 45 degree flanks print
-// without support in either orientation. Shared by every model so
-// modules of the same row height can mix.
+// sliding vertically. The tongue starts on the bed and the slot is
+// closed at the far end with a 45 degree roof, so a module slid onto its
+// neighbour stops level with it. Upright prints close the slot at the
+// top; the gun rack, printed top down, closes it at the bottom (flip in
+// lib/dovetail.scad). 45 degree flanks print without support in either
+// orientation. Shared by every model so modules of the same row height
+// can mix.
 dovetail_d = 2;             // how far the tongue reaches into the neighbour
 dovetail_neck = 2.5;        // tongue thickness at its root
 dovetail_wall = 1.6;        // plastic in front of and behind the slot
 dovetail_clearance = 0.3;   // MEASURED with cad/calibration/dovetail_gauge.scad
-dovetail_stop = 3;          // closed top end of the slot
+dovetail_stop = 3;          // closed end of the slot (tongue that much shorter)
 dovetail_spine_w = 8;       // width of the thickened plate edge carrying the joint
 // thickness of that edge: slot plus a wall in front and behind
 dovetail_spine_t = dovetail_neck + 2 * (dovetail_d + dovetail_clearance + dovetail_wall);
