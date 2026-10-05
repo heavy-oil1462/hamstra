@@ -70,7 +70,12 @@ neodymium magnets on the back so nothing is drilled into the safe.
   checks the total; measure part volumes before and after a change.
 - Heavy items stand on the safe floor, they do not hang on magnets: the
   barrel holder's cup row has one flat bottom on the safe floor and
-  carries the weight; magnets only hold it to the wall. Barrel clips are
+  carries the weight; magnets only hold it to the wall. A hole in a
+  floor standing cup is blocked by the safe floor, so its drain is a
+  groove in the cup floor out through the front wall (holder_row
+  groove), and its pad output adds a base pad under the row's footprint
+  with a lip the row sits in (the row's underside prints on the bed, so
+  the locating feature belongs on the pad). Barrel clips are
   separate pieces by default (barrels differ in length, each clip sits
   below its own muzzle); only base rows dovetail.
 - Two models that must agree on a dimension read it from

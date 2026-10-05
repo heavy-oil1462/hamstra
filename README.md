@@ -8,7 +8,9 @@ magnets, so nothing is drilled into the safe:
   above it that they snap into, two short prints
 - Spare barrel holder: a base row of cups standing on the safe floor, and
   a separate snap clip for each barrel just below its muzzle. Round
-  barrels and over and under barrel sets can share one base row.
+  barrels and over and under barrel sets can share one base row. A
+  groove in each cup floor runs out the front, so moisture drains and
+  air reaches the breech.
 - Gun rack: a comb shelf for the top of the safe
 
 ![The safe models on a stretch of safe wall with stand-in rifles, barrels and suppressors](main_assembly.png)
@@ -142,6 +144,13 @@ pull through nothing but air, and the magnets hold the pad in place, so
 it needs no glue. Silicone squeezes under the pull more than TPU; give
 it a bit more `pad_air`. `pad_t = 0` builds plates with flush magnets
 and no pad.
+
+The barrel holder's cup row stands on the safe floor, so its pad output
+holds a second piece: a base pad cut to the row's footprint, which goes
+under it. It keeps the row from sliding on the floor and lifts the cups
+a little off it. No magnet holds it, so the printed TPU version has a
+low lip the row sits in (`base_rim_h`). For silicone, use self-adhesive
+sheet under the row. `base_pad = false` leaves it out.
 
 ## Working on the design
 

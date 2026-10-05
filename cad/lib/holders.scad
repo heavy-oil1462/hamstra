@@ -106,8 +106,14 @@ function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 //              starts above the floor so the floor stays whole, and on an
 //              oblong bore it wraps the front item
 //   chamfer    entry chamfer at the top of the bore
+//   groove     [width, depth] of a drain groove in the top of the floor,
+//              from the middle of the bore out through the front wall,
+//              for a row standing on the safe floor where a hole would
+//              be blocked. [0, 0] for none.
 module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
-                  lips = 4, front_gaps = 0, chamfer = 1) {
+                  lips = 4, front_gaps = 0, chamfer = 1, groove = [0, 0]) {
+    assert(groove[0] == 0 || (bottom != "open" && groove[1] < floor_t),
+           "the drain groove must leave some floor under it");
     for (i = [0 : len(ds) - 1])
         assert(axes[i] >= holder_min_axis(ds[i], chamfer) - eps,
                str("slot ", i + 1, ": holder bore would cut into the back plate"));
@@ -130,6 +136,11 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
             if (bottom == "lip")
                 translate([0, 0, -eps]) linear_extrude(floor_t + 2 * eps)
                     offset(delta = -per(lips, i)) bore2d(s);
+            // runs from the bore's back half out past the front wall; the
+            // wall above it bridges groove[0] when printed upright
+            if (groove[0] > 0)
+                translate([-groove[0] / 2, -(sy(s) / 2 + w + 1), floor_t - groove[1]])
+                    cube([groove[0], sy(s) + w + 1 - groove[0], groove[1] + eps]);
             if (per(front_gaps, i) > 0)
                 translate([0, -(sy(s) - sx(s)) / 2, 0])
                     snap_opening(sx(s) / 2, w, per(front_gaps, i),
@@ -153,20 +164,43 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
 //   magnets_x   magnet columns and magnets_z rows on the cup row (it
 //               carries the load); clip_magnets_x and clip_magnets_z on
 //               the clip row (it only keeps items in)
+//   groove      cup floor drain groove [width, depth], see holder_row
+//   base_pad    the cup row stands on the safe floor: with $pad set, its
+//               friction pad also gets a second pad for under the row,
+//               laid out in front of the wall pad. It covers the row's
+//               footprint and rises base_rim_h around it so the row sits
+//               in it, open on the wall side where the wall pad is.
 module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
                      cup_gaps, cup_plate_h, clip_h, clip_wall, clip_gaps,
                      clip_plate_h, clip_row, magnets_x, magnets_z, modular,
-                     print_slot, spacing, clip_magnets_x = 2, clip_magnets_z = 1) {
+                     print_slot, spacing, clip_magnets_x = 2, clip_magnets_z = 1,
+                     groove = [0, 0], base_pad = false) {
     xs = layout[0];
     axes = layout[1];
     bounds = layout[2];
-    if (part == "cup")
+    n = len(bounds) - 1;
+    module cup_row(modular = modular, print_slot = print_slot)
         wall_row(bounds, max(cup_plate_h, cup_h), magnets_x, magnets_z,
                  modular = modular, print_slot = print_slot, spacing = spacing)
             holder_row(pick(cup_ds, $slots), cup_h, pick(xs, $slots), pick(axes, $slots),
                        bottom = drain_d > 0 ? "lip" : "closed", floor_t = floor_t,
                        lips = [for (i = $slots) (sx(cup_ds[i]) - drain_d) / 2],
-                       front_gaps = pick(cup_gaps, $slots));
+                       front_gaps = pick(cup_gaps, $slots), groove = groove);
+    if (part == "cup") {
+        cup_row();
+        // one base pad per module, cut square at its joints so the
+        // neighbours' pads meet there; i = -1 is the one-piece row
+        if (base_pad && !is_undef($pad) && $pad)
+            for (i = !modular ? [-1] : print_slot == 0 ? [0 : n - 1] : [print_slot - 1])
+                translate([modular && print_slot == 0 ? i * spacing : 0, -base_pad_gap, 0])
+                    intersection() {
+                        base_pad_for() projection(cut = true) translate([0, 0, -1])
+                            let ($pad = false) if (i < 0) cup_row(); else cup_row(true, i + 1);
+                        x0 = i > 0 ? bounds[i] : -1e4;
+                        x1 = i >= 0 && i < n - 1 ? bounds[i + 1] : 1e4;
+                        translate([x0, -1e4, -1]) cube([x1 - x0, 2e4, 1e4]);
+                    }
+    }
     else if (part == "clip")
         wall_row(bounds, max(clip_plate_h, clip_h), clip_magnets_x, clip_magnets_z,
                  modular = clip_row ? modular : true, joined = clip_row,
@@ -176,6 +210,23 @@ module cup_clip_part(part, layout, cup_ds, clip_ds, cup_h, floor_t, drain_d,
                        front_gaps = pick(clip_gaps, $slots), chamfer = 0.6);
     else
         assert(false, str("unknown part: ", part));
+}
+
+// Base pad for the footprint given as the 2D child (wall at y = 0, the
+// row toward -y): pad_t thick, with a base_rim_h lip around the
+// footprint, cut off at the wall line.
+module base_pad_for() {
+    c = base_rim_clearance;
+    intersection() {
+        union() {
+            linear_extrude(pad_t) offset(r = c + base_rim_w) children();
+            if (base_rim_h > 0) linear_extrude(pad_t + base_rim_h) difference() {
+                offset(r = c + base_rim_w) children();
+                offset(r = c) children();
+            }
+        }
+        translate([-1e4, -1e4, -1]) cube([2e4, 1e4, 1e4]);
+    }
 }
 
 // Cutter for a snap opening toward -y, flared outward so the item is
