@@ -46,17 +46,22 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show this part's friction pad instead (print in TPU, or use as the
+// template to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 // These values for the assembly scene: [breech, clip size, lengths, wall
 // offsets, gaps, clip align, muzzle, clip top].
 function my_barrels_data() = [breech_d, barrel_d, barrel_l, wall_offset, gaps, clip_align,
                               muzzle_d, clip_top];
 
 module my_barrels(part = part, modular = modular, print_slot = print_slot,
-                  spacing = 12) {
+                  spacing = 12, pad = pad) {
     barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   wall_offset = wall_offset, gaps = gaps, clip_align = clip_align,
                   clip_row = true, modular = modular,
-                  print_slot = print_slot, spacing = spacing);
+                  print_slot = print_slot, spacing = spacing, pad = pad);
 }
 
 my_barrels();

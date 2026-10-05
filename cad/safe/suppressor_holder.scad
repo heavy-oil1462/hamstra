@@ -61,6 +61,11 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show this part's friction pad instead (print in TPU, or use as the
+// template to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 /* [Magnets] */
 // Magnet columns on the cradle row (the cradle carries the suppressors' weight; per module when modular)
 magnets_x = 4;
@@ -97,10 +102,10 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
                          magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
                          modular = modular, print_slot = print_slot,
-                         spacing = 12) {
+                         spacing = 12, pad = pad) {
     sd = as_list(suppressor_d);
     assert(part == "cradle" || part == "clip", str("unknown part: ", part));
-    cup_clip_part(part == "cradle" ? "cup" : "clip",
+    let ($pad = pad) cup_clip_part(part == "cradle" ? "cup" : "clip",
                   suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance),
                   [for (d = sd) d + item_clearance], [for (d = sd) d + clip_clearance],
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],

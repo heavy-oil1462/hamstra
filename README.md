@@ -115,10 +115,10 @@ The defaults use 12x5 mm neodymium disc magnets. Change `magnet_d` and
 `magnet_h` in `cad/design_params.scad` for other sizes.
 
 1. Print `magnet_pocket_gauge` first, press a magnet into each pocket and
-   set `magnet_clearance` to the tightest one that seats fully flush.
+   set `magnet_clearance` to the tightest one that seats fully.
 2. Put a drop of epoxy or CA in each pocket and press the magnet in
-   until it stops on the thin skin at the bottom: that leaves its face
-   flush with the back.
+   until it stops on the skin at the bottom. With a friction pad it then
+   stands `pad_t - pad_air` out of the back (0.7 mm by default).
 3. A magnet holds far less sideways on a vertical wall than its rated
    pull, about a quarter: roughly 0.8 kg for a 12x5 magnet on bare
    steel. The defaults give the rows that carry weight (the suppressor
@@ -127,6 +127,21 @@ The defaults use 12x5 mm neodymium disc magnets. Change `magnet_d` and
    carpet lined safe wall weakens the hold; add magnets there.
 4. `python3 scripts/count_magnets.py` counts the magnets your builds
    need.
+
+### Friction pad
+
+A smooth steel wall lets a bare plate slide. Every model has a friction
+pad that goes between its back plate and the wall: set `pad = true` in
+the Customizer (regen_all exports it as `..._pad.stl`). Either print it
+flat in TPU, or print it (or a paper outline of it) as a template and
+cut silicone sheet to match. Set `pad_t` in `cad/design_params.scad` to
+the pad's thickness before printing the parts: the magnet pockets get
+shallower so each magnet reaches through its hole in the pad and stops
+`pad_air` short of the wall. The pad takes the friction, the magnets
+pull through nothing but air, and the magnets hold the pad in place, so
+it needs no glue. Silicone squeezes under the pull more than TPU; give
+it a bit more `pad_air`. `pad_t = 0` builds plates with flush magnets
+and no pad.
 
 ## Working on the design
 

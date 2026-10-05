@@ -19,10 +19,18 @@ neodymium magnets on the back so nothing is drilled into the safe.
   list. Example: a gun rack with three break actions tight and close
   and a scoped bolt action set out from the wall with a wide gap.
 - Safe models mount with magnets, never screws. Disc magnets are glued
-  into pockets in a flat back plate with their face flush with the back:
-  pull force collapses with any gap, so a magnet is never buried behind a
-  printed skin. On a vertical wall the load is shear, roughly a quarter of
-  the rated pull, so magnet counts are generous and configurable.
+  into pockets in a flat back plate: pull force collapses with any gap,
+  so a magnet is never buried behind a printed skin. On a vertical wall
+  the load is shear, roughly a quarter of the rated pull, so magnet
+  counts are generous and configurable.
+- A friction pad (pad_t thick, TPU printed from the model's `pad = true`
+  output or silicone sheet cut to it) sits between plate and wall. The
+  magnets stand magnet_out out of the back through holes in the pad and
+  stop pad_air short of the wall: the pad, not the magnet, takes the
+  friction, and only air sits in front of a magnet. The pad is not
+  glued, the magnets press it to the wall where they pull hardest.
+  pad_t = 0 gives flush magnets and no pad. Models build the pad from
+  back_pad in lib/magnets.scad (wall_mount does it when `$pad` is set).
 - Models are modeled in their print orientation and print without
   support. Upright models (back plate vertical, holders standing on the
   bed) use horizontal teardrop magnet pockets. The gun rack prints shelf
@@ -49,8 +57,9 @@ neodymium magnets on the back so nothing is drilled into the safe.
   lib/holders.scad. Round and oblong slots mix in one row.
 - Efficiency: print time, plastic and magnets no more than needed, no
   fewer. Back plates are one solid back_t thick (the magnet plus a
-  back_skin floor to glue and index against), so the front never shows
-  the magnets; that is the user's choice over saving plastic. plate_t
+  back_skin floor to glue and index against, thicker by magnet_out), so
+  the front never shows the magnets; that is the user's choice over
+  saving plastic. plate_t
   below back_t switches to a thin plate with bosses (pointed underside
   on upright prints);
   rack shelf depth is per slot; cups only locate, clips hold. Magnet
@@ -81,7 +90,8 @@ neodymium magnets on the back so nothing is drilled into the safe.
   defaulting to the file's Customizer value, then calls it once, so the
   assembly can `use` it and pass overrides. A file printing several
   parts declares `part = "a"; // [a, b]` on one line and regen_all
-  exports `<name>_<option>.stl` for every option.
+  exports `<name>_<option>.stl` for every option. A `pad = false;` line
+  makes regen export each part's friction pad too (`..._pad.stl`).
 - `cad/my_safe/`: the maintainer's own builds, thin wrappers that `use`
   a generic model and pass measured values (one file per model, values
   redeclared as Customizer knobs). regen exports them like any model.

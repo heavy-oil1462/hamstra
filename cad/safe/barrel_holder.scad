@@ -77,6 +77,11 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show this part's friction pad instead (print in TPU, or use as the
+// template to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 /* [Magnets] */
 // Magnet columns on the cup row (the cup row stands on the floor, magnets only hold it to the wall; per module when modular)
 magnets_x = 2;
@@ -114,10 +119,10 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
                      magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
                      modular = modular,
-                     print_slot = print_slot, spacing = 12) {
+                     print_slot = print_slot, spacing = 12, pad = pad) {
     bd = as_list(breech_d);
     n = len(bd);
-    cup_clip_part(part, barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall,
+    let ($pad = pad) cup_clip_part(part, barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall,
                                       clip_clearance, clip_align),
                   [for (d = bd) grow(d, item_clearance)],
                   [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],

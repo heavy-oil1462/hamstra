@@ -50,6 +50,11 @@ modular = true;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show this part's friction pad instead (print in TPU, or use as the
+// template to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 // Barrel shape where it rests, for the assembly scene's stand-ins: a
 // diameter, [width, depth] for an over and under, [width, depth] wide
 // for the side by side
@@ -63,10 +68,10 @@ rack_top = 860;
 // edge, barrel shapes, rack top].
 function my_rifles_data() = [slot_w, wall_offset, gaps, edge, muzzle_d, rack_top];
 
-module my_rifles(modular = modular, print_slot = print_slot, spacing = 12) {
+module my_rifles(modular = modular, print_slot = print_slot, spacing = 12, pad = pad) {
     gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps, edge = edge,
              magnets_x = magnets_x, magnets_y = magnets_y,
-             modular = modular, print_slot = print_slot, spacing = spacing);
+             modular = modular, print_slot = print_slot, spacing = spacing, pad = pad);
 }
 
 my_rifles();

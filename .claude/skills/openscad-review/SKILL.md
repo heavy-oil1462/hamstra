@@ -34,7 +34,8 @@ model; `...,60,0,150,0` shows the back with the magnet pockets.
   (`-D 'wall_offset=[0,15]'`) to check slots stay independent.
 - Modular joints: neighbouring modules at their row positions must not
   overlap. `scripts/check_joints.py` gates this (regen_all runs it).
-- Magnet pockets: face flush with the back (magnet_recess default 0),
+- Magnet pockets: magnet face magnet_out proud of the back, pad_air
+  short of the pad face (flush when pad_t = 0), pad holes lined up,
   teardrop roof pointing up on vertical faces, at least magnet_edge from
   the plate edge.
 - Prints without support in the modeled orientation: nothing starts
