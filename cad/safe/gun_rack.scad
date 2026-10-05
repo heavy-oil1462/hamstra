@@ -72,6 +72,11 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show the friction pad instead (print in TPU, or use as the template
+// to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 /* [Magnets] */
 // Magnet columns (per module when modular)
 magnets_x = 4;
@@ -118,6 +123,7 @@ module comb_profile(segs, ws, xs, bottoms, tip_r, joints = [false, false]) {
 // One printed piece spanning x in [x0, x1] with the given slots. depths:
 // shelf depth per slot; dl / dr: depth of the piece's edge fingers.
 // Gussets sit at both edges and under every finger between the slots.
+// With $pad set it draws the piece's friction pad instead.
 module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
                   gusset_t, gusset_h, magnets_x, magnets_y, joints) {
     n = len(ws);
@@ -134,10 +140,11 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
                 [for (k = [0 : n - 1]) if (k < n - 1)
                     [(xs[k] + ws[k] / 2 + xs[k + 1] - ws[k + 1] / 2) / 2, fd[k]]],
                 [[x1 - gusset_t / 2, dr]]);
-    difference() {
+    if (!is_undef($pad) && $pad)
+        back_pad(x0, x1, plate_h, magnets_x, magnets_y, joints, gh = y_shelf);
+    else difference() {
         union() {
-            translate([x0, 0, 0]) linear_extrude(plate_t)
-                offset(r = plate_r) offset(delta = -plate_r) square([x1 - x0, plate_h]);
+            linear_extrude(plate_t) plate2d(x0, x1, plate_h);
             magnet_bosses_flat(x0, x1, y_shelf, magnets_x, magnets_y, roof_down = true);
             translate([0, plate_h, 0]) rotate([90, 0, 0])
                 linear_extrude(shelf_t) comb_profile(segs, ws, xs, bottoms, r, joints);
@@ -175,7 +182,7 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                 root = root, tip_r = tip_r, plate_h = plate_h,
                 gusset_t = gusset_t, gusset_h = gusset_h,
                 magnets_x = magnets_x, magnets_y = magnets_y,
-                modular = modular, print_slot = print_slot, spacing = 12) {
+                modular = modular, print_slot = print_slot, spacing = 12, pad = pad) {
     ws = as_list(slot_w);
     n = len(ws);
     layout = gun_rack_layout(ws, wall_offset, gaps, edge, root);
@@ -196,8 +203,10 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
     // regen_all.py reads this to export every module to its own STL
     if (modular) echo(modules = n);
-    // turn the on-its-back build shelf down for printing
-    translate([0, 0, plate_h]) rotate([-90, 0, 0])
+    // turn the on-its-back build shelf down for printing; the pad
+    // prints as built, flat
+    let ($pad = pad)
+    translate([0, 0, pad ? 0 : plate_h]) rotate([pad ? 0 : -90, 0, 0])
     if (!modular)
         rack_piece(0, l, ws, xs, bottoms, depths, depths[0], depths[n - 1], r, shelf_t,
                    plate_h, gusset_t, gusset_h, magnets_x, magnets_y, [false, false]);

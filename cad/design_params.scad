@@ -18,31 +18,48 @@
 // ============================================================
 
 // --- Mounting magnets (bought) ---
-// Neodymium disc magnets glued into pockets in the back face. The
-// magnet face sits flush with the back so it touches the safe wall:
-// pull force collapses with any gap, so never bury the magnet behind
-// a printed skin. Holding force on a vertical wall is shear, roughly
-// a quarter of the rated pull, so count magnets generously.
+// Neodymium disc magnets glued into pockets in the back face. Nothing
+// but air sits between a magnet and the safe wall: pull force collapses
+// with any gap, so never bury the magnet behind a printed skin. Holding
+// force on a vertical wall is shear, roughly a quarter of the rated pull,
+// so count magnets generously.
 magnet_d = 12;          // disc diameter
 magnet_h = 5;           // disc thickness
 magnet_clearance = 0.2; // added to magnet_d for the pocket. MEASURED with
                         // cad/calibration/magnet_pocket_gauge.scad, never
                         // tuned by eye. Printer, profile and filament specific.
-magnet_recess = 0;      // extra pocket depth beyond magnet_h. 0 = flush.
-                        // A felt-lined safe wall wants 0; a bare painted
-                        // wall can take 0.2 to protect the paint.
+magnet_recess = 0;      // extra pocket depth, pulls the magnet face back
+                        // from where pad_t and pad_air put it. Without a
+                        // pad a bare painted wall can take 0.2 to protect
+                        // the paint.
 magnet_chamfer = 0.4;   // pocket entry chamfer, eats the elephant foot
 magnet_edge = 4;        // minimum plastic from a pocket to the plate edge
+
+// --- Friction pad ---
+// A bare plate slides down a smooth steel wall. A pad between plate and
+// wall grips it: TPU printed from each model's pad part, or silicone
+// sheet cut with that part as the template. The pad has a hole at each
+// magnet and the magnets stand out of the back face through it, stopping
+// pad_air short of the wall, so the pad carries the magnets' pull and
+// takes the friction while only air sits in front of the magnets. The
+// magnets also hold the pad in place, no glue needed.
+pad_t = 1;              // pad thickness, 0 for no pad (magnets flush)
+pad_air = 0.3;          // magnet face to wall. Soft silicone squeezes,
+                        // give it more
+pad_hole_clearance = 0.4; // added to magnet_d for the pad's holes
+pad_inset = 0.5;        // pad edge inside the plate edge
+// how far a magnet stands out of the back face
+magnet_out = pad_t > 0 ? pad_t - pad_air : 0;
 
 // --- Wall plates ---
 // Every safe-mounted model has a flat back plate carrying the magnets.
 // One solid plate as thick as a magnet plus its skin, so the front shows
-// no trace of the magnets. A thin skin closes each pocket in front: the
-// magnet presses in to it, which indexes it flush with the back, and the
-// glue has a floor. Setting plate_t below back_t gives a lighter plate
+// no trace of the magnets. A skin closes each pocket in front: the magnet
+// presses in to it, which sets how far it stands out, and the glue has a
+// floor. A magnet standing out for the pad leaves that much more skin. Setting plate_t below back_t gives a lighter plate
 // with a boss around each magnet instead.
-back_skin = 1.2;                // skin in front of the magnet (3 perimeters at
-                                // 0.4); 0 runs the pocket through the boss
+back_skin = 1.2;                // skin in front of a flush magnet (3 perimeters
+                                // at 0.4); 0 runs the pocket through the boss
 back_t = magnet_h + magnet_recess + back_skin; // thickness at a magnet (boss)
 plate_t = back_t;               // plate thickness away from the magnets
 boss_wall = 2;                  // plastic around a pocket in its boss

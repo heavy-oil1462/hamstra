@@ -4,6 +4,7 @@
 //
 // Everything comes from the cad/my_safe builds. Stand-ins are placed with the models' own layout
 // functions.
+// Every model stands pad_t off the wall on its friction pad (not drawn).
 
 include <design_params.scad>
 use <lib/holders.scad>
@@ -52,7 +53,7 @@ let (data = my_rifles_data(),
      layout = gun_rack_layout(slot_w = data[0], wall_offset = data[1], gaps = data[2],
                               edge = data[3]),
      l = layout[2])
-    translate([-l / 2 - 30, 0, data[5] - gun_rack_plate_h()]) {
+    translate([-l / 2 - 30, -pad_t, data[5] - gun_rack_plate_h()]) {
         color(part_color) translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0])
             my_rifles(modular = true, spacing = 0);
         for (i = [0 : len(data[0]) - 1])
@@ -63,7 +64,7 @@ let (data = my_rifles_data(),
 
 // my suppressors, left: the cad/my_safe build, cradle row with the clip
 // row mounted above it, stand-ins at the measured diameters and lengths
-translate([-150, 0, 120]) {
+translate([-150, -pad_t, 120]) {
     data = my_suppressors_data();
     sd = data[0];
     sl = data[1];
@@ -77,7 +78,7 @@ translate([-150, 0, 120]) {
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
 // one clip row above it; right of the gun rack so the long barrels clear it
-translate([320, 0, 0]) {
+translate([320, -pad_t, 0]) {
     data = my_barrels_data();
     bd = data[0];
     md = data[1];

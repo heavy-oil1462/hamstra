@@ -24,6 +24,10 @@ modular = true and print_slot = n. The module count comes from the
 model itself: it echoes `modules = n` when modular, read from a cheap
 echo-only pass, so it always matches the slot lists in the file.
 
+A file with a `pad = ...;` line also gets the friction pad of every
+part and module above, rendered with pad = true: <name>[_<option>]_pad.stl
+and <name>[_<option>]_pad_modular_<n>.stl.
+
 Prototyping phase: stl/ is gitignored while the models are iterated by
 eye in OpenSCAD. main_assembly.png is committed as the README image, so
 regenerate it in the same change as the models it shows. When designs
@@ -56,6 +60,7 @@ ASSEMBLY_VIEW = ["--colorscheme=Tomorrow", "--imgsize=1200,1000",
 PART_DROPDOWN = re.compile(r'(?m)^part\s*=\s*"\w+"\s*;\s*//\s*\[([^\]]+)\]')
 MODULAR = re.compile(r"(?m)^modular\s*=\s*(true|false)\s*;")
 MODULE_COUNT = re.compile(r"ECHO: modules = (\d+)")
+PAD = re.compile(r"(?m)^pad\s*=\s*(true|false)\s*;")
 
 
 def models():
@@ -85,13 +90,16 @@ def outputs(scad: Path, td: str):
     parts = ([("", [])] if not m else
              [(f"_{o.strip()}", ["-D", f'part="{o.strip()}"']) for o in m.group(1).split(",")])
     modular = bool(MODULAR.search(text))
+    pads = [("", ["-D", "pad=false"]), ("_pad", ["-D", "pad=true"])] if PAD.search(text) else [("", [])]
     for part, args in parts:
-        yield (base.with_name(f"{base.name}{part}.stl"),
-               args + (["-D", "modular=false"] if modular else []))
-        if modular:
-            for i in range(1, module_count(scad, args, td) + 1):
-                yield (base.with_name(f"{base.name}{part}_modular_{i}.stl"),
-                       args + ["-D", "modular=true", "-D", f"print_slot={i}"])
+        n = module_count(scad, args, td) if modular else 0
+        for pad, pad_args in pads:
+            name = f"{base.name}{part}{pad}"
+            yield (base.with_name(f"{name}.stl"),
+                   args + pad_args + (["-D", "modular=false"] if modular else []))
+            for i in range(1, n + 1):
+                yield (base.with_name(f"{name}_modular_{i}.stl"),
+                       args + pad_args + ["-D", "modular=true", "-D", f"print_slot={i}"])
 
 
 def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:

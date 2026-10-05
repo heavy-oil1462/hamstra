@@ -20,6 +20,8 @@ Pipeline:
    `..._modular_<n>.stl`. The module count comes from the model's
    `echo(modules = n)` (wall_row and gun_rack emit it when modular), so
    a new modular model must echo it too or regen stops with an error.
+   A model with a `pad = ...;` line also exports the friction pad of
+   every one of those as `..._pad.stl` / `..._pad_modular_<n>.stl`.
 3. `cad/main_assembly.scad` -> `main_assembly.png`
 
 ## Rules

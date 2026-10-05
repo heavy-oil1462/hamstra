@@ -46,15 +46,20 @@ modular = false;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
+/* [Friction pad] */
+// Show this part's friction pad instead (print in TPU, or use as the
+// template to cut silicone sheet; pad_t in design_params.scad)
+pad = false;
+
 // These values for the assembly scene: [diameters, lengths, wall
 // offsets, gaps, clip tops].
 function my_suppressors_data() = [suppressor_d, suppressor_l, wall_offset, gaps, clip_top];
 
 module my_suppressors(part = part, modular = modular, print_slot = print_slot,
-                      spacing = 12) {
+                      spacing = 12, pad = pad) {
     suppressor_holder(part = part, suppressor_d = suppressor_d,
                       wall_offset = wall_offset, gaps = gaps, magnets_x = magnets_x,
-                      modular = modular, print_slot = print_slot, spacing = spacing);
+                      modular = modular, print_slot = print_slot, spacing = spacing, pad = pad);
 }
 
 my_suppressors();

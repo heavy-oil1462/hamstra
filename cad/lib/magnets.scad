@@ -12,6 +12,11 @@
 include <../design_params.scad>
 use <dovetail.scad>
 
+assert(pad_t == 0 || (pad_air > 0 && pad_air < pad_t),
+       "pad_air must leave the magnet face between the back face and the wall");
+assert(magnet_h + magnet_recess - magnet_out >= magnet_h / 2,
+       "less than half the magnet left in its pocket, use a thinner pad");
+
 // Evenly spread n positions over [a, b]; one position sits in the middle.
 function spread(n, a, b) =
     n <= 1 ? [(a + b) / 2] : [for (i = [0 : n - 1]) a + (b - a) * i / (n - 1)];
@@ -25,11 +30,12 @@ module pocket2d(d, teardrop) {
     }
 }
 
-// One pocket cutter. Opening on the plane z = 0, depth toward +z.
+// One pocket cutter. Opening on the plane z = 0, depth toward +z. The
+// magnet stands magnet_out proud of the opening, into the pad.
 module magnet_pocket(teardrop = false, clearance = magnet_clearance) {
     d = magnet_d + clearance;
     // with no skin the pocket runs through the boss: cut past its face
-    depth = magnet_h + magnet_recess + (back_skin > 0 ? 0 : eps);
+    depth = magnet_h + magnet_recess - magnet_out + (back_skin > 0 ? 0 : eps);
     translate([0, 0, -eps]) {
         linear_extrude(depth + eps) pocket2d(d, teardrop);
         cylinder(d1 = d + 2 * magnet_chamfer + 2 * eps, d2 = d,
@@ -97,19 +103,37 @@ module magnet_bosses_flat(x0, x1, h, nx, ny, roof_down = false) {
             linear_extrude(back_t) boss2d(roof_down);
 }
 
+// Back plate outline: x in [x0, x1], [0, h] the other way. Jointed side
+// edges are square, their corners filled by the dovetail edge strip.
+module plate2d(x0, x1, h, joints = [false, false], r = plate_r) {
+    translate([x0, 0]) offset(r = r) offset(delta = -r) square([x1 - x0, h]);
+    for (side = [0, 1]) if (joints[side])
+        translate([side == 0 ? x0 : x1 - dovetail_spine_w, 0]) square([dovetail_spine_w, h]);
+}
+
+// Friction pad for a back plate, lying on the bed: the plate outline
+// pad_inset smaller, with a hole for each magnet of the pocket grid over
+// [0, gh] (gh = h when the grid covers the whole plate).
+module back_pad(x0, x1, h, nx, nz, joints = [false, false], gh = undef) {
+    linear_extrude(pad_t) difference() {
+        offset(delta = -pad_inset) plate2d(x0, x1, h, joints);
+        for (p = pocket_grid(x0, x1, is_undef(gh) ? h : gh, nx, nz))
+            translate(p) circle(d = magnet_d + pad_hole_clearance);
+    }
+}
+
 // Upright back plate solid: x in [x0, x1], z in [0, h], y in [-plate_t, 0].
-module wall_plate(x0, x1, h, r = plate_r) {
-    rotate([90, 0, 0])
-        linear_extrude(plate_t)
-            translate([x0, 0])
-                offset(r = r) offset(delta = -r) square([x1 - x0, h]);
+module wall_plate(x0, x1, h) {
+    rotate([90, 0, 0]) linear_extrude(plate_t) plate2d(x0, x1, h);
 }
 
 // Upright wall-mounted model: back plate plus children, magnet pockets
 // cut last so nothing the children add can fill them. joints = [left,
 // right] adds the module joint on those side edges (lib/dovetail.scad).
+// With $pad set it draws the plate's friction pad instead (back_pad).
 module wall_mount(x0, x1, h, nx, nz, teardrop = true, joints = [false, false]) {
-    difference() {
+    if (!is_undef($pad) && $pad) back_pad(x0, x1, h, nx, nz, joints);
+    else difference() {
         union() {
             wall_plate(x0, x1, h);
             magnet_bosses_wall(x0, x1, h, nx, nz, teardrop);
