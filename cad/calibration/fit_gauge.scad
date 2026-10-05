@@ -11,6 +11,12 @@
 //   slots  a thin slice of the gun rack comb with one slot per width,
 //          made by the rack's own profile code. Drop the muzzle end of
 //          each gun into the slots to pick its slot_w.
+//   cups   thin slices of a cup bore for an oblong breech (an over and
+//          under monoblock), wall toward the label tab: columns step
+//          the clearance, rows step the front corner radius (half the
+//          width = round). Push the breech in from the top, back to the
+//          tab, and use the winning [width, depth, radius] and clearance
+//          in the model. cup_gauge() is also used by cad/my_safe.
 //
 // Every ring and slot is labelled. Prints flat as modeled.
 
@@ -19,7 +25,7 @@ use <../lib/holders.scad>
 use <../safe/gun_rack.scad>
 
 // Which gauge to show
-part = "rings"; // [rings, slots]
+part = "rings"; // [rings, slots, cups]
 
 /* [Rings] */
 // Measured diameter of the suppressor, barrel or breech
@@ -42,6 +48,16 @@ slot_gap = 10;
 slot_depth = 30;
 // Gauge thickness
 slot_t = 4;
+
+/* [Cup slices] */
+// Oblong breech to test, measured: [width along the wall, depth]
+cup_shape = [30, 60];
+// Front corner radii to try, one row each (half the width = round)
+front_radii = [15, 6, 2];
+// Clearances to try, added like item_clearance (one column each)
+cup_clearances = [0.6, 1.0, 1.4];
+// Slice height
+cup_h = 4;
 
 label_size = 3.5;
 label_depth = 0.6;
@@ -76,6 +92,34 @@ module ring_gauge() {
             gauge_ring(ring_d, clearances[i], snaps[j]);
 }
 
+// One cup slice: the holder_row bore of shape s grown by c, wall thick,
+// with a label tab on the wall side.
+module gauge_cup(s, c, h = cup_h) {
+    g = grow(s, c);
+    tab = [22, 13];
+    difference() {
+        union() {
+            linear_extrude(h) offset(r = wall) bore2d(g);
+            translate([-tab[0] / 2, sy(g) / 2, 0]) cube([tab[0], tab[1], h]);
+        }
+        translate([0, 0, -eps]) linear_extrude(h + 2 * eps) bore2d(g);
+        translate([0, sy(g) / 2 + wall + 6.5, h - label_depth]) label(str("c", c));
+        translate([0, sy(g) / 2 + wall + 1.5, h - label_depth]) label(str("r", s[2]));
+    }
+}
+
+// Grid of cup slices for an oblong [width, depth]: a column per
+// clearance, a row per front corner radius.
+module cup_gauge(shape = cup_shape, radii = front_radii, clearances = cup_clearances,
+                 h = cup_h) {
+    assert(is_list(shape), "cup_shape is [width, depth]");
+    pitch_x = sx(shape) + max(clearances) + 2 * wall + 4;
+    pitch_y = sy(shape) + max(clearances) + wall + 13 + 4;
+    for (i = [0 : len(clearances) - 1], j = [0 : len(radii) - 1])
+        translate([i * pitch_x, j * pitch_y, 0])
+            gauge_cup([shape[0], shape[1], radii[j]], clearances[i], h);
+}
+
 module slot_gauge() {
     ws = slot_widths;
     n = len(ws);
@@ -94,4 +138,5 @@ module slot_gauge() {
 
 if (part == "rings") ring_gauge();
 else if (part == "slots") slot_gauge();
+else if (part == "cups") cup_gauge();
 else assert(false, str("unknown part: ", part));

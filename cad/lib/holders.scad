@@ -22,19 +22,40 @@ function as_list(v) = is_list(v) ? v : [v];
 // diameter) or [width, depth]: an oblong item, width along the wall and
 // depth away from it, such as an over and under barrel pair stacked
 // front to back ([21, 42] for two 21 mm barrels), or a side by side
-// pair along the wall ([43, 21.5]).
+// pair along the wall ([43, 21.5]). An oblong item may add a third
+// value, the corner radius of its front end (away from the wall), for a
+// part that is round toward the wall and squarer at the front: an over
+// and under monoblock, [28, 67, 3]. Without it both ends are round.
 function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
 function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
-function grow(s, c) = is_list(s) ? [s[0] + c, s[1] + c] : s + c;
+function grow(s, c) = !is_list(s) ? s + c
+    : len(s) > 2 ? [s[0] + c, s[1] + c, s[2] + c / 2] : [s[0] + c, s[1] + c];
 function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
 
 // Bore outline of shape s centered on the origin: a circle, or a stadium
 // along its longer side (y for an over and under, x for a side by side).
-// Convex, so hulls of it stay true.
+// With a front corner radius the front half (-y, away from the wall) is
+// a rounded rectangle instead. Convex, so hulls of it stay true.
 module bore2d(s) {
     d = min(sx(s), sy(s));
-    hull() for (k = [-1, 1])
-        translate([k * (sx(s) - d) / 2, k * (sy(s) - d) / 2]) circle(d = d);
+    module stadium()
+        hull() for (k = [-1, 1])
+            translate([k * (sx(s) - d) / 2, k * (sy(s) - d) / 2]) circle(d = d);
+    // a radius of half the width or more is the round end (and would
+    // shrink the rounded rectangle below to nothing)
+    if (is_list(s) && len(s) > 2 && s[2] < d / 2 - eps) {
+        r = s[2];
+        hull() {
+            intersection() {
+                stadium();
+                translate([-sx(s), 0]) square([2 * sx(s), sy(s)]);
+            }
+            intersection() {
+                offset(r = r) offset(delta = -r) square([sx(s), sy(s)], center = true);
+                translate([-sx(s), -sy(s)]) square([2 * sx(s), sy(s)]);
+            }
+        }
+    } else stadium();
 }
 
 // Closest distance from the wall to the axis of a holder of shape s: the

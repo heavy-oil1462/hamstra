@@ -37,7 +37,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | Gun rack | `cad/safe/gun_rack.scad` | shelf down, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
 | Dovetail gauge | `cad/calibration/dovetail_gauge.scad` | as modeled |
-| Fit gauge (rings and rack slots) | `cad/calibration/fit_gauge.scad` | flat, as modeled |
+| Fit gauge (rings, rack slots, oblong cups) | `cad/calibration/fit_gauge.scad` | flat, as modeled |
 
 None of them need support.
 
@@ -107,6 +107,11 @@ holder geometry, a few grams each.
   tests the cup and cradle fit.
 - `part = slots`: a slice of the gun rack comb with one slot per width.
   Drop each gun's muzzle end in to pick its `slot_w`.
+- `part = cups`: slices of a cup for an oblong breech such as an over
+  and under monoblock, columns stepping the clearance and rows stepping
+  the corner radius of the front end. Many monoblocks are round toward
+  the wall and nearly square at the front: a size of `[28, 67, 3]` makes
+  the cup match (without the third value both ends are round).
 
 Double guns fit the rack with per-slot widths. A side by side needs a
 slot about as wide as both barrels together at the shelf height (often
