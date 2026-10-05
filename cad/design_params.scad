@@ -42,12 +42,24 @@ magnet_edge = 4;        // minimum plastic from a pocket to the plate edge
 // magnet and the magnets stand out of the back face through it, stopping
 // pad_air short of the wall, so the pad carries the magnets' pull and
 // takes the friction while only air sits in front of the magnets. The
-// magnets also hold the pad in place, no glue needed.
+// magnets also hold the pad in place, no glue needed. A row standing on
+// the safe floor (the barrel cup row) gets a second pad under it, cut to
+// its footprint: grip on the floor and an air gap under the cups. No
+// magnet holds that one, so it has a lip the row sits in, open toward
+// the wall where the wall pad is. Silicone cannot make the lip: use
+// self-adhesive sheet there.
 pad_t = 1;              // pad thickness, 0 for no pad (magnets flush)
 pad_air = 0.3;          // magnet face to wall. Soft silicone squeezes,
                         // give it more
 pad_hole_clearance = 0.4; // added to magnet_d for the pad's holes
 pad_inset = 0.5;        // pad edge inside the plate edge
+base_pad_gap = 5;       // a floor standing row's base pad, printed in
+                        // front of its wall pad, this far from it
+base_rim_h = 2;         // lip the base pad rises around the row's
+                        // footprint, so the row sits in it (nothing else
+                        // holds the base pad); 0 for a flat pad
+base_rim_w = 1.2;       // lip thickness (3 perimeters)
+base_rim_clearance = 0.3; // footprint to the inside of the lip
 // how far a magnet stands out of the back face
 magnet_out = pad_t > 0 ? pad_t - pad_air : 0;
 

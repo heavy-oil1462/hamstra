@@ -51,9 +51,15 @@ clip_align = [0, 0];
 // barrel upright
 cup_depth = 25;
 // Cup floor thickness, it carries the barrel onto the safe floor
-floor_t = 3;
-// Drain hole in the floor (0 for none)
+floor_t = 4.5;
+// Drain hole in the floor (0 for none). The cup row stands on the safe
+// floor, which blocks a hole: the drain groove is the drain here
 drain_d = 0;
+// Drain groove in the floor, from under the breech out the front of the
+// cup, so moisture runs out and air reaches the breech (0 for none)
+groove_w = 4;
+// Drain groove depth, leaves floor_t minus this under the groove
+groove_d = 2.5;
 // Cup back plate height (at least cup depth plus floor)
 cup_plate_h = 40;
 
@@ -81,6 +87,8 @@ print_slot = 0;
 // Show this part's friction pad instead (print in TPU, or use as the
 // template to cut silicone sheet; pad_t in design_params.scad)
 pad = false;
+// The cup row's pad also gets a base pad for under the row, on the safe floor
+base_pad = true;
 
 /* [Magnets] */
 // Magnet columns on the cup row (the cup row stands on the floor, magnets only hold it to the wall; per module when modular)
@@ -112,7 +120,9 @@ function barrel_clip_h() = clip_h;
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
                      clip_align = clip_align, cup_depth = cup_depth, floor_t = floor_t,
-                     drain_d = drain_d, cup_plate_h = cup_plate_h,
+                     drain_d = drain_d, groove_w = groove_w, groove_d = groove_d,
+                     base_pad = base_pad,
+                     cup_plate_h = cup_plate_h,
                      clip_h = clip_h, clip_wall = clip_wall, snap = snap,
                      clip_clearance = clip_clearance,
                      clip_plate_h = clip_plate_h, clip_row = clip_row,
@@ -129,7 +139,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
                   clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
-                  spacing, clip_magnets_x, clip_magnets_z);
+                  spacing, clip_magnets_x, clip_magnets_z, [groove_w, groove_d], base_pad);
 }
 
 barrel_holder();
