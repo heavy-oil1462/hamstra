@@ -3,9 +3,10 @@
 // and regen_all.py exports this build like any other model.
 //
 // Measured barrels (mm):
-//   1   27 at the breech, 24 at the muzzle, 660 long: SSG 3000 / STR 200
-//       drop-in, 6 mm Creedmoor, M24 profile, 26 inch (from the spec)
-//   2   27 at the breech, 17.5 at the muzzle, about 450 long (estimate)
+//   1   9.3: 27 at the breech, 17.5 at the muzzle, about 450 long
+//       (estimate)
+//   2   6 mm Creedmoor: 27 at the breech, 24 at the muzzle, 660 long, SSG
+//       3000 / STR 200 drop-in, M24 profile, 26 inch (from the spec)
 //   3   B25 over and under shotgun barrel set: monoblock 28 wide x 67
 //       deep, two straight 21 mm barrels stacked away from the wall,
 //       about 710 long (estimate, B25 barrels are commonly 28 to 30 inch)
@@ -13,7 +14,7 @@
 // its top 400 mm above the cup floor, just below the shortest muzzle; it
 // sits above every barrel's center of mass. The clips are sized for the
 // diameter at that height, not the muzzle: 1 and 2 are straight-taper
-// estimates there (the M24 contour starts with a straight shank, so 1
+// estimates there (the M24 contour starts with a straight shank, so 2
 // may run a little thicker). Confirm them with the fit gauge rings.
 
 use <../safe/barrel_holder.scad>
@@ -25,11 +26,11 @@ part = "cup"; // [cup, clip]
 // Breech end size per barrel, measured: a diameter, or [width, depth]
 breech_d = [27, 27, [28, 67]];
 // Barrel size per slot where the clip grips it, 400 mm up (1, 2 estimates)
-barrel_d = [25.2, 18.6, [21, 42]];
+barrel_d = [18.6, 25.2, [21, 42]];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
-muzzle_d = [24, 17.5, [21, 42]];
-// Barrel length (only the assembly scene uses it); 2 and 3 are estimates
-barrel_l = [660, 450, 710];
+muzzle_d = [17.5, 24, [21, 42]];
+// Barrel length (only the assembly scene uses it); 1 and 3 are estimates
+barrel_l = [450, 660, 710];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 wall_offset = [0, 0, 0];
 // Space between neighbouring cups, one entry per pair
