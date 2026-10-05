@@ -36,7 +36,8 @@ neodymium magnets on the back so nothing is drilled into the safe.
   bed) use horizontal teardrop magnet pockets. The gun rack prints shelf
   down for the same reason: its plate stands, so its pockets are
   teardrops too, its fingers lie in the layers (sideways loads run along
-  them) and the dovetail rises straight off the bed. No model bridges a
+  them) and the dovetail tongue rises straight off the bed, its joint
+  flipped so the slot closes at the plate bottom. No model bridges a
   pocket floor. Features
   start at the bed rather than float above it: a holder high up a tall
   plate cannot print upright. Prefer splitting into short pieces (cup
@@ -48,9 +49,12 @@ neodymium magnets on the back so nothing is drilled into the safe.
   exactly the one-piece layout), carry their own magnets, and join with
   a sliding dovetail along the plate side edges between slots
   (lib/dovetail.scad, shared values in design_params): tongue right,
-  slot left, slot closed at the top so modules stop level, outer row
-  ends plain. regen exports each module to its own STL. `print_slot` picks one module or
-  lays them all out. New multi-slot models build on `wall_row` in
+  slot left, slot closed at the far end from the bed (top on upright
+  prints, bottom on the rack). Tongue and slot end in matching 45 degree
+  planes (dovetail_bar), flanks straight, that meet when the plates are
+  level, so modules stop level and nothing bridges. Outer row ends
+  plain. regen exports each module to its own STL. `print_slot` picks
+  one module or lays them all out. New multi-slot models build on `wall_row` in
   lib/magnets.scad, which handles both modes.
 - Holder slot sizes are a diameter or [width, depth] for oblong items
   (an over and under pair stacked front to back), via sx/sy/bore2d in

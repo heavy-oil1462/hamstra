@@ -21,7 +21,9 @@
 // Prints shelf down: the shelf's top face on the bed, the back plate
 // standing up from its back edge, gussets rising between them. Nothing
 // floats: the magnet pockets are teardrops in the standing plate, the
-// dovetail rises straight off the bed with the slot's closed end on it,
+// dovetail tongue rises straight off the bed (the joint is flipped: the
+// slot closes at the plate bottom, so hang the module with the slot
+// first and drop its left neighbour in from above, tongue down),
 // and the fingers lie in the layers, so a gun pushing one sideways loads
 // it along the layers, not across them.
 //
@@ -155,10 +157,10 @@ module rack_piece(x0, x1, ws, xs, bottoms, depths, dl, dr, r, shelf_t, plate_h,
                                  [y_shelf + eps, g[1] - r],
                                  [y_shelf - gusset_h, plate_t - eps]]);
             // the joint is modeled upright; lay it down like the rack
-            rotate([-90, 0, 0]) dovetail_joints(x0, x1, plate_h, joints);
+            rotate([-90, 0, 0]) dovetail_joints(x0, x1, plate_h, joints, flip = true);
         }
         magnet_pockets_flat(x0, x1, y_shelf, magnets_x, magnets_y, roof_down = true);
-        rotate([-90, 0, 0]) dovetail_cuts(x0, plate_h, joints);
+        rotate([-90, 0, 0]) dovetail_cuts(x0, plate_h, joints, flip = true);
     }
 }
 
