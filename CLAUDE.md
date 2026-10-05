@@ -50,8 +50,9 @@ neodymium magnets on the back so nothing is drilled into the safe.
   a sliding dovetail along the plate side edges between slots
   (lib/dovetail.scad, shared values in design_params): tongue right,
   slot left, slot closed at the far end from the bed (top on upright
-  prints, bottom on the rack) with a 45 degree roof so modules stop
-  level, outer row ends plain. regen exports each module to its own STL. `print_slot` picks one module or
+  prints, bottom on the rack). Tongue and slot end in matching 45 degree
+  slopes (dovetail_end) that meet when the plates are level, so modules
+  stop level and nothing bridges. Outer row ends plain. regen exports each module to its own STL. `print_slot` picks one module or
   lays them all out. New multi-slot models build on `wall_row` in
   lib/magnets.scad, which handles both modes.
 - Holder slot sizes are a diameter or [width, depth] for oblong items

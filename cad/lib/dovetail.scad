@@ -22,28 +22,46 @@ module dovetail_profile(c = 0) {
                  [d, yc + n + d], [0, yc + n], [-1, yc + n]]);
 }
 
-// Tongue on the right edge x1. Stops short of the top by dovetail_stop.
-module dovetail_male(x1, h) {
-    translate([x1, 0, 0]) linear_extrude(h - dovetail_stop) dovetail_profile();
+// Where the full tongue section ends: above it the tongue and the slot
+// both close in on the plate edge at 45 degrees (dovetail_end), reaching
+// the edge dovetail_stop below the top.
+function dovetail_end_z(h) = h - dovetail_stop - dovetail_d;
+
+// 45 degree end from section z0 up: the profile (grown by c) closing in
+// on its root at the plate edge, dovetail_d + c higher. Tongue and slot
+// share it, so their ends meet face to face and seat level.
+module dovetail_end(z0, c = 0) {
+    hull() {
+        translate([0, 0, z0 - eps]) linear_extrude(eps) dovetail_profile(c);
+        translate([0, 0, z0 + dovetail_d + c]) linear_extrude(eps)
+            intersection() {
+                dovetail_profile(c);
+                translate([-10, -50]) square([10, 100]);
+            }
+    }
 }
 
-// Slot cutter for the left edge x0, open at the bottom, closed at the top.
-// The closed end is a 45 degree roof closing in on the plate edge, so the
-// slot prints without bridging.
+// Tongue on the right edge x1, its end sloped so it seats on the slot's
+// sloped end with the plates level.
+module dovetail_male(x1, h) {
+    e = dovetail_end_z(h);
+    translate([x1, 0, 0]) {
+        linear_extrude(e) dovetail_profile();
+        dovetail_end(e);
+    }
+}
+
+// Slot cutter for the left edge x0, open at the bottom, closed at the
+// top. Its sloped end sits a clearance lower than the tongue's, so with
+// the plates level the two slopes touch and nothing else does; it also
+// prints without bridging.
 module dovetail_female(x0, h) {
     c = dovetail_clearance;
-    top = h - dovetail_stop + c;
-    assert(dovetail_stop > dovetail_d + 2 * c, "dovetail_stop too short for the slot roof");
+    e = dovetail_end_z(h) - c;
+    assert(e > 0, "plate too short for the dovetail");
     translate([x0, 0, 0]) {
-        translate([0, 0, -eps]) linear_extrude(top + eps) dovetail_profile(c);
-        hull() {
-            translate([0, 0, top - eps]) linear_extrude(eps) dovetail_profile(c);
-            translate([0, 0, top + dovetail_d + c]) linear_extrude(eps)
-                intersection() {
-                    dovetail_profile(c);
-                    translate([-10, -50]) square([10, 100]);
-                }
-        }
+        translate([0, 0, -eps]) linear_extrude(e + eps) dovetail_profile(c);
+        dovetail_end(e, c);
     }
 }
 
