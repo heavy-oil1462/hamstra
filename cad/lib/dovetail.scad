@@ -22,47 +22,35 @@ module dovetail_profile(c = 0) {
                  [d, yc + n + d], [0, yc + n], [-1, yc + n]]);
 }
 
-// Where the full tongue section ends: above it the tongue and the slot
-// both close in on the plate edge at 45 degrees (dovetail_end), reaching
-// the edge dovetail_stop below the top.
+// Where the tongue's sloped end starts at its outer face. Above it the
+// tongue, and the slot, end in a 45 degree plane that reaches the plate
+// edge dovetail_d higher, dovetail_stop below the top.
 function dovetail_end_z(h) = h - dovetail_stop - dovetail_d;
 
-// 45 degree end from section z0 up: the profile (grown by c) closing in
-// on its root at the plate edge, dovetail_d + c higher. Tongue and slot
-// share it, so their ends meet face to face and seat level.
-module dovetail_end(z0, c = 0) {
-    hull() {
-        translate([0, 0, z0 - eps]) linear_extrude(eps) dovetail_profile(c);
-        translate([0, 0, z0 + dovetail_d + c]) linear_extrude(eps)
-            intersection() {
-                dovetail_profile(c);
-                translate([-10, -50]) square([10, 100]);
-            }
+// Section c grown, run up to the 45 degree plane x + z = k. Only the end
+// is sloped: the flanks stay straight, so the tongue's end is never wider
+// than the slot it slides through. Tongue and slot use the same plane,
+// so their ends meet face to face exactly when the plates are level.
+module dovetail_bar(k, c = 0) {
+    intersection() {
+        // a cutter (c > 0) overruns the plate bottom, a tongue starts on it
+        translate([0, 0, c > 0 ? -eps : 0]) linear_extrude(k + 2 + c) dovetail_profile(c);
+        // half space x + z <= k
+        translate([0, 0, k]) rotate([0, 45, 0]) translate([-1e4, -1e4, -2e4]) cube([2e4, 2e4, 2e4]);
     }
 }
 
-// Tongue on the right edge x1, its end sloped so it seats on the slot's
-// sloped end with the plates level.
+// Tongue on the right edge x1, its end sloped at 45 degrees.
 module dovetail_male(x1, h) {
-    e = dovetail_end_z(h);
-    translate([x1, 0, 0]) {
-        linear_extrude(e) dovetail_profile();
-        dovetail_end(e);
-    }
+    translate([x1, 0, 0]) dovetail_bar(dovetail_end_z(h) + dovetail_d);
 }
 
-// Slot cutter for the left edge x0, open at the bottom, closed at the
-// top. Its sloped end sits a clearance lower than the tongue's, so with
-// the plates level the two slopes touch and nothing else does; it also
-// prints without bridging.
+// Slot cutter for the left edge x0, open at the bottom, closed at the top
+// by the same 45 degree plane as the tongue's end, so it prints without
+// bridging and the tongue seats on it with the plates level.
 module dovetail_female(x0, h) {
-    c = dovetail_clearance;
-    e = dovetail_end_z(h) - c;
-    assert(e > 0, "plate too short for the dovetail");
-    translate([x0, 0, 0]) {
-        translate([0, 0, -eps]) linear_extrude(e + eps) dovetail_profile(c);
-        dovetail_end(e, c);
-    }
+    assert(dovetail_end_z(h) > dovetail_clearance, "plate too short for the dovetail");
+    translate([x0, 0, 0]) dovetail_bar(dovetail_end_z(h) + dovetail_d, dovetail_clearance);
 }
 
 // Upside down about the plate's mid height when flip is set.

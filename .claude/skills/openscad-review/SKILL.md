@@ -62,3 +62,11 @@ model; `...,60,0,150,0` shows the back with the magnet pockets.
 - A model used as a library is `use`d with a path relative to the using
   file; top-level variables of a `use`d file are not visible to the user
   of it, so the assembly passes overrides as module arguments.
+- hull() of a non-convex 2D profile (a dovetail: narrow neck, wide
+  outside) fills the concave parts. A hulled tongue end came out wider
+  than its slot and could not slide in. Cut ends with a half space
+  (intersection with a rotated cube) so the flanks stay as profiled.
+- Test a sliding fit over its whole travel, not just near the seated
+  position: intersect the two parts at offsets from fully apart down to
+  seated and past it (volume() in scripts/check_joints.py). Zero overlap
+  everywhere above seated, growing overlap just past it.
