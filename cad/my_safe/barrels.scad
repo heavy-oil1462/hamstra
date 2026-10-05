@@ -9,7 +9,11 @@
 //       3000 / STR 200 drop-in, M24 profile, 26 inch (from the spec)
 //   3   B25 over and under shotgun barrel set: monoblock 28 wide x 67
 //       deep, two straight 21 mm barrels stacked away from the wall,
-//       about 710 long (estimate, B25 barrels are commonly 28 to 30 inch)
+//       about 710 long (estimate, B25 barrels are commonly 28 to 30 inch).
+//       The monoblock is round on the top barrel side (to the wall) and
+//       near square at the lump: its cup gets a 1 mm front corner radius
+//       and 0.4 mm more room than item_clearance, the roomiest slice of
+//       the fit gauge's cups. The cup only locates it, the clip holds.
 // The cup row stands on the safe floor. One joined clip row, mounted with
 // its top 400 mm above the cup floor, just below the shortest muzzle; it
 // sits above every barrel's center of mass. The clips are sized for the
@@ -24,7 +28,7 @@ part = "cup"; // [cup, clip]
 
 /* [Slots] */
 // Breech end size per barrel, measured: a diameter, or [width, depth]
-breech_d = [27, 27, [28, 67]];
+breech_d = [27, 27, [28.4, 67.4, 1]];
 // Barrel size per slot where the clip grips it, 400 mm up (1, 2 estimates)
 barrel_d = [18.6, 25.2, [21, 42]];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
