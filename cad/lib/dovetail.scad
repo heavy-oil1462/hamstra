@@ -35,8 +35,10 @@ module dovetail_bar(k, c = 0) {
     intersection() {
         // a cutter (c > 0) overruns the plate bottom, a tongue starts on it
         translate([0, 0, c > 0 ? -eps : 0]) linear_extrude(k + 2 + c) dovetail_profile(c);
-        // half space x + z <= k
-        translate([0, 0, k]) rotate([0, 45, 0]) translate([-1e4, -1e4, -2e4]) cube([2e4, 2e4, 2e4]);
+        // half space x + z <= k, only as big as the bar: a huge cube
+        // flickers in the F5 preview (depth buffer precision)
+        let (s = k + 10)
+            translate([0, 0, k]) rotate([0, 45, 0]) translate([-s, -s, -s]) cube([2 * s, 2 * s, s]);
     }
 }
 

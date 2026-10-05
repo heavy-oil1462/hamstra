@@ -58,7 +58,9 @@ model; `...,60,0,150,0` shows the back with the magnet pockets.
   release branch that ships the same snapshot prebuilt. Probe a new pin
   with `--max-jobs 0` before switching.
 - Section views need `--render`: the OpenCSG preview mis-draws a
-  difference against a huge half-space cube.
+  difference against a huge half-space cube. In model code, size a
+  half-space cutter to the part (dovetail_bar uses k + 10), never 1e4:
+  the user's F5 preview flickers and hides the cut otherwise.
 - A model used as a library is `use`d with a path relative to the using
   file; top-level variables of a `use`d file are not visible to the user
   of it, so the assembly passes overrides as module arguments.
