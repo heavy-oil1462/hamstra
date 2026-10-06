@@ -17,8 +17,10 @@
 // short list repeats its last entry). A size is a diameter, or
 // [width, depth] for an oblong item such as an over and under barrel set
 // stacked front to back: breech_d = [27, [42, 50]] is a round breech and
-// an O/U monoblock, barrel_d = [17.5, [21, 42]] the matching tops. The
-// layout is spaced by whichever is bigger per slot, breech or barrel.
+// an O/U monoblock, barrel_d = [17.5, [21, 42]] the matching tops. A clip
+// can also be a figure 8, eight() in lib/holders.scad, that grips both
+// barrels of an O/U pair. The layout is spaced by whichever is bigger
+// per slot, breech or barrel.
 //
 // Prints as modeled: back plate vertical, cups and rings standing on the
 // bed. Pick the part to show or export with `part`; regen_all.py exports
@@ -71,7 +73,8 @@ cup_plate_h = 40;
 clip_h = 15;
 // Clip ring wall, thicker snaps harder
 clip_wall = 3;
-// Snap opening as a fraction of the barrel diameter (below 1 snaps)
+// Snap opening as a fraction of the barrel diameter, the front barrel's on
+// an oblong or figure 8 clip (below 1 snaps)
 snap = 0.85;
 // Clearance added to the barrel diameter (small, the clip should hug)
 clip_clearance = 0.4;
@@ -120,6 +123,9 @@ function barrel_floor_t() = floor_t;
 // Height of the clip ring, at the bottom of the clip piece.
 function barrel_clip_h() = clip_h;
 
+// Height of the clip piece, its plate or ring whichever is taller.
+function barrel_clip_plate_h() = max(clip_plate_h, clip_h);
+
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
                      clip_align = clip_align, cup_depth = cup_depth,
@@ -141,7 +147,7 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   [for (d = bd) grow(d, cup_clearance)],
                   [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
-                  clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
+                  clip_h, clip_wall, [for (i = [0 : n - 1]) front_d(per(barrel_d, i)) * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
                   spacing, clip_magnets_x, clip_magnets_z, [groove_w, groove_d], base_pad);
 }
