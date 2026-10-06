@@ -43,7 +43,8 @@ wall_offset = [0, 0];
 // Space between neighbouring cups, one entry per pair
 gaps = [8];
 // Clip position per slot: 0 centered over the cup (round barrels), 1 back
-// flush with the cup's back (an O/U set flush with its monoblock's back)
+// flush with the cup's back (an O/U set flush with its monoblock's back),
+// -1 front flush with the cup's front (an O/U set with its lump to the wall)
 clip_align = [0, 0];
 
 /* [Cup] */
