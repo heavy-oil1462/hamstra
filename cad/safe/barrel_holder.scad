@@ -43,9 +43,11 @@ wall_offset = [0, 0];
 // Space between neighbouring cups, one entry per pair
 gaps = [8];
 // Clip position per slot: 0 centered over the cup (round barrels), 1 back
-// flush with the cup's back (an O/U set flush with its monoblock's back),
-// -1 front flush with the cup's front (an O/U set with its lump to the wall)
+// flush with the cup's back (an O/U set flush with its monoblock's back)
 clip_align = [0, 0];
+// Clip moved this many mm away from the wall per slot, after clip_align
+// (an O/U set standing lump to the wall: back flush plus the lump depth)
+clip_shift = [0, 0];
 
 /* [Cup] */
 // Cup depth, inside: it only locates the breech, the clip row keeps the
@@ -109,11 +111,12 @@ clip_magnets_z = 1;
 function barrel_layout(breech_d = breech_d, barrel_d = barrel_d,
                        wall_offset = wall_offset, gaps = gaps,
                        clip_wall = clip_wall, clip_clearance = clip_clearance,
-                       clip_align = clip_align, cup_clearance = cup_clearance) =
+                       clip_align = clip_align, cup_clearance = cup_clearance,
+                       clip_shift = clip_shift) =
     let (bd = as_list(breech_d))
     holder_pair_layout([for (d = bd) grow(d, cup_clearance)], wall,
                        [for (i = [0 : len(bd) - 1]) grow(per(barrel_d, i), clip_clearance)],
-                       clip_wall, gaps, wall_offset, clip_align);
+                       clip_wall, gaps, wall_offset, clip_align, clip_shift);
 
 // Height of the cup floor the barrels stand on.
 function barrel_floor_t() = floor_t;
@@ -123,7 +126,8 @@ function barrel_clip_h() = clip_h;
 
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
-                     clip_align = clip_align, cup_depth = cup_depth,
+                     clip_align = clip_align, clip_shift = clip_shift,
+                     cup_depth = cup_depth,
                      cup_clearance = cup_clearance, floor_t = floor_t,
                      drain_d = drain_d, groove_w = groove_w, groove_d = groove_d,
                      base_pad = base_pad,
@@ -138,7 +142,8 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
     bd = as_list(breech_d);
     n = len(bd);
     let ($pad = pad) cup_clip_part(part, barrel_layout(breech_d, barrel_d, wall_offset, gaps, clip_wall,
-                                      clip_clearance, clip_align, cup_clearance),
+                                      clip_clearance, clip_align, cup_clearance,
+                                      clip_shift),
                   [for (d = bd) grow(d, cup_clearance)],
                   [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,

@@ -14,9 +14,9 @@
 //       The monoblock is round on the top barrel side and near square
 //       at the lump. It stands lump to the wall, round side out: its cup
 //       is square at the back (1 mm corner radius) and round at the
-//       front. The cup only locates it, the clip holds. The barrels run
-//       flush with the round front, and the clip grips only the front
-//       barrel, which holds the set fine.
+//       front. The cup only locates it, the clip holds. The clip grips
+//       only the barrel nearest the wall, which holds the set fine; it
+//       sits the lump depth out from the back of the cup.
 // The cup row stands on the safe floor. One joined clip row, mounted with
 // its top 400 mm above the cup floor, just below the shortest muzzle; it
 // sits above every barrel's center of mass. The clips are sized for the
@@ -36,7 +36,7 @@ part = "cup"; // [cup, clip]
 breech_d = [27, 27, [40, 67, 20, 1]];
 // Clip size per slot, 400 mm up, tested: about 15 percent under the
 // barrel (18.6, 25.2 and the B25's 21 mm inner barrel), the rings
-// stretch a lot. The B25 clip grips the front barrel only
+// stretch a lot. The B25 clip grips the barrel nearest the wall only
 barrel_d = [15.8, 21.4, 18];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
 muzzle_d = [17.5, 24, [21, 42]];
@@ -46,10 +46,12 @@ barrel_l = [450, 660, 710];
 wall_offset = [0, 0, 0];
 // Space between neighbouring cups, one entry per pair
 gaps = [8, 8];
-// Clip position per slot: 0 centered over the cup, 1 back flush with it,
-// -1 front flush (the B25 barrels run flush with the round front of the
-// monoblock, so its clip sits on the front barrel)
-clip_align = [0, 0, -1];
+// Clip position per slot: 0 centered over the cup, 1 back flush with it
+clip_align = [0, 0, 1];
+// Clip moved away from the wall per slot, mm. The B25 stands lump to the
+// wall, so its nearest barrel starts the lump depth out: 67 deep minus
+// two 21 mm barrels minus the top rib (about 8, estimate) = 17
+clip_shift = [0, 0, 17];
 // Where to mount the clip row: its top edge above the cup floor (scene only)
 clip_top = 400;
 
@@ -65,15 +67,15 @@ print_slot = 0;
 pad = false;
 
 // These values for the assembly scene: [breech, clip size, lengths, wall
-// offsets, gaps, clip align, muzzle, clip top].
+// offsets, gaps, clip align, muzzle, clip top, clip shift].
 function my_barrels_data() = [breech_d, barrel_d, barrel_l, wall_offset, gaps, clip_align,
-                              muzzle_d, clip_top];
+                              muzzle_d, clip_top, clip_shift];
 
 module my_barrels(part = part, modular = modular, print_slot = print_slot,
                   spacing = 12, pad = pad) {
     barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                   wall_offset = wall_offset, gaps = gaps, clip_align = clip_align,
-                  clip_row = true, modular = modular,
+                  clip_shift = clip_shift, clip_row = true, modular = modular,
                   print_slot = print_slot, spacing = spacing, pad = pad);
 }
 

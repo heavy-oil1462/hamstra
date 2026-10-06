@@ -91,16 +91,17 @@ function holder_xs(ds, w, gaps) =
 // middles), axes2 the second row's axes. align per slot: 0 puts the
 // second row on the same axis (a tapered round barrel), 1 puts the backs
 // of both bores flush, toward the wall (an over and under set whose
-// barrels run flush with the back of its deeper monoblock), -1 the fronts
-// (the same set turned with its lump to the wall).
-function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets, align = 0) =
+// barrels run flush with the back of its deeper monoblock). shift per
+// slot then moves the second row that many mm away from the wall (an
+// over and under set standing lump to the wall: the lump depth).
+function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets, align = 0, shift = 0) =
     let (w = max(w1, w2),
          ds = [for (i = [0 : len(ds1) - 1]) shape_max(ds1[i], ds2[i])],
          xs = holder_xs(ds, w, gaps),
          axes = holder_axes(ds, 1, offsets))
     [xs, axes, holder_bounds(xs, ds, w),
      [for (i = [0 : len(ds1) - 1])
-         axes[i] - per(align, i) * (sy(ds1[i]) - sy(ds2[i])) / 2]];
+         axes[i] - per(align, i) * (sy(ds1[i]) - sy(ds2[i])) / 2 + per(shift, i)]];
 
 // Slot boundaries for a holder row: the outer walls at both ends and the
 // middle of every gap in between.

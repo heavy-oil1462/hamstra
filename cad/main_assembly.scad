@@ -84,7 +84,7 @@ translate([320, -pad_t, pad_t]) {
     md = data[1];
     bl = data[2];
     layout = barrel_layout(breech_d = bd, barrel_d = md, wall_offset = data[3],
-                           gaps = data[4], clip_align = data[5]);
+                           gaps = data[4], clip_align = data[5], clip_shift = data[8]);
     color(part_color) my_barrels(part = "cup", modular = false);
     color(part_color) translate([0, 0, barrel_floor_t() + data[7] - barrel_clip_h()])
         my_barrels(part = "clip", modular = false);
