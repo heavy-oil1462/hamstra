@@ -6,8 +6,9 @@
 // from left to right as printed. Snap each barrel into its three, then
 // copy the winning size into barrel_d in barrels.scad.
 //
-// The round barrels step down from the barrels.scad size by 5, 12.5 and
-// 20 percent. The B25 figure 8 keeps the inner lobe at the measured 21 mm
+// The round barrels try 15, 20 and 25 percent under the barrel size (18.6
+// and 25.2): the printed rings stretch a lot, so an undersized ring still
+// snaps on and then grips. The B25 figure 8 keeps the inner lobe at the measured 21 mm
 // (the web holds it rigid, an undersized inner lobe would not let the
 // barrel seat) and steps the outer lobe and the waist down 1 mm at a time:
 // a tighter wrap on the outer barrel, a harder snap past the waist.
@@ -23,10 +24,10 @@ use <barrels.scad>
 part = "b25"; // [9_3, 6mm, b25]
 
 /* [Sizes] */
-// 9.3 clip sizes to try (barrels.scad: 18.6)
-sizes_9_3 = [17.7, 16.3, 14.9];
-// 6 mm Creedmoor clip sizes to try (barrels.scad: 25.2)
-sizes_6mm = [23.9, 22, 20.2];
+// 9.3 clip sizes to try (barrel 18.6)
+sizes_9_3 = [15.8, 14.9, 14];
+// 6 mm Creedmoor clip sizes to try (barrel 25.2)
+sizes_6mm = [21.4, 20.2, 18.9];
 // B25 clips to try, eight(inner lobe, outer lobe, barrel center distance,
 // waist)
 sizes_b25 = [eight(21, 20, 21, 18.5), eight(21, 19, 21, 17.5), eight(21, 18, 21, 16.5)];

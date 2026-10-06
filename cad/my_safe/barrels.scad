@@ -22,7 +22,8 @@
 // diameter at that height, not the muzzle: 1 and 2 are straight-taper
 // estimates there (the M24 contour starts with a straight shank, so 2
 // may run a little thicker). The first printed clips were all too loose:
-// barrel_clip_test.scad prints three sizes per barrel to find the fit.
+// barrel_clip_test.scad prints three sizes per barrel to find the fit,
+// barrel_d below holds the middle ones.
 
 use <../safe/barrel_holder.scad>
 use <../lib/holders.scad>
@@ -33,10 +34,12 @@ part = "cup"; // [cup, clip]
 /* [Slots] */
 // Breech end size per barrel, measured: a diameter, or [width, depth]
 breech_d = [27, 27, [40, 67, 1]];
-// Barrel size per slot where the clip grips it, 400 mm up (1, 2 estimates).
+// Clip size per slot, 400 mm up. 1 and 2 are 20 percent under the barrel
+// (estimates 18.6 and 25.2 there): the first clips at full size were too
+// loose and the rings stretch a lot. The snap opening shrinks with it.
 // The B25 clip is a figure 8: eight(inner lobe, outer lobe, barrel center
 // distance, waist), see lib/holders.scad
-barrel_d = [18.6, 25.2, eight(21, 19, 21, 17.5)];
+barrel_d = [14.9, 20.2, eight(21, 19, 21, 17.5)];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
 muzzle_d = [17.5, 24, [21, 42]];
 // Barrel length (only the assembly scene uses it); 1 and 3 are estimates
