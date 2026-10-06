@@ -39,7 +39,7 @@ breech_d = [27, 27, [40, 67, 1]];
 // loose and the rings stretch a lot. The snap opening shrinks with it.
 // The B25 clip is a figure 8: eight(inner lobe, outer lobe, barrel center
 // distance, waist), see lib/holders.scad
-barrel_d = [14.9, 20.2, eight(21, 19, 21, 17.5)];
+barrel_d = [14.9, 20.2, eight(17, 15, 21, 14.5)];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
 muzzle_d = [17.5, 24, [21, 42]];
 // Barrel length (only the assembly scene uses it); 1 and 3 are estimates

@@ -123,8 +123,8 @@ function barrel_floor_t() = floor_t;
 // Height of the clip ring, at the bottom of the clip piece.
 function barrel_clip_h() = clip_h;
 
-// Height of the clip piece, its plate or ring whichever is taller.
-function barrel_clip_plate_h() = max(clip_plate_h, clip_h);
+// Clip ring settings [wall, clearance, snap], for test slices of the clip.
+function barrel_clip_fit() = [clip_wall, clip_clearance, snap];
 
 module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                      wall_offset = wall_offset, gaps = gaps,
