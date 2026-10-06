@@ -58,11 +58,7 @@ neodymium magnets on the back so nothing is drilled into the safe.
   lib/magnets.scad, which handles both modes.
 - Holder slot sizes are a diameter or [width, depth] for oblong items
   (an over and under pair stacked front to back), via sx/sy/bore2d in
-  lib/holders.scad. Round and oblong slots mix in one row. A clip for an
-  over and under pair can also be a figure 8, eight() in holders.scad:
-  two lobes with a waist that pinches in between the barrels. It is not
-  convex, so anything that hulls a bore hulls bore2d(s, k) piece by
-  piece (bore_pieces).
+  lib/holders.scad. Round and oblong slots mix in one row.
 - Efficiency: print time, plastic and magnets no more than needed, no
   fewer. Back plates are one solid back_t thick (the magnet plus a
   back_skin floor to glue and index against, thicker by magnet_out), so
@@ -111,9 +107,7 @@ neodymium magnets on the back so nothing is drilled into the safe.
   Keep personal values here, never in a generic model's defaults.
   Customizer presets (.json) cannot do this job: a preset must match the
   type and list length of the model's defaults and is silently ignored
-  otherwise, so it cannot change the slot count. Test prints (several
-  sizes of a part to find a fit) are `<name>_test.scad` here; regen
-  exports them, count_magnets leaves them out of the safe's total.
+  otherwise, so it cannot change the slot count.
 - `cad/calibration/`: gauges for calibrated fits (magnet_pocket_gauge,
   dovetail_gauge) and fit_gauge, which slices the real holder and rack
   geometry so users can test their own gear cheaply. fit_gauge reuses

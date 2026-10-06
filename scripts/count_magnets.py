@@ -8,7 +8,6 @@ So the count always matches what the models actually cut.
 
 Usage:
     scripts/count_magnets.py                  # every build in cad/my_safe
-                                              # (test prints, *_test.scad, left out)
     scripts/count_magnets.py cad/safe/*.scad  # any models
 """
 
@@ -33,8 +32,7 @@ def count(scad: Path, args, td: str) -> int:
 
 
 def main(argv):
-    files = [Path(a) for a in argv[1:]] or sorted(
-        p for p in (ROOT / "cad" / "my_safe").glob("*.scad") if not p.stem.endswith("_test"))
+    files = [Path(a) for a in argv[1:]] or sorted((ROOT / "cad" / "my_safe").glob("*.scad"))
     total = 0
     with tempfile.TemporaryDirectory() as td:
         for scad in files:

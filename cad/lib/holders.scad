@@ -26,49 +26,17 @@ function as_list(v) = is_list(v) ? v : [v];
 // value, the corner radius of its front end (away from the wall), for a
 // part that is round toward the wall and squarer at the front: an over
 // and under monoblock, [28, 67, 3]. Without it both ends are round.
-// A third kind is a figure 8 from eight(): two round lobes stacked away
-// from the wall, for a clip that grips both barrels of an over and under
-// pair, see eight().
-function sx(s) = is8(s) ? max(s[1], s[2]) : is_list(s) ? s[0] : s;   // width along the wall
-function sy(s) = is8(s) ? s[3] + (s[1] + s[2]) / 2 : is_list(s) ? s[1] : s;   // depth away from the wall
-function grow(s, c) = is8(s) ? ["8", s[1] + c, s[2] + c, s[3], s[4] + c]
-    : !is_list(s) ? s + c
+function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
+function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
+function grow(s, c) = !is_list(s) ? s + c
     : len(s) > 2 ? [s[0] + c, s[1] + c, s[2] + c / 2] : [s[0] + c, s[1] + c];
-
-// Figure 8 shape: an inner lobe of d_in (toward the wall) and an outer
-// lobe of d_out, centers pitch apart, joined by a waist of width waist.
-// pitch is the barrel center distance (one barrel diameter for touching
-// barrels). A waist below the lobes pinches in between the barrels, so
-// the inner barrel snaps past it like through a snap opening; a smaller
-// outer lobe wraps the outer barrel tighter.
-function eight(d_in, d_out, pitch, waist) = ["8", d_in, d_out, pitch, waist];
-function is8(s) = is_list(s) && s[0] == "8";
-
-// Diameter of the front end of shape s (away from the wall), where a snap
-// opening goes.
-function front_d(s) = is8(s) ? s[2] : sx(s);
 function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
 
 // Bore outline of shape s centered on the origin: a circle, or a stadium
 // along its longer side (y for an over and under, x for a side by side).
 // With a front corner radius the front half (-y, away from the wall) is
-// a rounded rectangle instead. A figure 8 is not convex: hull its
-// convex pieces one at a time (bore_pieces, bore2d(s, k)).
-module bore2d(s, k = -1) {
-    if (is8(s)) {
-        assert(s[4] <= min(s[1], s[2]), "figure 8 waist wider than a lobe");
-        y_in = sy(s) / 2 - s[1] / 2;
-        y_out = -(sy(s) / 2 - s[2] / 2);
-        if (k < 0 || k == 0) translate([0, y_in]) circle(d = s[1]);
-        if (k < 0 || k == 1) translate([0, y_out]) circle(d = s[2]);
-        if (k < 0 || k == 2) translate([-s[4] / 2, y_out]) square([s[4], y_in - y_out]);
-    } else _bore2d_convex(s);
-}
-
-// How many convex pieces bore2d(s, k) draws.
-function bore_pieces(s) = is8(s) ? 3 : 1;
-
-module _bore2d_convex(s) {
+// a rounded rectangle instead. Convex, so hulls of it stay true.
+module bore2d(s) {
     d = min(sx(s), sy(s));
     module stadium()
         hull() for (k = [-1, 1])
@@ -157,7 +125,7 @@ function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 //   lips       ring width per slot for "lip"
 //   front_gaps snap opening width per slot toward -y, 0 for none; it
 //              starts above the floor so the floor stays whole, and on an
-//              oblong or figure 8 bore it wraps the front item
+//              oblong bore it wraps the front item
 //   chamfer    entry chamfer at the top of the bore
 //   groove     [width, depth] of a drain groove in the top of the floor,
 //              from the middle of the bore out through the front wall,
@@ -182,10 +150,9 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
             s = ds[i];
             z0 = bottom == "open" ? -eps : floor_t;
             translate([0, 0, z0]) linear_extrude(h - z0 + eps) bore2d(s);
-            for (k = [0 : bore_pieces(s) - 1]) hull() {
-                translate([0, 0, h - chamfer]) linear_extrude(eps) bore2d(s, k);
-                translate([0, 0, h]) linear_extrude(2 * eps)
-                    offset(delta = chamfer) bore2d(s, k);
+            hull() {
+                translate([0, 0, h - chamfer]) linear_extrude(eps) bore2d(s);
+                translate([0, 0, h]) linear_extrude(2 * eps) offset(delta = chamfer) bore2d(s);
             }
             if (bottom == "lip")
                 translate([0, 0, -eps]) linear_extrude(floor_t + 2 * eps)
@@ -196,8 +163,8 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
                 translate([-groove[0] / 2, -(sy(s) / 2 + w + 1), floor_t - groove[1]])
                     cube([groove[0], sy(s) + w + 1 - groove[0], groove[1] + eps]);
             if (per(front_gaps, i) > 0)
-                translate([0, -(sy(s) - front_d(s)) / 2, 0])
-                    snap_opening(front_d(s) / 2, w, per(front_gaps, i),
+                translate([0, -(sy(s) - sx(s)) / 2, 0])
+                    snap_opening(sx(s) / 2, w, per(front_gaps, i),
                                  bottom == "open" ? -eps : floor_t, h);
         }
     }

@@ -13,20 +13,17 @@
 //       about 710 long (estimate, B25 barrels are commonly 28 to 30 inch).
 //       The monoblock is round on the top barrel side (to the wall) and
 //       near square at the lump: its cup gets a 1 mm front corner
-//       radius. The cup only locates it, the clip holds. The clip is a
-//       figure 8 that grips both barrels, its outer lobe smaller so it
-//       wraps the outer barrel.
+//       radius. The cup only locates it, the clip holds. The clip grips
+//       only the inner barrel (to the wall), which holds the set fine.
 // The cup row stands on the safe floor. One joined clip row, mounted with
 // its top 400 mm above the cup floor, just below the shortest muzzle; it
 // sits above every barrel's center of mass. The clips are sized for the
 // diameter at that height, not the muzzle: 1 and 2 are straight-taper
 // estimates there (the M24 contour starts with a straight shank, so 2
-// may run a little thicker). The first printed clips were all too loose:
-// barrel_clip_test.scad prints three sizes per barrel to find the fit,
-// barrel_d below holds the middle ones.
+// may run a little thicker). The first printed clips were all too loose;
+// the sizes below won a test print of ring slices.
 
 use <../safe/barrel_holder.scad>
-use <../lib/holders.scad>
 
 // Which part to show
 part = "cup"; // [cup, clip]
@@ -34,12 +31,10 @@ part = "cup"; // [cup, clip]
 /* [Slots] */
 // Breech end size per barrel, measured: a diameter, or [width, depth]
 breech_d = [27, 27, [40, 67, 1]];
-// Clip size per slot, 400 mm up. 1 and 2 are 20 percent under the barrel
-// (estimates 18.6 and 25.2 there): the first clips at full size were too
-// loose and the rings stretch a lot. The snap opening shrinks with it.
-// The B25 clip is a figure 8: eight(inner lobe, outer lobe, barrel center
-// distance, waist), see lib/holders.scad
-barrel_d = [14.9, 20.2, eight(17, 15, 21, 14.5)];
+// Clip size per slot, 400 mm up, tested: about 15 percent under the
+// barrel (18.6, 25.2 and the B25's 21 mm inner barrel), the rings
+// stretch a lot. The B25 clip grips the inner barrel only
+barrel_d = [15.8, 21.4, 18];
 // Muzzle size per barrel, measured (only the assembly scene uses it)
 muzzle_d = [17.5, 24, [21, 42]];
 // Barrel length (only the assembly scene uses it); 1 and 3 are estimates
@@ -49,7 +44,8 @@ wall_offset = [0, 0, 0];
 // Space between neighbouring cups, one entry per pair
 gaps = [8, 8];
 // Clip position per slot: 0 centered over the cup, 1 back flush with it
-// (the B25 barrels run flush with the back of the monoblock, to the wall)
+// (the B25 barrels run flush with the back of the monoblock, to the wall,
+// so its clip sits on the inner barrel)
 clip_align = [0, 0, 1];
 // Where to mount the clip row: its top edge above the cup floor (scene only)
 clip_top = 400;
