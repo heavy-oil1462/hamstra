@@ -15,8 +15,9 @@
 //       at the lump. It stands lump to the wall, round side out: its cup
 //       is square at the back (1 mm corner radius) and round at the
 //       front. The cup only locates it, the clip holds. The clip grips
-//       only the barrel nearest the wall, which holds the set fine; it
-//       sits the lump depth out from the back of the cup.
+//       only the barrel nearest the wall, which holds the set fine.
+//       Standing plumb in the printed cup, that barrel is 20 mm from the
+//       safe wall (measured).
 // The cup row stands on the safe floor. One joined clip row, mounted with
 // its top 400 mm above the cup floor, just below the shortest muzzle; it
 // sits above every barrel's center of mass. The clips are sized for the
@@ -49,9 +50,10 @@ gaps = [8, 8];
 // Clip position per slot: 0 centered over the cup, 1 back flush with it
 clip_align = [0, 0, 1];
 // Clip moved away from the wall per slot, mm. The B25 stands lump to the
-// wall, so its nearest barrel starts the lump depth out: 67 deep minus
-// two 21 mm barrels minus the top rib (about 8, estimate) = 17
-clip_shift = [0, 0, 17];
+// wall; its nearest barrel measured 20 mm from the safe wall, so its axis
+// sits 30.5 out, 29.5 from the plate back behind the 1 mm pad. Back flush
+// puts the clip axis at 17.4, so 12 more
+clip_shift = [0, 0, 12];
 // Where to mount the clip row: its top edge above the cup floor (scene only)
 clip_top = 400;
 
