@@ -3,42 +3,59 @@
 // generic and regen_all.py exports this build like any other model.
 //
 // Measured suppressors (diameter x length, mm):
-//   1   45   x 230.7
-//   2   45   x 230.7
-//   3   41   x 265
+//   1   50   x 240  (Stalon W110, from the official spec; the first
+//   2   50   x 240   measurement, 45 x 230.7, was off)
+//   3   41   x 258  (Stalon Victor L, from the official spec)
 //   4   31.5 x 130
 //   5   29   x 120  (IMS22 for the AR22, not bought yet: listed size)
-// One clip row for all, mounted with its top 80 mm above the cradle
-// row's bottom: low enough for the short .22 cans, and it still holds the
-// long ones.
+//   6   49.1 x 235  (Stalon X108, over barrel, not measured yet: listed
+//       size)
+// Two sets of three, each its own cradle row with its own clip row
+// above it: set 1 the W110s and the Victor L, set 2 the X108 and the
+// two short .22 cans. A clip row is set for the shortest can in its set
+// and still holds the longer ones there.
 //
 // Why a wrapper and not a Customizer preset: a preset must match the
 // type and list length of the model's defaults (2 slots there), so it
-// cannot hold a 4-slot row. Here the lists are the defaults.
+// cannot hold these rows. Here the lists are the defaults.
 
 use <../safe/suppressor_holder.scad>
 
-// Which piece to show
-part = "cradle"; // [cradle, clip]
+// Which piece of which set to show
+part = "cradle_1"; // [cradle_1, clip_1, cradle_2, clip_2]
 
-/* [Slots] */
+/* [Set 1] */
 // Outer diameter of each suppressor, measured
-suppressor_d = [45, 45, 41, 31.5, 29];
+set1_d = [50, 50, 41];
 // Length of each suppressor, measured (for the assembly scene)
-suppressor_l = [230.7, 230.7, 265, 130, 120];
+set1_l = [240, 240, 258];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
-wall_offset = [0, 0, 0, 0, 0];
+set1_wall_offset = [0, 0, 0];
 // Space between neighbouring holders, one entry per pair
-gaps = [6, 6, 6, 6];
-// Where to mount the clip row: its top edge above the cradle row's bottom
-// (only the assembly scene uses it)
-clip_top = 80;
+set1_gaps = [6, 6];
+// Where to mount the clip row: its top edge above the cradle row's
+// bottom (only the assembly scene uses it). Above the middle of the
+// shortest can, so it holds them all upright
+set1_clip_top = 150;
+
+/* [Set 2] */
+// Outer diameter of each suppressor, measured
+set2_d = [49.1, 31.5, 29];
+// Length of each suppressor, measured (for the assembly scene)
+set2_l = [235, 130, 120];
+// Extra distance from the safe wall per slot, 0 = tight to the wall
+set2_wall_offset = [0, 0, 0];
+// Space between neighbouring holders, one entry per pair
+set2_gaps = [6, 6];
+// Where to mount the clip row: its top edge above the cradle row's
+// bottom (only the assembly scene uses it). Low enough for the short .22
+// cans, and it still holds the X108
+set2_clip_top = 80;
 
 /* [Magnets] */
-// Magnet columns on the cradle row, two rows each. About 1.25 kg of
-// suppressors: 3 columns give about 4.8 kg shear on bare steel, and the
-// middle one holds the 250 mm plate flat where the heavy cans sit.
-magnets_x = 3;
+// Magnet columns on each cradle row, two rows each. Under 1 kg of
+// suppressors per set: 2 columns give about 3.2 kg shear on bare steel
+magnets_x = 2;
 
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
@@ -51,15 +68,25 @@ print_slot = 0;
 // template to cut silicone sheet; pad_t in design_params.scad)
 pad = false;
 
-// These values for the assembly scene: [diameters, lengths, wall
-// offsets, gaps, clip tops].
-function my_suppressors_data() = [suppressor_d, suppressor_l, wall_offset, gaps, clip_top];
+// The piece and set of a part: "clip_2" is the clip row of set 2.
+function suppressor_piece(part) = part == "clip_1" || part == "clip_2" ? "clip" : "cradle";
+function suppressor_set(part) = part == "cradle_2" || part == "clip_2" ? 2 : 1;
+
+// These values for the assembly scene, per set: [diameters, lengths,
+// wall offsets, gaps, clip top].
+function my_suppressors_data(set = 1) =
+    set == 2 ? [set2_d, set2_l, set2_wall_offset, set2_gaps, set2_clip_top]
+             : [set1_d, set1_l, set1_wall_offset, set1_gaps, set1_clip_top];
 
 module my_suppressors(part = part, modular = modular, print_slot = print_slot,
                       spacing = 12, pad = pad) {
-    suppressor_holder(part = part, suppressor_d = suppressor_d,
-                      wall_offset = wall_offset, gaps = gaps, magnets_x = magnets_x,
-                      modular = modular, print_slot = print_slot, spacing = spacing, pad = pad);
+    assert(search([part], ["cradle_1", "clip_1", "cradle_2", "clip_2"]) != [[]],
+           str("unknown part: ", part));
+    data = my_suppressors_data(suppressor_set(part));
+    suppressor_holder(part = suppressor_piece(part),
+                      suppressor_d = data[0], wall_offset = data[2], gaps = data[3],
+                      magnets_x = magnets_x, modular = modular, print_slot = print_slot,
+                      spacing = spacing, pad = pad);
 }
 
 my_suppressors();

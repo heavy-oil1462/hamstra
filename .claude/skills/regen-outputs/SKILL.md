@@ -38,3 +38,9 @@ Pipeline:
   committed as the README image, so a change to a model or the scene
   commits the regenerated PNG with it. Its view is `ASSEMBLY_VIEW` in
   regen_all.py; never hand-render it with other settings.
+
+## Notes
+
+- A model filter is the file's bare name: `regen_all.py
+  suppressor_clip_test`. A path such as `cad/my_safe/x.scad` matches
+  nothing and exits clean without exporting anything.

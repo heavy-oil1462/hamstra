@@ -103,8 +103,10 @@ holder geometry, a few grams each.
 - `part = rings`: snap clip rings in a grid, columns stepping the
   clearance and rows stepping the snap opening. Set `ring_d` to the
   measured diameter and press the item into each ring; use the winning
-  clearance and snap in the holder. A snap of 1 is a closed ring and
-  tests the cup and cradle fit.
+  clearance and snap in the holder. Clip bores are `clip_fit` (in
+  design_params.scad) times the diameter, as in the holders: printed
+  rings stretch, so they grip well under the item size. A snap of 1 is
+  a closed ring at the full diameter and tests the cup and cradle fit.
 - `part = slots`: a slice of the gun rack comb with one slot per width.
   Drop each gun's muzzle end in to pick its `slot_w`.
 - `part = cups`: slices of a cup for an oblong breech such as an over

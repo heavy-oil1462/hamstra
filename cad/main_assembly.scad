@@ -62,16 +62,17 @@ let (data = my_rifles_data(),
                     color(item_color) linear_extrude(200) bore2d(s);
     }
 
-// my suppressors, left: the cad/my_safe build, cradle row with the clip
-// row mounted above it, stand-ins at the measured diameters and lengths
-translate([-150, -pad_t, 120]) {
-    data = my_suppressors_data();
+// my suppressors, left: the cad/my_safe build, two sets side by side,
+// each a cradle row with its clip row mounted above it, stand-ins at the
+// measured diameters and lengths
+for (set = [1, 2]) translate([set == 1 ? -190 : -15, -pad_t, 120]) {
+    data = my_suppressors_data(set);
     sd = data[0];
     sl = data[1];
     layout = suppressor_layout(suppressor_d = sd, wall_offset = data[2], gaps = data[3]);
-    color(part_color) my_suppressors(part = "cradle", modular = false);
+    color(part_color) my_suppressors(part = str("cradle_", set), modular = false);
     color(part_color) translate([0, 0, data[4] - suppressor_clip_h()])
-        my_suppressors(part = "clip", modular = false);
+        my_suppressors(part = str("clip_", set), modular = false);
     for (i = [0 : len(sd) - 1])
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
 }

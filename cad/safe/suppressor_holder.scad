@@ -46,9 +46,10 @@ cup_plate_h = 40;
 clip_h = 15;
 // Clip ring wall, thicker snaps harder
 clip_wall = 3;
-// Snap opening as a fraction of the suppressor diameter (below 1 snaps)
+// Snap opening as a fraction of the clip bore (below 1 snaps); the bore
+// is the suppressor diameter times clip_fit (design_params.scad)
 snap = 0.85;
-// Clearance added to the suppressor diameter in the clip (small, it should hug)
+// Clearance added to the clip bore
 clip_clearance = 0.6;
 // Clip back plate height
 clip_plate_h = 40;
@@ -83,13 +84,17 @@ function suppressor_layout(suppressor_d = suppressor_d, wall_offset = wall_offse
                            clip_clearance = clip_clearance) =
     let (sd = as_list(suppressor_d))
     holder_pair_layout([for (d = sd) d + item_clearance], wall,
-                       [for (d = sd) d + clip_clearance], clip_wall, gaps, wall_offset);
+                       [for (d = sd) d * clip_fit + clip_clearance], clip_wall, gaps,
+                       wall_offset);
 
 // Height of the cradle floor the suppressors stand on.
 function suppressor_floor_t() = floor_t;
 
 // Height of the clip ring, at the bottom of the clip piece.
 function suppressor_clip_h() = clip_h;
+
+// Clip ring [clearance, snap, wall], for test slices of the clip.
+function suppressor_clip_ring() = [clip_clearance, snap, clip_wall];
 
 module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          wall_offset = wall_offset, gaps = gaps,
@@ -107,9 +112,10 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
     assert(part == "cradle" || part == "clip", str("unknown part: ", part));
     let ($pad = pad) cup_clip_part(part == "cradle" ? "cup" : "clip",
                   suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance),
-                  [for (d = sd) d + item_clearance], [for (d = sd) d + clip_clearance],
+                  [for (d = sd) d + item_clearance],
+                  [for (d = sd) d * clip_fit + clip_clearance],
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],
-                  cup_plate_h, clip_h, clip_wall, [for (d = sd) d * snap],
+                  cup_plate_h, clip_h, clip_wall, [for (d = sd) d * clip_fit * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
                   spacing, clip_magnets_x, clip_magnets_z);
 }

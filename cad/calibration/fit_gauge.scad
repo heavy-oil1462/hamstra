@@ -4,10 +4,12 @@
 // magnets, a few grams each.
 //
 //   rings  a grid of thin snap clip slices: columns step the clearance,
-//          rows step the snap opening (fraction of the item diameter).
-//          A snap of 1 or more prints a closed ring, which tests the fit of
-//          a cup or cradle. Measure the item, set ring_d, press the item
-//          into each ring. Use the winning clearance and snap in the model.
+//          rows step the snap opening (fraction of the clip bore). A
+//          clip ring's bore is ring_d times clip_fit plus the clearance,
+//          as in the holders. A snap of 1 or more prints a closed ring at
+//          ring_d plus the clearance, which tests the fit of a cup or
+//          cradle. Measure the item, set ring_d, press the item into each
+//          ring. Use the winning clearance and snap in the model.
 //   slots  a thin slice of the gun rack comb with one slot per width,
 //          made by the rack's own profile code. Drop the muzzle end of
 //          each gun into the slots to pick its slot_w.
@@ -30,9 +32,9 @@ part = "rings"; // [rings, slots, cups]
 /* [Rings] */
 // Measured diameter of the suppressor, barrel or breech
 ring_d = 50;
-// Clearances to try, added to ring_d (one column each)
+// Clearances to try, added to the bore (one column each)
 clearances = [0.2, 0.6, 1.0];
-// Snap openings to try as a fraction of ring_d, 1 = closed (one row each)
+// Snap openings to try as a fraction of the clip bore, 1 = closed (one row each)
 snaps = [0.8, 0.85, 0.9, 1];
 // Ring wall, as clip_wall in the models
 ring_wall = 3;
@@ -68,9 +70,10 @@ module label(txt) {
 }
 
 // One clip slice: the bore and snap opening of holder_row, a label tab
-// where the web would meet the back plate.
-module gauge_ring(d, c, s) {
-    r = (d + c) / 2;
+// where the web would meet the back plate. Also used by cad/my_safe.
+module gauge_ring(d, c, s, ring_wall = ring_wall) {
+    fd = s < 1 ? d * clip_fit : d;
+    r = (fd + c) / 2;
     tab = [22, 13];
     difference() {
         union() {
@@ -78,7 +81,7 @@ module gauge_ring(d, c, s) {
             translate([-tab[0] / 2, r, 0]) cube([tab[0], tab[1], ring_h]);
         }
         translate([0, 0, -eps]) cylinder(r = r, h = ring_h + 2 * eps);
-        if (s < 1) snap_opening(r, ring_wall, d * s, -eps, ring_h);
+        if (s < 1) snap_opening(r, ring_wall, fd * s, -eps, ring_h);
         translate([0, r + ring_wall + 6.5, ring_h - label_depth]) label(str("c", c));
         translate([0, r + ring_wall + 1.5, ring_h - label_depth]) label(str("s", s));
     }

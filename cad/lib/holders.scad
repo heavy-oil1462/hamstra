@@ -32,6 +32,7 @@ function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
 function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
 function grow(s, c) = !is_list(s) ? s + c
     : concat([s[0] + c, s[1] + c], [for (k = [2 : len(s) - 1]) if (k < len(s)) s[k] + c / 2]);
+function scale_shape(s, f) = !is_list(s) ? s * f : [for (v = s) v * f];
 function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
 
 // Bore outline of shape s centered on the origin: a circle, or a stadium
