@@ -93,6 +93,9 @@ function suppressor_floor_t() = floor_t;
 // Height of the clip ring, at the bottom of the clip piece.
 function suppressor_clip_h() = clip_h;
 
+// Clip ring [clearance, snap, wall], for test slices of the clip.
+function suppressor_clip_ring() = [clip_clearance, snap, clip_wall];
+
 module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          wall_offset = wall_offset, gaps = gaps,
                          cup_depth = cup_depth, floor_t = floor_t,

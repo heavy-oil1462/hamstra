@@ -70,8 +70,8 @@ module label(txt) {
 }
 
 // One clip slice: the bore and snap opening of holder_row, a label tab
-// where the web would meet the back plate.
-module gauge_ring(d, c, s) {
+// where the web would meet the back plate. Also used by cad/my_safe.
+module gauge_ring(d, c, s, ring_wall = ring_wall) {
     fd = s < 1 ? d * clip_fit : d;
     r = (fd + c) / 2;
     tab = [22, 13];
