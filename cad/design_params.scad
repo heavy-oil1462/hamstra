@@ -101,6 +101,10 @@ dovetail_spine_t = dovetail_neck + 2 * (dovetail_d + dovetail_clearance + doveta
 wall = 2.4;             // default shell wall (6 perimeters at 0.4)
 item_clearance = 1.0;   // added to a gun item's measured diameter for
                         // sleeves and cups it slides into
+clip_fit = 0.85;        // snap clip bore as a fraction of the item's
+                        // measured diameter. Printed PETG rings stretch a
+                        // lot: barrel clips at the barrel size were all too
+                        // loose, 15 percent under won a slice test
 eps = 0.01;             // cutter overrun, keeps difference() faces apart
 
 $fa = 2;

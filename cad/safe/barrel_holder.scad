@@ -36,7 +36,9 @@ part = "cup"; // [cup, clip]
 breech_d = [32, 30];
 // Barrel size per slot where the clip grips it, measured. Tapered
 // barrels: measure where the clip will sit, or mount it just below the
-// muzzle and use the muzzle diameter.
+// muzzle and use the muzzle diameter. The clip bore is this times
+// clip_fit (design_params.scad): printed rings stretch, so they grip
+// well under the barrel size.
 barrel_d = [20, 18];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 wall_offset = [0, 0];
@@ -74,9 +76,9 @@ cup_plate_h = 40;
 clip_h = 15;
 // Clip ring wall, thicker snaps harder
 clip_wall = 3;
-// Snap opening as a fraction of the barrel diameter (below 1 snaps)
+// Snap opening as a fraction of the clip bore (below 1 snaps)
 snap = 0.85;
-// Clearance added to the barrel diameter (small, the clip should hug)
+// Clearance added to the clip bore
 clip_clearance = 0.4;
 // Clip back plate height
 clip_plate_h = 40;
@@ -115,7 +117,8 @@ function barrel_layout(breech_d = breech_d, barrel_d = barrel_d,
                        clip_shift = clip_shift) =
     let (bd = as_list(breech_d))
     holder_pair_layout([for (d = bd) grow(d, cup_clearance)], wall,
-                       [for (i = [0 : len(bd) - 1]) grow(per(barrel_d, i), clip_clearance)],
+                       [for (i = [0 : len(bd) - 1]) grow(scale_shape(per(barrel_d, i), clip_fit),
+                                                           clip_clearance)],
                        clip_wall, gaps, wall_offset, clip_align, clip_shift);
 
 // Height of the cup floor the barrels stand on.
@@ -145,9 +148,9 @@ module barrel_holder(part = part, breech_d = breech_d, barrel_d = barrel_d,
                                       clip_clearance, clip_align, cup_clearance,
                                       clip_shift),
                   [for (d = bd) grow(d, cup_clearance)],
-                  [for (i = [0 : n - 1]) grow(per(barrel_d, i), clip_clearance)],
+                  [for (i = [0 : n - 1]) grow(scale_shape(per(barrel_d, i), clip_fit), clip_clearance)],
                   cup_depth + floor_t, floor_t, drain_d, 0, cup_plate_h,
-                  clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * snap],
+                  clip_h, clip_wall, [for (i = [0 : n - 1]) sx(per(barrel_d, i)) * clip_fit * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
                   spacing, clip_magnets_x, clip_magnets_z, [groove_w, groove_d], base_pad);
 }
