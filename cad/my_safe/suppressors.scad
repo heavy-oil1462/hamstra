@@ -5,13 +5,14 @@
 // Measured suppressors (diameter x length, mm):
 //   1   50   x 240  (Stalon W110, from the official spec; the first
 //   2   50   x 240   measurement, 45 x 230.7, was off)
-//   3   41   x 265
+//   3   41   x 222  (Stalon Victor, from the official spec; first
+//       noted as 265 long)
 //   4   31.5 x 130
 //   5   29   x 120  (IMS22 for the AR22, not bought yet: listed size)
 //   6   49.1 x 235  (Stalon X108, over barrel, not measured yet: listed
 //       size)
 // Two sets of three, each its own cradle row with its own clip row
-// above it: set 1 the long W110s and the 41, set 2 the X108 and the
+// above it: set 1 the W110s and the Victor, set 2 the X108 and the
 // two short .22 cans. A clip row is set for the shortest can in its set
 // and still holds the longer ones there.
 //
@@ -28,7 +29,7 @@ part = "cradle_1"; // [cradle_1, clip_1, cradle_2, clip_2]
 // Outer diameter of each suppressor, measured
 set1_d = [50, 50, 41];
 // Length of each suppressor, measured (for the assembly scene)
-set1_l = [240, 240, 265];
+set1_l = [240, 240, 222];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
 set1_wall_offset = [0, 0, 0];
 // Space between neighbouring holders, one entry per pair
