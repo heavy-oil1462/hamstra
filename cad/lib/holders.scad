@@ -23,19 +23,22 @@ function as_list(v) = is_list(v) ? v : [v];
 // depth away from it, such as an over and under barrel pair stacked
 // front to back ([21, 42] for two 21 mm barrels), or a side by side
 // pair along the wall ([43, 21.5]). An oblong item may add a third
-// value, the corner radius of its front end (away from the wall), for a
-// part that is round toward the wall and squarer at the front: an over
-// and under monoblock, [28, 67, 3]. Without it both ends are round.
+// value, the corner radius of its front end (away from the wall), and a
+// fourth, that of its back end (toward the wall), for a part with a
+// round end and a squarer end: an over and under monoblock round side
+// out and lump to the wall is [40, 67, 20, 1]. A radius of half the
+// width or more is a round end; a missing one is round too.
 function sx(s) = is_list(s) ? s[0] : s;   // width along the wall
 function sy(s) = is_list(s) ? s[1] : s;   // depth away from the wall
 function grow(s, c) = !is_list(s) ? s + c
-    : len(s) > 2 ? [s[0] + c, s[1] + c, s[2] + c / 2] : [s[0] + c, s[1] + c];
+    : concat([s[0] + c, s[1] + c], [for (k = [2 : len(s) - 1]) if (k < len(s)) s[k] + c / 2]);
 function shape_max(a, b) = [max(sx(a), sx(b)), max(sy(a), sy(b))];
 
 // Bore outline of shape s centered on the origin: a circle, or a stadium
 // along its longer side (y for an over and under, x for a side by side).
-// With a front corner radius the front half (-y, away from the wall) is
-// a rounded rectangle instead. Convex, so hulls of it stay true.
+// With a front (back) corner radius the front half, -y away from the
+// wall (back half, +y), is a rounded rectangle instead. Convex, so hulls
+// of it stay true.
 module bore2d(s) {
     d = min(sx(s), sy(s));
     module stadium()
@@ -43,19 +46,16 @@ module bore2d(s) {
             translate([k * (sx(s) - d) / 2, k * (sy(s) - d) / 2]) circle(d = d);
     // a radius of half the width or more is the round end (and would
     // shrink the rounded rectangle below to nothing)
-    if (is_list(s) && len(s) > 2 && s[2] < d / 2 - eps) {
-        r = s[2];
-        hull() {
-            intersection() {
-                stadium();
-                translate([-sx(s), 0]) square([2 * sx(s), sy(s)]);
-            }
-            intersection() {
-                offset(r = r) offset(delta = -r) square([sx(s), sy(s)], center = true);
-                translate([-sx(s), -sy(s)]) square([2 * sx(s), sy(s)]);
-            }
+    function r(k) = is_list(s) && len(s) > k && s[k] < d / 2 - eps ? s[k] : undef;
+    // half k (2 front, 3 back) of the outline
+    module half(k)
+        intersection() {
+            if (is_undef(r(k))) stadium();
+            else offset(r = r(k)) offset(delta = -r(k)) square([sx(s), sy(s)], center = true);
+            translate([-sx(s), k == 2 ? -sy(s) : 0]) square([2 * sx(s), sy(s)]);
         }
-    } else stadium();
+    if (is_undef(r(2)) && is_undef(r(3))) stadium();
+    else hull() { half(2); half(3); }
 }
 
 // Closest distance from the wall to the axis of a holder of shape s: the
@@ -91,15 +91,17 @@ function holder_xs(ds, w, gaps) =
 // middles), axes2 the second row's axes. align per slot: 0 puts the
 // second row on the same axis (a tapered round barrel), 1 puts the backs
 // of both bores flush, toward the wall (an over and under set whose
-// barrels run flush with the back of its deeper monoblock).
-function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets, align = 0) =
+// barrels run flush with the back of its deeper monoblock). shift per
+// slot then moves the second row that many mm away from the wall (an
+// over and under set standing lump to the wall: the lump depth).
+function holder_pair_layout(ds1, w1, ds2, w2, gaps, offsets, align = 0, shift = 0) =
     let (w = max(w1, w2),
          ds = [for (i = [0 : len(ds1) - 1]) shape_max(ds1[i], ds2[i])],
          xs = holder_xs(ds, w, gaps),
          axes = holder_axes(ds, 1, offsets))
     [xs, axes, holder_bounds(xs, ds, w),
      [for (i = [0 : len(ds1) - 1])
-         axes[i] - per(align, i) * (sy(ds1[i]) - sy(ds2[i])) / 2]];
+         axes[i] - per(align, i) * (sy(ds1[i]) - sy(ds2[i])) / 2 + per(shift, i)]];
 
 // Slot boundaries for a holder row: the outer walls at both ends and the
 // middle of every gap in between.
