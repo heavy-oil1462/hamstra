@@ -57,9 +57,10 @@ clip_plate_h = 40;
 clip_row = true;
 
 /* [Back plate] */
-// Shorten the back plate at both row ends, so the outer holders overhang
-// it (for a tight spot on the wall; magnets move in with the ends)
-plate_trim = 0;
+// End the back plate flush with the web of the outer holder at both row
+// ends, so the outer holders overhang it (for a tight spot on the wall;
+// magnets move in with the ends)
+plate_to_webs = false;
 
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
@@ -111,22 +112,27 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          clip_plate_h = clip_plate_h, clip_row = clip_row,
                          magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
                          magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
-                         plate_trim = plate_trim,
+                         plate_to_webs = plate_to_webs,
                          modular = modular, print_slot = print_slot,
                          spacing = 12, pad = pad) {
     sd = as_list(suppressor_d);
+    assert(part == "cradle" || part == "clip", str("unknown part: ", part));
     layout = suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance);
+    xs = layout[0];
     b = layout[2];
     n = len(b) - 1;
-    // trimmed row ends; a modular end module must keep some plate
-    bounds = [for (i = [0 : n]) b[i] + (i == 0 ? plate_trim : i == n ? -plate_trim : 0)];
+    cup_ds = [for (d = sd) d + item_clearance];
+    clip_ds = [for (d = sd) d * clip_fit + clip_clearance];
+    // this piece's own outer webs: the cup and the clip differ in size
+    ds = part == "cradle" ? cup_ds : clip_ds;
+    bounds = !plate_to_webs ? b
+        : [for (i = [0 : n]) i == 0 ? xs[0] - holder_web_w(ds[0]) / 2
+                           : i == n ? xs[n - 1] + holder_web_w(ds[n - 1]) / 2 : b[i]];
+    // a modular end module must keep some plate
     assert(bounds[0] < bounds[1] - 2 * magnet_edge && bounds[n] > bounds[n - 1] + 2 * magnet_edge,
-           "plate_trim leaves an end module without a plate");
-    assert(part == "cradle" || part == "clip", str("unknown part: ", part));
-    let ($pad = pad) cup_clip_part(part == "cradle" ? "cup" : "clip",
-                  [layout[0], layout[1], bounds, layout[3]],
-                  [for (d = sd) d + item_clearance],
-                  [for (d = sd) d * clip_fit + clip_clearance],
+           "plate_to_webs leaves an end module without a plate");
+    let ($pad = pad, $square_bottom = plate_to_webs) cup_clip_part(part == "cradle" ? "cup" : "clip",
+                  [xs, layout[1], bounds, layout[3]], cup_ds, clip_ds,
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],
                   cup_plate_h, clip_h, clip_wall, [for (d = sd) d * clip_fit * snap],
                   clip_plate_h, clip_row, magnets_x, magnets_z, modular, print_slot,
