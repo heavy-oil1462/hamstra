@@ -32,15 +32,16 @@ module stand_in(d, h) {
 }
 
 // A round barrel tapers from breech to muzzle; an over and under set is
-// its monoblock with the stacked barrels above it. a1 / a2: wall to axis
-// of the breech and of the barrels.
-module barrel_stand_in(breech, muzzle, l, a1, a2) {
+// its monoblock with the stacked barrels above it, flush with the round
+// front of the monoblock (the square lump faces the wall). a: wall to
+// axis of the breech.
+module barrel_stand_in(breech, muzzle, l, a) {
     color(item_color)
         if (is_list(breech)) {
-            translate([0, -a1, 0]) linear_extrude(80) bore2d(breech);
-            translate([0, -a2, 0]) linear_extrude(l) bore2d(muzzle);
+            translate([0, -a, 0]) linear_extrude(80) bore2d(breech);
+            translate([0, -(a + (sy(breech) - sy(muzzle)) / 2), 0]) linear_extrude(l) bore2d(muzzle);
         } else {
-            translate([0, -a1, 0]) cylinder(d1 = breech, d2 = muzzle, h = l);
+            translate([0, -a, 0]) cylinder(d1 = breech, d2 = muzzle, h = l);
         }
 }
 
@@ -91,5 +92,5 @@ translate([320, -pad_t, pad_t]) {
         my_barrels(part = "clip", modular = false);
     for (i = [0 : len(bd) - 1])
         translate([layout[0][i], 0, barrel_floor_t()])
-            barrel_stand_in(bd[i], data[6][i], bl[i], layout[1][i], layout[3][i]);
+            barrel_stand_in(bd[i], data[6][i], bl[i], layout[1][i]);
 }
