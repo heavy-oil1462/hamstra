@@ -14,9 +14,10 @@
 // With equal gaps and edge = gap / 2, racks placed edge to edge continue
 // the slot pattern.
 //
-// modular = true prints one module per slot, joined with the sliding
-// dovetail between slots (the rack's outer ends stay plain); modules
-// split at the middle of each finger and carry a gusset at both edges.
+// modular = true prints the rack in modules joined with the sliding
+// dovetail between slots (the rack's outer ends stay plain): one module
+// per slot, or module_slots slots each. Modules split at the middle of a
+// finger and carry a gusset at both edges.
 //
 // Prints shelf down: the shelf's top face on the bed, the back plate
 // standing up from its back edge, gussets rising between them. Nothing
@@ -69,8 +70,11 @@ gusset_t = 5;
 gusset_h = 45;
 
 /* [Modular] */
-// Print one module per slot, joined side by side with sliding dovetails
+// Print in modules, joined side by side with sliding dovetails
 modular = false;
+// Slots per module: one number for all (the last module takes the rest),
+// or a list covering every slot, e.g. [4, 4]
+module_slots = 1;
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
@@ -174,6 +178,16 @@ function gun_rack_layout(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps
     [xs, [for (i = [0 : n - 1]) max(back_t + root, dovetail_spine_t + 1) + per(wall_offset, i)],
      xs[n - 1] + ws[n - 1] / 2 + edge];
 
+// Slot count per module for module_slots and n slots.
+function rack_groups(module_slots, n) =
+    is_list(module_slots) ? module_slots
+    : [for (i = [0 : ceil(n / module_slots) - 1])
+           min(module_slots, n - i * module_slots)];
+
+// Index of the first slot of every module, plus n at the end.
+function group_starts(groups, i = 0, s = 0) =
+    i >= len(groups) ? [s] : concat([s], group_starts(groups, i + 1, s + groups[i]));
+
 // Back plate height: the shelf top sits this far above the plate bottom.
 // The printed rack stands upright again with
 // translate([0, 0, gun_rack_plate_h()]) rotate([180, 0, 0]).
@@ -184,7 +198,8 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
                 root = root, tip_r = tip_r, plate_h = plate_h,
                 gusset_t = gusset_t, gusset_h = gusset_h,
                 magnets_x = magnets_x, magnets_y = magnets_y,
-                modular = modular, print_slot = print_slot, spacing = 12, pad = pad) {
+                modular = modular, module_slots = module_slots,
+                print_slot = print_slot, spacing = 12, pad = pad) {
     ws = as_list(slot_w);
     n = len(ws);
     layout = gun_rack_layout(ws, wall_offset, gaps, edge, root);
@@ -196,15 +211,21 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
     // stay square), but a module's half finger still carries a gusset
     fingers = concat([edge], [for (i = [0 : n - 1]) if (i < n - 1) per(gaps, i)], [edge]);
     r = min(tip_r, min(fingers) / 2 - 0.5);
-    for (f = fingers)
-        assert(f / (modular && f != edge ? 2 : 1) > gusset_t,
+    groups = rack_groups(module_slots, n);
+    starts = group_starts(groups);   // slot k starts module j when starts[j] == k
+    m = len(groups);
+    assert(min(groups) >= 1 && starts[m] == n,
+           str("module_slots must cover the ", n, " slots exactly"));
+    // a module joint splits its finger in half, each half with a gusset
+    for (k = [0 : n]) let (joint = modular && search(k, starts) != [] && k > 0 && k < n)
+        assert(fingers[k] / (joint ? 2 : 1) > gusset_t,
                "a finger is narrower than gusset_t, widen the gap or edge");
     // slot boundaries: rack ends and finger middles
     bounds = concat([0], [for (i = [0 : n - 1]) if (i < n - 1)
                               xs[i] + ws[i] / 2 + per(gaps, i) / 2], [l]);
-    assert(print_slot >= 0 && print_slot <= n, str("print_slot must be 0..", n));
+    assert(print_slot >= 0 && print_slot <= m, str("print_slot must be 0..", m));
     // regen_all.py reads this to export every module to its own STL
-    if (modular) echo(modules = n);
+    if (modular) echo(modules = m);
     // turn the on-its-back build shelf down for printing; the pad
     // prints as built, flat
     let ($pad = pad)
@@ -213,14 +234,17 @@ module gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps,
         rack_piece(0, l, ws, xs, bottoms, depths, depths[0], depths[n - 1], r, shelf_t,
                    plate_h, gusset_t, gusset_h, magnets_x, magnets_y, [false, false]);
     else
-        for (i = print_slot == 0 ? [0 : n - 1] : [print_slot - 1])
-            translate([print_slot == 0 ? i * spacing : 0, 0, 0])
-                rack_piece(bounds[i], bounds[i + 1], [ws[i]], [xs[i]], [bottoms[i]],
-                           [depths[i]],
-                           i > 0 ? max(depths[i - 1], depths[i]) : depths[i],
-                           i < n - 1 ? max(depths[i], depths[i + 1]) : depths[i],
+        for (j = print_slot == 0 ? [0 : m - 1] : [print_slot - 1])
+            let (a = starts[j], b = starts[j + 1])   // slots a..b-1
+            translate([print_slot == 0 ? j * spacing : 0, 0, 0])
+                rack_piece(bounds[a], bounds[b], [for (i = [a : b - 1]) ws[i]],
+                           [for (i = [a : b - 1]) xs[i]],
+                           [for (i = [a : b - 1]) bottoms[i]],
+                           [for (i = [a : b - 1]) depths[i]],
+                           a > 0 ? max(depths[a - 1], depths[a]) : depths[a],
+                           b < n ? max(depths[b - 1], depths[b]) : depths[b - 1],
                            r, shelf_t, plate_h, gusset_t, gusset_h,
-                           magnets_x, magnets_y, [i > 0, i < n - 1]);
+                           magnets_x, magnets_y, [a > 0, b < n]);
 }
 
 gun_rack();
