@@ -74,6 +74,9 @@ each module down onto the tongue of the one to its left until it stops,
 which leaves them level. The gun rack prints upside down, so its joint
 is the other way round: mount the rack from the right, and drop each
 module's tongue down into the slot of the one to its right.
+The gun rack can also group slots into larger modules with
+`module_slots`: `[4, 2, 2]` makes three modules of four, two and two
+guns, each still within a print bed and with fewer magnets in total.
 `scripts/regen_all.py` writes every module to its own STL, numbered
 from the left (`gun_rack_modular_1.stl`, ...). With `print_slot = 0` all
 modules are laid out side by side for one print; `print_slot = 2` gives

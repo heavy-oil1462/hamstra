@@ -41,16 +41,21 @@ gaps = [12, 12, 12, 45, 45, 60, 35];
 edge = 15;
 
 /* [Magnets] */
-// One magnet per module: the guns stand on the floor and lean back into
-// the slots, pressing the rack to the wall, and the dovetails tie the
-// modules into one piece
-magnets_x = 1;
+// Two magnets per module, one near each end so a bump at one end cannot
+// swing it: the guns stand on the floor and lean back into the slots,
+// pressing the rack to the wall, and the dovetail ties the modules into
+// one piece
+magnets_x = 2;
 magnets_y = 1;
 
 /* [Modular] */
-// Print one module per gun, joined side by side with sliding dovetails
-// (the whole rack is wider than a print bed)
+// Print in modules joined side by side with sliding dovetails (the whole
+// rack is wider than a print bed)
 modular = true;
+// Guns per module: the doubles, then the Sauer and the Tikka, then the
+// Bergara and the AR22 (bolt guns and AR22 in one module are too wide
+// for a 270 mm bed)
+module_slots = [4, 2, 2];
 // Modular only: 0 lays out every module for printing, 1..n just that one
 print_slot = 0;
 
@@ -72,10 +77,12 @@ rack_top = 860;
 // edge, barrel shapes, rack top].
 function my_rifles_data() = [slot_w, wall_offset, gaps, edge, muzzle_d, rack_top];
 
-module my_rifles(modular = modular, print_slot = print_slot, spacing = 12, pad = pad) {
+module my_rifles(modular = modular, module_slots = module_slots,
+                 print_slot = print_slot, spacing = 12, pad = pad) {
     gun_rack(slot_w = slot_w, wall_offset = wall_offset, gaps = gaps, edge = edge,
              magnets_x = magnets_x, magnets_y = magnets_y,
-             modular = modular, print_slot = print_slot, spacing = spacing, pad = pad);
+             modular = modular, module_slots = module_slots, print_slot = print_slot,
+             spacing = spacing, pad = pad);
 }
 
 my_rifles();
