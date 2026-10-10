@@ -58,9 +58,9 @@ set2_clip_top = 80;
 magnets_x = 2;
 
 /* [Back plate] */
-// Back plate 10 mm shorter at both ends than the cups and clips, to fit
-// the spot on the safe wall
-plate_trim = 10;
+// Back plate ends flush with the outer webs, about 10 mm inside the cups
+// and clips at both ends, to fit the spot on the safe wall
+plate_to_webs = true;
 
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
@@ -90,7 +90,7 @@ module my_suppressors(part = part, modular = modular, print_slot = print_slot,
     data = my_suppressors_data(suppressor_set(part));
     suppressor_holder(part = suppressor_piece(part),
                       suppressor_d = data[0], wall_offset = data[2], gaps = data[3],
-                      magnets_x = magnets_x, plate_trim = plate_trim,
+                      magnets_x = magnets_x, plate_to_webs = plate_to_webs,
                       modular = modular, print_slot = print_slot,
                       spacing = spacing, pad = pad);
 }
