@@ -57,6 +57,11 @@ set2_clip_top = 80;
 // suppressors per set: 2 columns give about 3.2 kg shear on bare steel
 magnets_x = 2;
 
+/* [Back plate] */
+// Back plate 10 mm shorter at both ends than the cups and clips, to fit
+// the spot on the safe wall
+plate_trim = 10;
+
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
 modular = false;
@@ -85,7 +90,8 @@ module my_suppressors(part = part, modular = modular, print_slot = print_slot,
     data = my_suppressors_data(suppressor_set(part));
     suppressor_holder(part = suppressor_piece(part),
                       suppressor_d = data[0], wall_offset = data[2], gaps = data[3],
-                      magnets_x = magnets_x, modular = modular, print_slot = print_slot,
+                      magnets_x = magnets_x, plate_trim = plate_trim,
+                      modular = modular, print_slot = print_slot,
                       spacing = spacing, pad = pad);
 }
 
