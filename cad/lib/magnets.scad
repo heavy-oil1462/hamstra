@@ -105,8 +105,11 @@ module magnet_bosses_flat(x0, x1, h, nx, ny, roof_down = false) {
 
 // Back plate outline: x in [x0, x1], [0, h] the other way. Jointed side
 // edges are square, their corners filled by the dovetail edge strip.
+// With $square_bottom set the corners at 0 stay square too, for a plate
+// that ends flush with a holder standing on the bed.
 module plate2d(x0, x1, h, joints = [false, false], r = plate_r) {
     translate([x0, 0]) offset(r = r) offset(delta = -r) square([x1 - x0, h]);
+    if (!is_undef($square_bottom) && $square_bottom) translate([x0, 0]) square([x1 - x0, r]);
     for (side = [0, 1]) if (joints[side])
         translate([side == 0 ? x0 : x1 - dovetail_spine_w, 0]) square([dovetail_spine_w, h]);
 }

@@ -134,6 +134,9 @@ function pick(v, ix) = is_list(v) ? [for (i = ix) per(v, i)] : v;
 //              from the middle of the bore out through the front wall,
 //              for a row standing on the safe floor where a hole would
 //              be blocked. [0, 0] for none.
+// Width of the web that ties a holder of shape s into the back plate.
+function holder_web_w(s) = sx(s) * 0.7;
+
 module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
                   lips = 4, front_gaps = 0, chamfer = 1, groove = [0, 0]) {
     assert(groove[0] == 0 || (bottom != "open" && groove[1] < floor_t),
@@ -146,8 +149,8 @@ module holder_row(ds, h, xs, axes, w = wall, bottom = "closed", floor_t = 2,
             for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
                 linear_extrude(h) offset(r = w) bore2d(ds[i]);
                 // web tying the holder into the plate
-                translate([-sx(ds[i]) * 0.35, 0, 0])
-                    cube([sx(ds[i]) * 0.7, axes[i] - plate_t / 2, h]);
+                translate([-holder_web_w(ds[i]) / 2, 0, 0])
+                    cube([holder_web_w(ds[i]), axes[i] - plate_t / 2, h]);
             }
         for (i = [0 : len(ds) - 1]) translate([xs[i], -axes[i], 0]) {
             s = ds[i];
