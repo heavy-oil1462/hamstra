@@ -56,6 +56,11 @@ clip_plate_h = 40;
 // Clips in one row; false prints each clip as its own piece
 clip_row = true;
 
+/* [Back plate] */
+// Shorten the back plate at both row ends, so the outer holders overhang
+// it (for a tight spot on the wall; magnets move in with the ends)
+plate_trim = 0;
+
 /* [Modular] */
 // Print one module per slot, joined side by side with sliding dovetails
 modular = false;
@@ -106,12 +111,20 @@ module suppressor_holder(part = part, suppressor_d = suppressor_d,
                          clip_plate_h = clip_plate_h, clip_row = clip_row,
                          magnets_x = magnets_x, clip_magnets_x = clip_magnets_x,
                          magnets_z = magnets_z, clip_magnets_z = clip_magnets_z,
+                         plate_trim = plate_trim,
                          modular = modular, print_slot = print_slot,
                          spacing = 12, pad = pad) {
     sd = as_list(suppressor_d);
+    layout = suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance);
+    b = layout[2];
+    n = len(b) - 1;
+    // trimmed row ends; a modular end module must keep some plate
+    bounds = [for (i = [0 : n]) b[i] + (i == 0 ? plate_trim : i == n ? -plate_trim : 0)];
+    assert(bounds[0] < bounds[1] - 2 * magnet_edge && bounds[n] > bounds[n - 1] + 2 * magnet_edge,
+           "plate_trim leaves an end module without a plate");
     assert(part == "cradle" || part == "clip", str("unknown part: ", part));
     let ($pad = pad) cup_clip_part(part == "cradle" ? "cup" : "clip",
-                  suppressor_layout(sd, wall_offset, gaps, clip_wall, clip_clearance),
+                  [layout[0], layout[1], bounds, layout[3]],
                   [for (d = sd) d + item_clearance],
                   [for (d = sd) d * clip_fit + clip_clearance],
                   cup_depth + floor_t, floor_t, drain_d, [for (d = sd) d * cup_snap],
