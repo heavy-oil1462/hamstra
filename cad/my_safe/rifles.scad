@@ -31,9 +31,10 @@ slot_w = [24.5, 24.5, 24, 47, 21, 21, 26, 23];
 // Extra distance from the safe wall per gun, for scopes. The wall to
 // barrel gap is this plus 12.3 mm (slot bottom 11.3 plus the 1 mm pad).
 // Measured gaps: 75 mm for every double, so any of them fits any of
-// slots 1 to 4 and scopes can change; the Bergara needs 100, 110 here
-// to be sure
-wall_offset = [63, 63, 63, 63, 15, 5, 98, 10];
+// slots 1 to 4 and scopes can change. The bolt guns all get the
+// Bergara's gap (it needs 100, 110 here to be sure), so scopes can move
+// between them too
+wall_offset = [63, 63, 63, 63, 98, 98, 98, 10];
 // Finger between neighbouring slots: tight for break actions, wide on
 // the left of each bolt gun for its bolt
 gaps = [12, 12, 12, 45, 45, 60, 35];
