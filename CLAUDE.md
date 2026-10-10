@@ -45,9 +45,11 @@ neodymium magnets on the back so nothing is drilled into the safe.
   cup_clip_part in lib/holders.scad) over one tall plate: far less
   print time.
 - Rows can print as one piece or, with `modular = true`, as one module
-  per slot. Modules split at the middle of each gap (so a joined row has
-  exactly the one-piece layout), carry their own magnets, and join with
-  a sliding dovetail along the plate side edges between slots
+  per slot (the gun rack can group slots: `module_slots`, e.g. [4, 2, 2],
+  so fewer modules need fewer magnets). Modules split at the middle of
+  each gap (so a joined row has exactly the one-piece layout), carry
+  their own magnets, and join with a sliding dovetail along the plate
+  side edges between slots
   (lib/dovetail.scad, shared values in design_params): tongue right,
   slot left, slot closed at the far end from the bed (top on upright
   prints, bottom on the rack). Tongue and slot end in matching 45 degree

@@ -41,6 +41,11 @@ Pipeline:
 
 ## Notes
 
+- When a model makes fewer modules than before (a slot removed, or the
+  rack's module_slots grouping changed), regen deletes the leftover
+  `..._modular_<n>.stl` files of that part, so check_joints never
+  compares a new module with a stale one. Before 2026-10-10 it left them.
+
 - A model filter is the file's bare name: `regen_all.py
   suppressor_clip_test`. A path such as `cad/my_safe/x.scad` matches
   nothing and exits clean without exporting anything.

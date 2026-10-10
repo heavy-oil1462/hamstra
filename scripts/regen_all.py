@@ -113,7 +113,8 @@ def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:
     geom = re.search(r"Status:\s+(\w+)", proc.stderr)
     geom_ok = geom is None or geom.group(1) == "NoError"
     ok = proc.returncode == 0 and not warnings and geom_ok
-    print(f"[{'ok' if ok else 'FAIL'}] {scad.relative_to(ROOT)} -> {shown.relative_to(ROOT)}")
+    print(f"[{'ok' if ok else 'FAIL'}] {scad.relative_to(ROOT)} -> {shown.relative_to(ROOT)}",
+          flush=True)
     for w in warnings:
         print(f"        {w}")
     if not geom_ok:
@@ -121,6 +122,17 @@ def run_one(scad: Path, out: Path, shown: Path, extra=None) -> bool:
     if proc.returncode != 0 and not warnings:
         print("        " + "\n        ".join(proc.stderr.strip().splitlines()[-5:]))
     return ok
+
+
+def remove_stale_modules(made):
+    """Delete module STLs of these parts that the model no longer makes
+    (fewer modules than before), so check_joints never reads them."""
+    names = {re.sub(r"_modular_\d+$", "", p.stem) for p in made}
+    for d in {p.parent for p in made}:
+        for f in d.glob("*_modular_*.stl"):
+            if re.sub(r"_modular_\d+$", "", f.stem) in names and f not in made:
+                f.unlink()
+                print(f"[ok] removed stale {f.relative_to(ROOT)}", flush=True)
 
 
 def main(argv):
@@ -137,8 +149,12 @@ def main(argv):
         for scad in models():
             if only and scad.stem not in only:
                 continue
+            made = set()
             for stl, extra in outputs(scad, td):
                 ok &= run_one(scad, target(stl), stl, extra)
+                made.add(stl)
+            if not check:
+                remove_stale_modules(made)
 
         # joint gate on the module STLs just rendered (temp dir in check mode)
         stl_root = Path(td) / "stl" if check else ROOT / "stl"
