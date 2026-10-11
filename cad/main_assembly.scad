@@ -84,7 +84,7 @@ for (set = [1, 2]) translate([set == 1 ? -190 : -15, -pad_t, 120]) {
 translate([60, -pad_t, 470]) rotate([0, 90, 0]) {
     data = my_suppressor_22_data();
     layout = suppressor_layout(suppressor_d = data[0]);
-    color(part_color) my_suppressor_22();
+    color(part_color) my_suppressor_22(part = "clip");
     translate([layout[0][0], -layout[3][0], -data[1] / 2 + suppressor_clip_h() / 2])
         stand_in(data[0], data[1]);
 }

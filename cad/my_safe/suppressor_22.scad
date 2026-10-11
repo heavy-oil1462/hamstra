@@ -1,24 +1,33 @@
-// My safe: a single snap clip for the .22 suppressor, the Stalon RF
-// (31.5 x 130 measured). The B14R and the AR15-22 share its thread, so one
-// can serves both and gets its own small holder wherever the wall has
-// room. It is the suppressor holder's clip on its own: one ring, one
-// magnet, no cradle. The can is light and the clip grips it, so it can
-// hang at any angle.
+// My safe: a small single holder for the .22 suppressor, the Stalon RF
+// (31.5 x 132, listed; 31.5 measured). The B14R and the AR15-22 share its
+// thread, so one can serves both and gets its own small holder wherever
+// the wall has room. Two ways to try, one magnet each:
+//   clip  the suppressor holder's clip on its own, no cradle. The can is
+//         light and the clip grips it, so it can hang at any angle.
+//   cup   the suppressor holder's cradle on its own, with higher sides so
+//         the can stands upright in it without a clip above.
 //
 // A wrapper around cad/safe/suppressor_holder.scad like suppressors.scad,
-// so the clip ring is the same one tested on the bigger cans.
+// so the clip ring and the cup are the ones tested on the bigger cans.
 
 use <../safe/suppressor_holder.scad>
+
+// Which holder to show
+part = "clip"; // [clip, cup]
 
 /* [Suppressor] */
 // Outer diameter, measured
 suppressor_d = 31.5;
-// Length, measured (for the assembly scene)
-suppressor_l = 130;
+// Length, from the listed spec (for the assembly scene)
+suppressor_l = 132;
+
+/* [Cup] */
+// How far the can sits down in the cup, above its floor. The suppressor
+// holder's cradle uses 20 with a clip above; alone it needs more
+cup_depth = 40;
 
 /* [Magnets] */
-// One magnet: about 0.8 kg shear on bare steel for a can of a few
-// hundred grams
+// One magnet: about 0.8 kg shear on bare steel for a can of about 100 g
 magnets_x = 1;
 magnets_z = 1;
 
@@ -30,8 +39,11 @@ pad = false;
 // [diameter, length] for the assembly scene.
 function my_suppressor_22_data() = [suppressor_d, suppressor_l];
 
-module my_suppressor_22(pad = pad) {
-    suppressor_holder(part = "clip", suppressor_d = suppressor_d,
+module my_suppressor_22(part = part, pad = pad) {
+    assert(part == "clip" || part == "cup", str("unknown part: ", part));
+    suppressor_holder(part = part == "cup" ? "cradle" : "clip",
+                      suppressor_d = suppressor_d, cup_depth = cup_depth,
+                      magnets_x = magnets_x, magnets_z = magnets_z,
                       clip_magnets_x = magnets_x, clip_magnets_z = magnets_z, pad = pad);
 }
 
