@@ -12,6 +12,7 @@ use <safe/suppressor_holder.scad>
 use <safe/barrel_holder.scad>
 use <safe/gun_rack.scad>
 use <my_safe/suppressors.scad>
+use <my_safe/suppressor_22.scad>
 use <my_safe/barrels.scad>
 use <my_safe/rifles.scad>
 
@@ -76,6 +77,16 @@ for (set = [1, 2]) translate([set == 1 ? -190 : -15, -pad_t, 120]) {
         my_suppressors(part = str("clip_", set), modular = false);
     for (i = [0 : len(sd) - 1])
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
+}
+
+// my .22 suppressor: its single clip, the can lying across it, above
+// the X108
+translate([60, -pad_t, 470]) rotate([0, 90, 0]) {
+    data = my_suppressor_22_data();
+    layout = suppressor_layout(suppressor_d = data[0]);
+    color(part_color) my_suppressor_22();
+    translate([layout[0][0], -layout[3][0], -data[1] / 2 + suppressor_clip_h() / 2])
+        stand_in(data[0], data[1]);
 }
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),

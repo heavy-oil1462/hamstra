@@ -6,14 +6,12 @@
 //   1   50   x 240  (Stalon W110, from the official spec; the first
 //   2   50   x 240   measurement, 45 x 230.7, was off)
 //   3   41   x 258  (Stalon Victor L, from the official spec)
-//   4   31.5 x 130
-//   5   29   x 120  (IMS22 for the AR22, not bought yet: listed size)
-//   6   49.1 x 235  (Stalon X108, over barrel, not measured yet: listed
+//   4   49.1 x 235  (Stalon X108, over barrel, not measured yet: listed
 //       size)
-// Two sets of three, each its own cradle row with its own clip row
-// above it: set 1 the W110s and the Victor L, set 2 the X108 and the
-// two short .22 cans. A clip row is set for the shortest can in its set
-// and still holds the longer ones there.
+// Two sets, each its own cradle row with its own clip row above it: set 1
+// the W110s and the Victor L, set 2 the X108. A clip row is set for the
+// shortest can in its set and still holds the longer ones there. The .22
+// can has its own single clip, suppressor_22.scad.
 //
 // Why a wrapper and not a Customizer preset: a preset must match the
 // type and list length of the model's defaults (2 slots there), so it
@@ -40,17 +38,16 @@ set1_clip_top = 150;
 
 /* [Set 2] */
 // Outer diameter of each suppressor, measured
-set2_d = [49.1, 31.5, 29];
+set2_d = [49.1];
 // Length of each suppressor, measured (for the assembly scene)
-set2_l = [235, 130, 120];
+set2_l = [235];
 // Extra distance from the safe wall per slot, 0 = tight to the wall
-set2_wall_offset = [0, 0, 0];
+set2_wall_offset = [0];
 // Space between neighbouring holders, one entry per pair
-set2_gaps = [6, 6];
+set2_gaps = [6];
 // Where to mount the clip row: its top edge above the cradle row's
-// bottom (only the assembly scene uses it). Low enough for the short .22
-// cans, and it still holds the X108
-set2_clip_top = 80;
+// bottom (only the assembly scene uses it). Above the middle of the can
+set2_clip_top = 150;
 
 /* [Magnets] */
 // Magnet columns on each cradle row, two rows each. Under 1 kg of
