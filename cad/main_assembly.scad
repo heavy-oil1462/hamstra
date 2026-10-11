@@ -79,14 +79,13 @@ for (set = [1, 2]) translate([set == 1 ? -190 : -15, -pad_t, 120]) {
         translate([layout[0][i], -layout[1][i], suppressor_floor_t()]) stand_in(sd[i], sl[i]);
 }
 
-// my .22 suppressor: its single clip, the can lying across it, above
-// the X108
-translate([60, -pad_t, 470]) rotate([0, 90, 0]) {
+// my .22 suppressor: its single cup, the can standing in it, above the
+// X108
+translate([60, -pad_t, 430]) {
     data = my_suppressor_22_data();
     layout = suppressor_layout(suppressor_d = data[0]);
-    color(part_color) my_suppressor_22(part = "clip");
-    translate([layout[0][0], -layout[3][0], -data[1] / 2 + suppressor_clip_h() / 2])
-        stand_in(data[0], data[1]);
+    color(part_color) my_suppressor_22(part = "cup");
+    translate([layout[0][0], -layout[1][0], suppressor_floor_t()]) stand_in(data[0], data[1]);
 }
 
 // my spare barrels, right: the cup row stands on the safe floor (z = 0),
