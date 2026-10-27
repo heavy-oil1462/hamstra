@@ -1,5 +1,5 @@
 // Gun safe scene: every safe model on a stretch of safe wall, with stand-in
-// suppressors and barrels. Visual fit check only, renders to
+// suppressors, barrels and bolts. Visual fit check only, renders to
 // main_assembly.png. Not a printable part.
 //
 // Everything comes from the cad/my_safe builds. Stand-ins are placed with the models' own layout
@@ -11,10 +11,12 @@ use <lib/holders.scad>
 use <safe/suppressor_holder.scad>
 use <safe/barrel_holder.scad>
 use <safe/gun_rack.scad>
+use <safe/bolt_holder.scad>
 use <my_safe/suppressors.scad>
 use <my_safe/suppressor_22.scad>
 use <my_safe/barrels.scad>
 use <my_safe/rifles.scad>
+use <my_safe/bolts.scad>
 
 // Show the safe wall and floor behind the parts
 show_wall = true;
@@ -26,6 +28,19 @@ item_color = "#34383d";  // stand-in guns, barrels and suppressors
 module safe_wall() {
     color("#c3c7cc") translate([-280, 0, 0]) cube([680, 2, 1000]);
     color("#9ea3a9") translate([-280, -150, -2]) cube([680, 152, 2]);
+}
+
+// A bolt hanging by its handle: the body d across, the handle root hr
+// across reaching hl out at angle a (0 = away from the wall), its axis
+// at z = 0, the body from below down to above up.
+module bolt_stand_in(d, a, hr = 10, hl = 55, below = 150, above = 35) {
+    color(item_color) {
+        translate([0, 0, -below]) cylinder(d = d, h = below + above);
+        rotate([0, 0, a]) rotate([90, 0, 0]) {
+            cylinder(d = hr, h = hl);
+            translate([0, 0, hl]) sphere(d = hr * 1.8);
+        }
+    }
 }
 
 module stand_in(d, h) {
@@ -103,4 +118,17 @@ translate([320, -pad_t, pad_t]) {
     for (i = [0 : len(bd) - 1])
         translate([layout[0][i], 0, barrel_floor_t()])
             barrel_stand_in(bd[i], data[6][i], bl[i], layout[1][i]);
+}
+
+// my bolts: the cad/my_safe bolt holder, modules slid together, a
+// stand-in bolt hanging by its handle in the bottom of each slot
+translate([170, -pad_t, 560]) {
+    data = my_bolts_data();
+    layout = bolt_layout(bolt_d = data[0], wall_offset = data[1], gaps = data[2]);
+    slot = bolt_slot();
+    hr = 10;   // handle root, it rests in the slot's round end
+    color(part_color) my_bolts(modular = true, spacing = 0);
+    for (i = [0 : len(data[0]) - 1])
+        translate([layout[0][i], -layout[1][i], slot[0] - slot[2] + hr / 2])
+            bolt_stand_in(18, slot[3], hr = hr);
 }
