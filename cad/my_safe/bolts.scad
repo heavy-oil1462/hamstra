@@ -20,8 +20,8 @@ wall_offset = [0, 0, 0];
 gaps = [8, 8];
 
 /* [Magnets] */
-// Two magnets per holder, one above the other: about 1.6 kg shear on
-// bare steel for a bolt of about 0.5 kg hanging off the front
+// Two magnets per holder, one above the other: about 1.1 kg shear on
+// bare steel for a bolt of about 0.5 kg hanging off the front, about 2.2x
 magnets_x = 1;
 magnets_z = 2;
 
