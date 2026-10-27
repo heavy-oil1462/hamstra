@@ -84,10 +84,12 @@ print_slot = 0;
 pad = false;
 
 /* [Magnets] */
-// Magnet columns (per module when modular)
-magnets_x = 4;
+// Magnet columns (per module when modular). The guns stand on the floor
+// and lean into the slots, so the rack carries no weight: two, one near
+// each end, keep it on the wall; modules are tied by the dovetails
+magnets_x = 2;
 // Magnet rows
-magnets_y = 2;
+magnets_y = 1;
 
 // Slot centers along x, starting after the first edge finger.
 function slot_xs(ws, gaps, edge, i = 0, x = undef) =

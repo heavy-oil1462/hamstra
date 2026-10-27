@@ -74,7 +74,7 @@ print_slot = 0;
 pad = false;
 
 /* [Magnets] */
-// Magnet columns on the cradle row (the cradle carries the suppressors' weight; per module when modular)
+// Magnet columns on the cradle row (the cradle carries the suppressors' weight; per module when modular). Two cans up to 0.5 kg each: 8 magnets give about 4.4 kg shear on bare steel
 magnets_x = 4;
 // Magnet columns on the clip row (it only keeps items in)
 clip_magnets_x = 2;
