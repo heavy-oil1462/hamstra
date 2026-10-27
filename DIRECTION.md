@@ -27,7 +27,7 @@ binding. In short, a change that breaks one of these is rejected:
 - Every part is modeled in its print orientation and prints without
   support; prefer several short pieces over one tall plate.
 - Print time, plastic and magnet count are no more than the load needs:
-  about 2x margin at 0.8 kg shear per 12x5 magnet.
+  about 2x margin at ~0.55 kg shear per 10x5 magnet.
 - A value two models share lives in `cad/design_params.scad` and nowhere
   else (`check_params.py` enforces it).
 - The owner's measured values live in `cad/my_safe/` wrappers, never in a
@@ -60,10 +60,15 @@ directory).
 
 ## Priorities, in order
 
-1. Bolt holder (board, 2026-10-27): a straight tube per bolt with a slot
+1. 10x5 mm magnets (board, 2026-10-27): the owner can no longer get
+   12x5, so every model takes 10x5 discs, with magnet counts raised
+   where the weaker hold needs it. The gun rack and the bolt holder are
+   the next prints. The barrel and suppressor holders are already
+   printed with 12x5 pockets.
+2. Bolt holder (board, 2026-10-27): a straight tube per bolt with a slot
    at the top that the bolt handle indexes into, sized loosely for a
    normal bolt, magnet count per holder configurable.
-2. Keep the existing safe models printable and tuned to the owner's
+3. Keep the existing safe models printable and tuned to the owner's
    measurements as they report back from test prints.
 
 ## Not now

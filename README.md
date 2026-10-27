@@ -12,8 +12,11 @@ magnets, so nothing is drilled into the safe:
   groove in each cup floor runs out the front, so moisture drains and
   air reaches the breech.
 - Gun rack: a comb shelf for the top of the safe
+- Bolt holder: a tube per bolt, open at the bottom, with a slot in the
+  top of its front wall. The bolt hangs by its handle in the round end
+  of the slot, so any bolt length fits.
 
-![The safe models on a stretch of safe wall with stand-in rifles, barrels and suppressors](main_assembly.png)
+![The safe models on a stretch of safe wall with stand-in rifles, barrels, suppressors and bolts](main_assembly.png)
 
 Every slot is configured on its own: diameter, distance from the safe
 wall and gap to its neighbour. Three break action shotguns can sit tight
@@ -35,6 +38,7 @@ Status: early prototypes. Dimensions are still being tuned.
 | Suppressor holder (cradle and clip) | `cad/safe/suppressor_holder.scad` | upright, as modeled |
 | Barrel holder (cup and clip) | `cad/safe/barrel_holder.scad` | upright, as modeled |
 | Gun rack | `cad/safe/gun_rack.scad` | shelf down, as modeled |
+| Bolt holder | `cad/safe/bolt_holder.scad` | upright, as modeled |
 | Magnet pocket gauge | `cad/calibration/magnet_pocket_gauge.scad` | as modeled |
 | Dovetail gauge | `cad/calibration/dovetail_gauge.scad` | as modeled |
 | Fit gauge (rings, rack slots, oblong cups) | `cad/calibration/fit_gauge.scad` | flat, as modeled |
