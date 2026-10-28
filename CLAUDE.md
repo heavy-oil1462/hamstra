@@ -73,7 +73,8 @@ neodymium magnets on the back so nothing is drilled into the safe.
   2x margin at ~0.8 kg shear per 12x5 magnet on bare steel; rows that
   stand on the floor or only keep items in get 2 (one per rack module,
   the dovetails tie the row together). `scripts/count_magnets.py`
-  checks the total; measure part volumes before and after a change.
+  checks the total; measure part volumes before and after a change
+  (`scripts/part_volumes.py`).
 - Heavy items stand on the safe floor, they do not hang on magnets: the
   barrel holder's cup row has one flat bottom on the safe floor and
   carries the weight; magnets only hold it to the wall. A hole in a
@@ -142,6 +143,9 @@ never download binaries). OpenSCAD comes from the nixpkgs pin in
 - `python3 scripts/count_magnets.py [files]`: magnets a set of models
   needs (default: the cad/my_safe builds), summed from the `magnets = n`
   the pocket grids echo, each part rendered as its file is set up.
+- `python3 scripts/part_volumes.py [files]`: plastic per part in cm3
+  (same defaults and rendering as count_magnets), for the before and
+  after volumes of a change.
 - `python3 scripts/render_scad.py <file.scad> <out.png|stl> [args]`:
   one-off headless renders (see the openscad-review skill).
   `--supersample=N` renders N times larger and averages down, since

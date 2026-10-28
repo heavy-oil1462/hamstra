@@ -33,8 +33,10 @@ wall_offset = [0, 0];
 gaps = [8];
 
 /* [Tube] */
-// Tube height, also the back plate height
-tube_h = 100;
+// Tube height, also the back plate height. The bolt hangs by its handle,
+// so the tube below the slot only keeps the body plumb; two magnet rows
+// need about 35
+tube_h = 50;
 // Tube wall
 tube_wall = 2.4;
 // Entry chamfer at the top of the bore
