@@ -51,7 +51,8 @@ set2_clip_top = 150;
 
 /* [Magnets] */
 // Magnet columns on each cradle row, two rows each. Under 1 kg of
-// suppressors per set: 2 columns give about 3.2 kg shear on bare steel
+// suppressors per set: 2 columns, 4 magnets, give about 2.2 kg shear on
+// bare steel, over 2x. Set 1 heavier than 1.1 kg needs 3
 magnets_x = 2;
 
 /* [Back plate] */

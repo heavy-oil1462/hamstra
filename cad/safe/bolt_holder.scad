@@ -14,8 +14,9 @@
 // A bolt weighs about 0.4 to 0.5 kg and hangs off the front of the tube,
 // so each holder gets two magnets by default, one above the other: the
 // lower one keeps the bolt's weight from levering the top of the plate
-// off the wall. The magnet knobs count per holder, in one piece or
-// modular.
+// off the wall. Two 10x5 magnets give about 1.1 kg shear on bare steel,
+// about 2.2x for a 0.5 kg bolt. The magnet knobs count per holder, in
+// one piece or modular.
 //
 // Prints as modeled: back plate vertical, tubes standing on the bed. The
 // slot is open at the top, so nothing bridges.

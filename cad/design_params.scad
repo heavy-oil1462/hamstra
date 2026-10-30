@@ -22,12 +22,15 @@
 // but air sits between a magnet and the safe wall: pull force collapses
 // with any gap, so never bury the magnet behind a printed skin. Holding
 // force on a vertical wall is shear, roughly a quarter of the rated pull,
-// so count magnets generously.
-magnet_d = 12;          // disc diameter
+// so count magnets generously: about 0.55 kg shear per 10x5 magnet on
+// bare steel (a quarter of a 2.2 to 2.5 kg rated pull).
+magnet_d = 10;          // disc diameter
 magnet_h = 5;           // disc thickness
 magnet_clearance = 0.2; // added to magnet_d for the pocket. MEASURED with
                         // cad/calibration/magnet_pocket_gauge.scad, never
                         // tuned by eye. Printer, profile and filament specific.
+                        // Measured with the earlier 12 mm magnets: print
+                        // the gauge again for the 10 mm ones.
 magnet_recess = 0;      // extra pocket depth, pulls the magnet face back
                         // from where pad_t and pad_air put it. Without a
                         // pad a bare painted wall can take 0.2 to protect

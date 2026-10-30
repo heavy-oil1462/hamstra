@@ -31,7 +31,8 @@ cup_depth = 40;
 cup_snap = 0;
 
 /* [Magnets] */
-// One magnet: about 0.8 kg shear on bare steel for a can of about 100 g
+// One magnet: about 0.55 kg shear on bare steel for a can of about
+// 100 g, over 5x
 magnets_x = 1;
 magnets_z = 1;
 
