@@ -35,4 +35,13 @@ nothing to do for a day.
 
 ## Lessons
 
-- (none yet)
+- 2026-10-27: there is no CI workflow, so the runner reports "no CI ran"
+  for every pull request. Run `regen_all.py --check` on the named head
+  commit yourself before merging (`git fetch origin <sha>` and check it
+  out; `gh pr checkout` can leave you on main).
+- 2026-10-27: `gh pr edit` fails on this token (no read:org scope). Move
+  labels with the REST API:
+  `gh api -X DELETE repos/OWNER/REPO/issues/N/labels/status:review` and
+  `gh api repos/OWNER/REPO/issues/N/labels -f "labels[]=status:changes"`.
+- 2026-10-30: the owner also opens and merges pull requests themselves
+  (#29). Before reviewing a worker's branch, check main for their changes.
